@@ -8,6 +8,7 @@ SET(LD31_HEADERS
 	Script/ScriptManager.hpp
 
 	Util/RefCount.hpp
+    Util/RefCount.inl
 	Util/ResourceManager.hpp
 	Util/ResourceManager.inl
 )

@@ -17,6 +17,7 @@ public:
     virtual void GCAddRef();
     virtual void GCRelease();
 
+    template<typename T>
     static void RegisterBehaviours(asIScriptEngine* eng, const std::string& name);
 
 protected:
@@ -39,6 +40,7 @@ public:
     virtual void GCEnumRefs(asIScriptEngine* eng);
     virtual void GCReleaseRefs(asIScriptEngine* eng);
 
+    template<typename T>
     static void RegisterBehaviours(asIScriptEngine* eng, const std::string& name);
 
 private:
@@ -46,3 +48,5 @@ private:
 };
 
 }
+
+#include "RefCount.inl"
