@@ -3,14 +3,15 @@
 CONFIGURE_FILE(Defines.hpp.in ${CURRENT_SOURCE_DIR}/Defines.hpp)
 
 SET(LD31_HEADERS
-	Script/ScriptEngine.hpp
 	Script/ScriptExtensions.hpp
 	Script/ScriptManager.hpp
+	Script/ScriptObject.hpp
 
 	Util/RefCount.hpp
     Util/RefCount.inl
 	Util/ResourceManager.hpp
 	Util/ResourceManager.inl
+	Util/Time.hpp
 
     Math/Common.hpp
     Math/Common.inl
@@ -22,11 +23,12 @@ SET(LD31_HEADERS
 )
 
 SET(LD31_SOURCES
-	Script/ScriptEngine.cpp
 	Script/ScriptExtensions.cpp
 	Script/ScriptManager.cpp
+	Script/ScriptObject.cpp
 
     Util/RefCount.cpp
+    Util/Time.cpp
 
     Math/Common.cpp
     Math/Rect.cpp
@@ -75,6 +77,7 @@ ADD_EXECUTABLE(LD31_Game
 
 TARGET_LINK_LIBRARIES(LD31_Game
 	LD31
+	nowide-static
 	
 	${Angelscript_LIBRARIES}
 	${SFML_LIBRARIES}

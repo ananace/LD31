@@ -23,19 +23,19 @@ TEST_CASE("Spinor tests", "[math][spinor]")
 {
     Math::Spinor s1, s2;
 
-    
+    INFO("Implement these");
 }
 
 TEST_CASE("Rect tests", "[math][rect]")
 {
     Math::Rect r1, r2;
 
-
+    INFO("Implement these");
 }
 
 TEST_CASE("Vector tests", "[math][vector]")
 {
     Math::Vector2 v1, v2;
 
-
+    INFO("Implement these");
 }

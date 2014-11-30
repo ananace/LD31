@@ -10,6 +10,7 @@ ADD_EXECUTABLE(Testsuite ${TEST_SOURCES})
 
 TARGET_LINK_LIBRARIES(Testsuite
 	LD31
+	nowide-static
 	
 	${Angelscript_LIBRARIES}
 	${SFML_LIBRARIES}

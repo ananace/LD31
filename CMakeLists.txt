@@ -68,9 +68,16 @@ ELSE()
 	FIND_PACKAGE(SFML 2 COMPONENTS system window graphics audio REQUIRED)
 ENDIF()
 
+IF (MSVC)
+	ADD_SUBDIRECTORY(External/nowide_standalone)
+ENDIF()
+
 # Include directories
 
 INCLUDE_DIRECTORIES(
+	Source
+	External/nowide_standalone
+
 	${Angelscript_INCLUDE_DIR}
 	${Angelscript_ADDON_DIR}
 	${SFML_INCLUDE_DIR}
@@ -85,7 +92,6 @@ ADD_SUBDIRECTORY(Source)
 IF (LD31_TESTS)
 	ADD_SUBDIRECTORY(Tests/Catch)
 	INCLUDE_DIRECTORIES(
-		Source
 		${CATCH_INCLUDE_DIR}
 	)
 
