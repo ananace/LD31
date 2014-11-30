@@ -11,6 +11,14 @@ SET(LD31_HEADERS
     Util/RefCount.inl
 	Util/ResourceManager.hpp
 	Util/ResourceManager.inl
+
+    Math/Common.hpp
+    Math/Common.inl
+    Math/Rect.hpp
+    Math/Rect.inl
+    Math/Spinor.hpp
+    Math/Vector.hpp
+    Math/Vector.inl
 )
 
 SET(LD31_SOURCES
@@ -19,13 +27,18 @@ SET(LD31_SOURCES
 	Script/ScriptManager.cpp
 
     Util/RefCount.cpp
+
+    Math/Common.cpp
+    Math/Rect.cpp
+    Math/Spinor.cpp
+    Math/Vector.cpp
 )
 
 SET(MISC_HEADERS
-	${Angelscript_HEADERS}
+	${Angelscript_HEADER}
 )
 SET(MISC_SOURCES
-	${Angelscript_SOURCES}
+	${Angelscript_SOURCE}
 )
 
 # Source groups
@@ -36,8 +49,11 @@ SOURCE_GROUP("Source files\\Script" REGULAR_EXPRESSION "Script/[^./]+.cpp")
 SOURCE_GROUP("Header files\\Util" REGULAR_EXPRESSION "Util/[^./]+.(hpp|inl)")
 SOURCE_GROUP("Source files\\Util" REGULAR_EXPRESSION "Util/[^./]+.cpp")
 
-SOURCE_GROUP("Header files\\Misc\\Angelscript" FILES ${Angelscript_HEADERS})
-SOURCE_GROUP("Source files\\Misc\\Angelscript" FILES ${Angelscript_SOURCES})
+SOURCE_GROUP("Header files\\Math" REGULAR_EXPRESSION "Math/[^./]+.(hpp|inl)")
+SOURCE_GROUP("Source files\\Math" REGULAR_EXPRESSION "Math/[^./]+.cpp")
+
+SOURCE_GROUP("Header files\\Misc\\Angelscript" FILES ${Angelscript_HEADER})
+SOURCE_GROUP("Source files\\Misc\\Angelscript" FILES ${Angelscript_SOURCE})
 
 IF (LD31_JIT)
 	SOURCE_GROUP("Source files\\Misc\\AngelscriptJIT" FILES ${AngelscriptJIT_SOURCES})

@@ -10,6 +10,8 @@ namespace Script
 
 static struct ScriptExtensionStore
 {
+    ScriptExtensionStore();
+
     typedef std::function<void(asIScriptEngine*)> ExtensionRegisterCallback;
 
     void AddExtension(const ExtensionRegisterCallback& callback, bool preregister = false);

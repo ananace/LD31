@@ -72,6 +72,7 @@ ENDIF()
 
 INCLUDE_DIRECTORIES(
 	${Angelscript_INCLUDE_DIR}
+	${Angelscript_ADDON_DIR}
 	${SFML_INCLUDE_DIR}
 )
 
