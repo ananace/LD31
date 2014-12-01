@@ -6,6 +6,7 @@ SET(LD31_HEADERS
 	Script/ScriptExtensions.hpp
 	Script/ScriptManager.hpp
 	Script/ScriptObject.hpp
+	Script/SFML/Extensions.hpp
 
 	Util/RefCount.hpp
     Util/RefCount.inl
@@ -27,6 +28,20 @@ SET(LD31_SOURCES
 	Script/ScriptManager.cpp
 	Script/ScriptObject.cpp
 
+	Script/SFML/CircleShape.cpp
+	Script/SFML/Color.cpp
+	Script/SFML/ConvexShape.cpp
+	Script/SFML/Font.cpp
+	Script/SFML/Music.cpp
+	Script/SFML/RectangleShape.cpp
+	Script/SFML/RenderTarget.cpp
+	Script/SFML/Shader.cpp
+	Script/SFML/Sound.cpp
+	Script/SFML/Sprite.cpp
+	Script/SFML/Text.cpp
+	Script/SFML/Texture.cpp
+	Script/SFML/View.cpp
+
     Util/RefCount.cpp
     Util/Time.cpp
 
@@ -47,6 +62,9 @@ SET(MISC_SOURCES
 
 SOURCE_GROUP("Header files\\Script" REGULAR_EXPRESSION "Script/[^./]+.(hpp|inl)")
 SOURCE_GROUP("Source files\\Script" REGULAR_EXPRESSION "Script/[^./]+.cpp")
+
+SOURCE_GROUP("Header files\\Script\\SFML" REGULAR_EXPRESSION "Script/SFML/[^./]+.(hpp|inl)")
+SOURCE_GROUP("Source files\\Script\\SFML" REGULAR_EXPRESSION "Script/SFML/[^./]+.cpp")
 
 SOURCE_GROUP("Header files\\Util" REGULAR_EXPRESSION "Util/[^./]+.(hpp|inl)")
 SOURCE_GROUP("Source files\\Util" REGULAR_EXPRESSION "Util/[^./]+.cpp")
