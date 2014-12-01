@@ -26,4 +26,16 @@ inline bool FloatULPCompare(const float A, const float B)
     return false;
 }
 
+template<typename T>
+inline T Lerp(const T& start, const T& end, float t)
+{
+    return (T)(start * (1 - t) + end * t);
+}
+
+template<typename T>
+inline T Slerp(const T& start, const T& end, float delta)
+{
+    return start.slerp(end, delta);
+}
+
 }

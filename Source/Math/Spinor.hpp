@@ -50,6 +50,8 @@ struct Spinor
 
     float dotProduct(const Spinor& other) const;
 
+    Spinor slerp(const Spinor& other, float delta) const;
+
     // Components
 
     float Real, Complex;

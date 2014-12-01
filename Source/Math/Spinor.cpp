@@ -160,3 +160,37 @@ float Spinor::dotProduct(const Spinor& other) const
 {
     return Real * other.Real + Complex * other.Complex;
 }
+
+Spinor Spinor::slerp(const Spinor& end, float t) const
+{
+    float tr, tc, omega, cosom, sinom, scale0, scale1;
+
+    cosom = Real * end.Real + Complex * end.Complex;
+
+    if (cosom < 0)
+    {
+        cosom = -cosom;
+        tc = -end.Complex;
+        tr = -end.Real;
+    }
+    else
+    {
+        tc = end.Complex;
+        tr = end.Real;
+    }
+
+    if (1 - cosom > 0.001)
+    {
+        omega = acos(cosom);
+        sinom = sin(omega);
+        scale0 = sin((1 - t) * omega) / sinom;
+        scale1 = sin(t * omega) / sinom;
+    }
+    else
+    {
+        scale0 = 1 - t;
+        scale1 = t;
+    }
+
+    return Spinor(scale0 * Real + scale1 * tr, scale0 * Complex + scale1 * tc);
+}
