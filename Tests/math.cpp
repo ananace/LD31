@@ -5,6 +5,8 @@
 #include <Math/Rect.hpp>
 #include <Math/Vector.hpp>
 
+using namespace Math;
+
 TEST_CASE("Common tests", "[math]")
 {
     SECTION("Float comparisons")
@@ -21,21 +23,21 @@ TEST_CASE("Common tests", "[math]")
 
 TEST_CASE("Spinor tests", "[math][spinor]")
 {
-    Math::Spinor s1, s2;
+    Spinor s1, s2;
 
     INFO("Implement these");
 }
 
 TEST_CASE("Rect tests", "[math][rect]")
 {
-    Math::Rect r1, r2;
+    Rect r1, r2;
 
     INFO("Implement these");
 }
 
 TEST_CASE("Vector tests", "[math][vector]")
 {
-    Math::Vector2 v1, v2;
+    Vector2 v1, v2;
 
     INFO("Implement these");
 }

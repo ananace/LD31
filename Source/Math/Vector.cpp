@@ -198,6 +198,27 @@ namespace
         memory->~Vector2();
     }
 
+    void rotate_Vector2(float ang, Vector2* vec)
+    {
+        vec->rotate(ang * Math::Deg2Rad);
+    }
+    Vector2 rotated_Vector2(float ang, Vector2* vec)
+    {
+        return vec->getRotated(ang * Math::Deg2Rad);
+    }
+    void setAngle_Vector2(float ang, Vector2* vec)
+    {
+        vec->setAngle(ang * Math::Deg2Rad);
+    }
+    float getAngle_Vector2(Vector2* vec)
+    {
+        return vec->getAngle() * Math::Deg2Rad;
+    }
+    float getAngleTo_Vector2(const Vector2& other,Vector2* vec)
+    {
+        return vec->getAngleTo(other) * Math::Deg2Rad;
+    }
+
     bool Reg()
     {
         Script::ScriptExtensions::AddExtension([](asIScriptEngine* eng) {
@@ -231,13 +252,13 @@ namespace
             r = eng->RegisterObjectMethod("Vec2", "float get_LengthSquared()", asMETHOD(Vector2, getLengthSquared), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "float Distance(Vec2&in)", asMETHOD(Vector2, getDistance), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "float DistanceSquared(Vec2&in)", asMETHOD(Vector2, getDistanceSquared), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Vec2", "void set_Angle(float)", asMETHOD(Vector2, setAngle), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Vec2", "float get_Angle()", asMETHOD(Vector2, getAngle), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Vec2", "float AngleTo(Vec2&in)", asMETHOD(Vector2, getAngleTo), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Vec2", "void Rotate(float)", asMETHOD(Vector2, rotate), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Vec2", "Vec2 Rotated(float)", asMETHOD(Vector2, getRotated), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "void set_Angle(float)", asFUNCTION(setAngle_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "float get_Angle()", asFUNCTION(getAngle_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "float AngleTo(Vec2&in)", asFUNCTION(getAngleTo_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "void Rotate(float)", asFUNCTION(rotate_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 Rotated(float)", asFUNCTION(rotated_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "Vec2 get_Perpendicular()", asMETHOD(Vector2, getPerpendicular), asCALL_THISCALL); assert(r >= 0);
-        }, true);
+        }, -501);
 
         return true;
     }

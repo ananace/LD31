@@ -18,7 +18,7 @@ struct Rect
     Rect(const sf::Rect<T>& rect);
 
     template<typename T>
-    operator sf::Rect<T>();
+    operator sf::Rect<T>() const;
 
     bool operator==(const Rect& rhs) const;
 
@@ -26,6 +26,7 @@ struct Rect
 
     Vector2 getTopLeft() const;
     Vector2 getBottomRight() const;
+    Vector2 getSize() const;
 
     Vector2 constrain(const Vector2& point);
 

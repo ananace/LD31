@@ -6,8 +6,11 @@ SET(LD31_HEADERS
 	Script/ScriptExtensions.hpp
 	Script/ScriptManager.hpp
 	Script/ScriptObject.hpp
-	Script/SFML/Extensions.hpp
 
+	Script/SFML/Extensions.hpp
+	Script/SFML/Extensions.inl
+
+	Util/FontFinder.hpp
 	Util/RefCount.hpp
     Util/RefCount.inl
 	Util/ResourceManager.hpp
@@ -28,6 +31,7 @@ SET(LD31_SOURCES
 	Script/ScriptManager.cpp
 	Script/ScriptObject.cpp
 
+	Script/SFML/Extensions.cpp
 	Script/SFML/CircleShape.cpp
 	Script/SFML/Color.cpp
 	Script/SFML/ConvexShape.cpp
@@ -42,6 +46,7 @@ SET(LD31_SOURCES
 	Script/SFML/Texture.cpp
 	Script/SFML/View.cpp
 
+	Util/FontFinder.cpp
     Util/RefCount.cpp
     Util/Time.cpp
 

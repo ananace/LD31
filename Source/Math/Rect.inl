@@ -1,16 +1,14 @@
 #pragma once
 
-using namespace Math;
-
 template<typename T>
-Rect::Rect(const sf::Rect<T>& rect) : 
-    Top(rect.top), Left(rect.left), Width(rect.width), Height(rect.height)
+Math::Rect::Rect(const sf::Rect<T>& rect) : 
+    Top((float)rect.top), Left((float)rect.left), Width((float)rect.width), Height((float)rect.height)
 {
 
 }
 
 template<typename T>
-Rect::operator sf::Rect<T>()
+Math::Rect::operator sf::Rect<T>() const
 {
-    return sf::Rect<T>(Top, Left, Width, Height);
+    return sf::Rect<T>((T)Top, (T)Left, (T)Width, (T)Height);
 }

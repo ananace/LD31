@@ -18,7 +18,7 @@ struct Vector2
 
     // SFML conversion casting
     template<typename T>
-    operator sf::Vector2<T>();
+    operator sf::Vector2<T>() const;
 
     // Epsilon comparison
     bool operator==(const Vector2& rhs) const;

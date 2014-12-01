@@ -1,16 +1,14 @@
 #pragma once
 
-using namespace Math;
-
 template<typename T>
-Vector2::Vector2(const sf::Vector2<T>& vec) :
-    X(vec.x), Y(vec.y)
+Math::Vector2::Vector2(const sf::Vector2<T>& vec) :
+    X((float)vec.x), Y((float)vec.y)
 {
 
 }
 
 template<typename T>
-Vector2::operator sf::Vector2<T>()
+Math::Vector2::operator sf::Vector2<T>() const
 {
-    return sf::Vector2<T>(vec.x, vec.y);
+    return sf::Vector2<T>((T)X, (T)Y);
 }

@@ -23,7 +23,10 @@ class Resource : public RefCounted
 public:
     ~Resource();
     Stored& operator*() const;
+    Stored* operator->() const;
     operator Stored*() const;
+
+    Identifier getId() const;
 
     void GCRelease();
 

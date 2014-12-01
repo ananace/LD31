@@ -15,20 +15,24 @@
 
 using namespace Script;
 
-std::list<ScriptExtensions::ExtensionRegisterCallback> ScriptExtensions::Extensions;
+std::list<std::pair<int, ScriptExtensions::ExtensionRegisterCallback>> ScriptExtensions::Extensions;
 
-void ScriptExtensions::AddExtension(const ExtensionRegisterCallback& callback, bool preregister)
+void ScriptExtensions::AddExtension(const ExtensionRegisterCallback& callback, int order)
 {
-    if (preregister)
-        Extensions.push_front(callback);
-    else
-        Extensions.push_back(callback);
+    auto it = Extensions.begin();
+    for (; it != Extensions.end(); ++it)
+    {
+        if (it->first > order)
+            break;
+    }
+
+    Extensions.insert(it, std::make_pair(order, callback));
 }
 
 void ScriptExtensions::RegisterAll(asIScriptEngine* eng)
 {
     for (auto& it : Extensions)
-        it(eng);
+        it.second(eng);
 }
 
 namespace
@@ -107,7 +111,7 @@ namespace
             RegisterScriptMath(eng);
             RegisterScriptMathComplex(eng);
             RegisterStdStringUtils(eng);
-        }, true);
+        }, -1000);
 
         ScriptExtensions::AddExtension([](asIScriptEngine* eng){
             int r = 0;

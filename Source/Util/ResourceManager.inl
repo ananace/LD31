@@ -2,8 +2,6 @@
 
 #include <cassert>
 
-using namespace Util;
-
 namespace
 {
     template <typename T>
@@ -48,14 +46,14 @@ namespace
 }
 
 template<typename Stored, typename Identifier>
-Resource<Stored, typename Identifier>::Resource(const Identifier& id, ResourceManager<Stored, Identifier>& man) :
+Util::Resource<Stored, typename Identifier>::Resource(const Identifier& id, ResourceManager<Stored, Identifier>& man) :
     mStored(nullptr), mId(id), mManager(man)
 {
 
 }
 
 template<typename Stored, typename Identifier>
-Resource<Stored, typename Identifier>::~Resource()
+Util::Resource<Stored, typename Identifier>::~Resource()
 {
     if (mStored)
         delete mStored;
@@ -63,19 +61,30 @@ Resource<Stored, typename Identifier>::~Resource()
         delete mStrategy;
 }
 template<typename Stored, typename Identifier>
-Stored& Resource<Stored, typename Identifier>::operator*() const
+Stored& Util::Resource<Stored, typename Identifier>::operator*() const
 {
     return *mStored;
 }
-
 template<typename Stored, typename Identifier>
-Resource<Stored, typename Identifier>::operator Stored*() const
+Stored* Util::Resource<Stored, typename Identifier>::operator->() const
 {
     return mStored;
 }
 
 template<typename Stored, typename Identifier>
-void Resource<Stored, typename Identifier>::GCRelease()
+Identifier Util::Resource<Stored, typename Identifier>::getId() const
+{
+    return mId;
+}
+
+template<typename Stored, typename Identifier>
+Util::Resource<Stored, typename Identifier>::operator Stored*() const
+{
+    return mStored;
+}
+
+template<typename Stored, typename Identifier>
+void Util::Resource<Stored, typename Identifier>::GCRelease()
 {
     if (--mRefs == 0)
     {   
@@ -85,12 +94,12 @@ void Resource<Stored, typename Identifier>::GCRelease()
 }
 
 template<typename Stored, typename Identifier>
-bool Resource<Stored, typename Identifier>::loaded() const
+bool Util::Resource<Stored, typename Identifier>::loaded() const
 {
     return mStored != nullptr;
 }
 template<typename Stored, typename Identifier>
-bool Resource<Stored, typename Identifier>::load()
+bool Util::Resource<Stored, typename Identifier>::load()
 {
     mStored = new Stored();
     if (mStrategy->Load(mStored))
@@ -104,18 +113,18 @@ bool Resource<Stored, typename Identifier>::load()
 }
 
 template<typename ResourceType, typename Identifier>
-ResourceManager<typename ResourceType, typename Identifier>::ResourceManager()
+Util::ResourceManager<typename ResourceType, typename Identifier>::ResourceManager()
 {
 
 }
 template<typename ResourceType, typename Identifier>
-ResourceManager<typename ResourceType, typename Identifier>::~ResourceManager()
+Util::ResourceManager<typename ResourceType, typename Identifier>::~ResourceManager()
 {
 
 }
 
 template<typename ResourceType, typename Identifier>
-void ResourceManager<typename ResourceType, typename Identifier>::add(const Identifier& id, const std::string& file)
+void Util::ResourceManager<typename ResourceType, typename Identifier>::add(const Identifier& id, const std::string& file)
 {
     Resource<ResourceType, Identifier>* res = new Resource<ResourceType, Identifier>(id, *this);
     res->mStrategy = new FileLoadingStrategy<ResourceType>(file);
@@ -125,12 +134,12 @@ void ResourceManager<typename ResourceType, typename Identifier>::add(const Iden
 
 template<typename ResourceType, typename Identifier>
 template<typename... Args>
-void ResourceManager<typename ResourceType, typename Identifier>::add(const Identifier& id, const std::string& file, Args... args)
+void Util::ResourceManager<typename ResourceType, typename Identifier>::add(const Identifier& id, const std::string& file, Args... args)
 {
 
 }
 template<typename ResourceType, typename Identifier>
-void ResourceManager<typename ResourceType, typename Identifier>::remove(const Identifier& id)
+void Util::ResourceManager<typename ResourceType, typename Identifier>::remove(const Identifier& id)
 {
     if (mResources.count(id) == 0)
         return;
@@ -141,13 +150,13 @@ void ResourceManager<typename ResourceType, typename Identifier>::remove(const I
     mResources.erase(id);
 }
 template<typename ResourceType, typename Identifier>
-bool ResourceManager<typename ResourceType, typename Identifier>::has(const Identifier& id) const
+bool Util::ResourceManager<typename ResourceType, typename Identifier>::has(const Identifier& id) const
 {
     return mResources.count(id) > 0;
 }
 
 template<typename ResourceType, typename Identifier>
-Resource<ResourceType, Identifier>* ResourceManager<typename ResourceType, typename Identifier>::get(const Identifier& id)
+Util::Resource<ResourceType, Identifier>* Util::ResourceManager<typename ResourceType, typename Identifier>::get(const Identifier& id)
 {
     Resource<ResourceType, Identifier>* res = mResources.at(id);
 

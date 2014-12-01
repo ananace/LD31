@@ -44,7 +44,7 @@ namespace
             r = eng->RegisterGlobalFunction("int Lerp(int&in,int&in,float)", asFUNCTION(Math::Lerp<int>), asCALL_CDECL); assert(r >= 0);
             r = eng->RegisterGlobalFunction("float Lerp(float&in,float&in,float)", asFUNCTION(Math::Lerp<float>), asCALL_CDECL); assert(r >= 0);
             r = eng->RegisterGlobalFunction("Vec2 Lerp(Vec2&in,Vec2&in,float)", asFUNCTION(Math::Lerp<Vector2>), asCALL_CDECL); assert(r >= 0);
-            r = eng->RegisterGlobalFunction("Spinor Lerp(Spinor&in,Spinor&in,float)", asFUNCTION(Math::Lerp<Spinor>), asCALL_CDECL); assert(r >= 0);
+            // r = eng->RegisterGlobalFunction("Spinor Lerp(Spinor&in,Spinor&in,float)", asFUNCTION(Math::Lerp<Spinor>), asCALL_CDECL); assert(r >= 0);
 
             r = eng->RegisterGlobalFunction("float SlerpAngle(float,float,float)", asFUNCTION(Math::SlerpAngle), asCALL_CDECL); assert(r >= 0);
 
