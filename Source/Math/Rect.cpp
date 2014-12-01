@@ -1,13 +1,18 @@
 #include "Rect.hpp"
 #include "Common.hpp"
 
+#include <Script/ScriptExtensions.hpp>
+#include <angelscript.h>
+
+#include <cassert>
+
 using namespace Math;
 
 Rect::Rect() :
     Top(0), Left(0), Width(0), Height(0)
 {
 }
-Rect::Rect(float top, float left, float width, float height)
+Rect::Rect(float left, float top, float width, float height)
 {
     if (width < 0)
     {
@@ -101,10 +106,87 @@ bool Rect::intersects(const Rect& rect, Rect& intersecting)
 
     if (interLeft < interRight && interTop < interBottom)
     {
-        intersecting = Rect(interTop, interLeft, interRight - interLeft, interBottom - interTop);
+        intersecting = Rect(interLeft, interTop, interRight - interLeft, interBottom - interTop);
         return true;
     }
 
     intersecting = Rect();
     return false;
 }
+
+namespace
+{
+    void create_rect(void* memory) {
+        new(memory) Rect();
+    }
+    void create_rect_loose(float l, float t, float w, float h, void* memory) {
+        new(memory)Rect(l, t, w, h);
+    }
+    void create_rect_tlwh(const Vector2& tl, float w, float h, void* memory) {
+        new(memory)Rect(tl, w, h);
+    }
+    void create_rect_tlbr(const Vector2& tl, const Vector2& br, void* memory) {
+        new(memory)Rect(tl, br);
+    }
+
+    void destroy_rect(Rect* memory) {
+        memory->~Rect();
+    }
+
+    void rect_setBottomRight(const Vector2& br, Rect& rect)
+    {
+        auto tl = rect.getTopLeft();
+        if (tl.X > br.X || tl.Y > br.Y)
+            return;
+
+        rect.Width = br.X - tl.X;
+        rect.Height = br.Y - tl.Y;
+    }
+
+    void rect_setTopLeft(const Vector2& tl, Rect& rect)
+    {
+        auto br = rect.getBottomRight();
+        if (tl.X > br.X || tl.Y > br.Y)
+            return;
+
+        rect.Top = tl.Y;
+        rect.Left = tl.X;
+        rect.Width = br.X - tl.X;
+        rect.Height = br.Y - tl.Y;
+    }
+
+    bool Reg()
+    {
+        Script::ScriptExtensions::AddExtension([](asIScriptEngine* eng) {
+            int r = 0;
+            r = eng->RegisterObjectType("Rect", sizeof(Rect), asOBJ_VALUE | asGetTypeTraits<Rect>()); assert(r >= 0);
+
+            r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(create_rect), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_CONSTRUCT, "void f(float,float,float,float)", asFUNCTION(create_rect_loose), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_CONSTRUCT, "void f(Vec2,float,float)", asFUNCTION(create_rect_tlwh), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_CONSTRUCT, "void f(Vec2,Vec2)", asFUNCTION(create_rect_tlbr), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destroy_rect), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Rect", "Rect& opAssign(Rect)", asMETHOD(Rect, operator=), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "bool opEquals(Rect&in)", asMETHOD(Rect, operator==), asCALL_THISCALL); assert(r >= 0);
+
+            r = eng->RegisterObjectProperty("Rect", "float Top", asOFFSET(Rect, Top)); assert(r >= 0);
+            r = eng->RegisterObjectProperty("Rect", "float Left", asOFFSET(Rect, Left)); assert(r >= 0);
+            r = eng->RegisterObjectProperty("Rect", "float Width", asOFFSET(Rect, Width)); assert(r >= 0);
+            r = eng->RegisterObjectProperty("Rect", "float Height", asOFFSET(Rect, Height)); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Rect", "Vec2 get_TopLeft()", asMETHOD(Rect, getTopLeft), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "void set_TopLeft(Vec2&in)", asFUNCTION(rect_setTopLeft), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "Vec2 get_BottomRight()", asMETHOD(Rect, getBottomRight), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "void set_BottomRight(Vec2&in)", asFUNCTION(rect_setBottomRight), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Rect", "bool contains(Vec2&in)", asMETHOD(Rect, contains), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "bool intersects(Rect&in)", asMETHODPR(Rect, intersects, (const Rect&), bool), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "bool intersects(Rect&in, Rect&out)", asMETHODPR(Rect, intersects, (const Rect&, Rect&), bool), asCALL_THISCALL); assert(r >= 0);
+        });
+
+        return true;
+    }
+}
+
+bool Rect::ScriptRegistered = Reg();

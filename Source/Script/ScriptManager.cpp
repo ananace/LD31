@@ -1,4 +1,5 @@
 #include "ScriptManager.hpp"
+#include "ScriptObject.hpp"
 
 #include <nowide/fstream.hpp>
 
@@ -59,7 +60,7 @@ bool ScriptManager::loadScriptFromFile(const std::string& file)
     ifs.open(file.c_str(), std::ios::in | std::ios::binary);
 
     ifs.seekg(0, std::ios::end);
-    size_t len = ifs.tellg();
+    size_t len = (size_t)ifs.tellg();
     ifs.seekg(0, std::ios::beg);
 
     std::vector<char> storage(len);
@@ -102,6 +103,9 @@ bool ScriptManager::loadScriptFromMemory(const std::string& file, const char* da
             }
         }
 
+        uint32_t gcSize1, gcSize2;
+        mEngine->GetGCStatistics(&gcSize1);
+
         serial.Store(module);
 
         {
@@ -121,10 +125,18 @@ bool ScriptManager::loadScriptFromMemory(const std::string& file, const char* da
 
             auto* newObj = reinterpret_cast<asIScriptObject*>(serial.GetPointerToRestoredObject(obj));
 
-            notifyNewObject(newObj);
+            ScriptObject* sObj = reinterpret_cast<ScriptObject*>(obj->GetObjectType()->GetUserData((uintptr_t)obj));
+            sObj->updateObject(newObj);
 
-            ///\TODO Notify the object of the change
+            notifyNewObject(newObj);
         }
+
+        mEngine->GetGCStatistics(&gcSize2);
+
+        if (gcSize2 > gcSize1)
+            mEngine->GarbageCollect(asGC_FULL_CYCLE | asGC_DESTROY_GARBAGE);
+
+        mEngine->GarbageCollect(asGC_ONE_STEP | asGC_DETECT_GARBAGE);
 
         return true;
     }

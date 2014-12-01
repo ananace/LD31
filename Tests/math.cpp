@@ -13,8 +13,8 @@ TEST_CASE("Common tests", "[math]")
         CHECK(!FloatCompare(0.f, 0.00001f, 0.0000001f));
         CHECK(!FloatCompare(0.f, 0.001f, 0.0000001f));
 
-        CHECK(FloatCompare(0.f, 0.0000001f, 0.000001f));
-        CHECK(FloatCompare(0.f, 0.00001f, 0.0001f));
+        CHECK(FloatCompare(0.f, 0.0000001f, 0.01f));
+        CHECK(FloatCompare(0.f, 0.00001f, 0.01f));
         CHECK(FloatCompare(0.f, 0.001f, 0.01f));
     }
 }

@@ -1,7 +1,12 @@
 #include "Vector.hpp"
 #include "Common.hpp"
 
+#include <Script/ScriptExtensions.hpp>
+#include <angelscript.h>
+
 #include <memory>
+
+#include <cassert>
 
 using namespace Math;
 
@@ -178,3 +183,64 @@ Vector2 Vector2::getPerpendicular() const
 {
     return Vector2(Y, -X);
 }
+
+namespace
+{
+    void create_Vector2(void* memory) {
+        new(memory) Vector2();
+    }
+
+    void create_Vector2_val(float x, float y, void* memory) {
+        new(memory)Vector2(x, y);
+    }
+
+    void destroy_Vector2(Vector2* memory) {
+        memory->~Vector2();
+    }
+
+    bool Reg()
+    {
+        Script::ScriptExtensions::AddExtension([](asIScriptEngine* eng) {
+            int r = 0;
+            r = eng->RegisterObjectType("Vec2", sizeof(Vector2), asOBJ_VALUE | asGetTypeTraits<Vector2>()); assert(r >= 0);
+
+            r = eng->RegisterObjectBehaviour("Vec2", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(create_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectBehaviour("Vec2", asBEHAVE_CONSTRUCT, "void f(float,float)", asFUNCTION(create_Vector2_val), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectBehaviour("Vec2", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destroy_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Vec2", "bool opEquals(Vec2&in)", asMETHOD(Vector2, operator==), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2& opAssign(Vec2&in)", asMETHOD(Vector2, operator=), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2& opAddAssign(Vec2&in)", asMETHOD(Vector2, operator+=), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2& opSubAssign(Vec2&in)", asMETHOD(Vector2, operator-=), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2& opMulAssign(Vec2&in)", asMETHODPR(Vector2, operator*=, (const Vector2&), Vector2&), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2& opMulAssign(float)", asMETHODPR(Vector2, operator*=, (float), Vector2&), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2& opDivAssign(Vec2&in)", asMETHODPR(Vector2, operator/=, (const Vector2&), Vector2&), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2& opDivAssign(float)", asMETHODPR(Vector2, operator/=, (float), Vector2&), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 opAdd(Vec2&in)", asMETHOD(Vector2, operator+), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 opSub(Vec2&in)", asMETHOD(Vector2, operator-), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 opMul(Vec2&in)", asMETHODPR(Vector2, operator*, (const Vector2&) const, Vector2), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 opMul(float)", asMETHODPR(Vector2, operator*, (float) const, Vector2), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 opDiv(Vec2&in)", asMETHODPR(Vector2, operator/, (const Vector2&) const, Vector2), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 opDiv(float)", asMETHODPR(Vector2, operator/, (float) const, Vector2), asCALL_THISCALL); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Vec2", "float Dot(Vec2&in)", asMETHOD(Vector2, dotProduct), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "void Normalize()", asMETHOD(Vector2, normalize), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 get_Normalized()", asMETHOD(Vector2, getNormalized), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "void set_Length(float)", asMETHOD(Vector2, setLength), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "float get_Length()", asMETHOD(Vector2, getLength), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "float get_LengthSquared()", asMETHOD(Vector2, getLengthSquared), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "float Distance(Vec2&in)", asMETHOD(Vector2, getDistance), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "float DistanceSquared(Vec2&in)", asMETHOD(Vector2, getDistanceSquared), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "void set_Angle(float)", asMETHOD(Vector2, setAngle), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "float get_Angle()", asMETHOD(Vector2, getAngle), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "float AngleTo(Vec2&in)", asMETHOD(Vector2, getAngleTo), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "void Rotate(float)", asMETHOD(Vector2, rotate), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 Rotated(float)", asMETHOD(Vector2, getRotated), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 get_Perpendicular()", asMETHOD(Vector2, getPerpendicular), asCALL_THISCALL); assert(r >= 0);
+        }, true);
+
+        return true;
+    }
+}
+
+bool Vector2::ScriptRegistered = Reg();

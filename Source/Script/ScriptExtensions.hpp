@@ -8,18 +8,17 @@ class asIScriptEngine;
 namespace Script
 {
 
-static struct ScriptExtensionStore
+struct ScriptExtensions
 {
-    ScriptExtensionStore();
-
     typedef std::function<void(asIScriptEngine*)> ExtensionRegisterCallback;
 
-    void AddExtension(const ExtensionRegisterCallback& callback, bool preregister = false);
+    static void AddExtension(const ExtensionRegisterCallback& callback, bool preregister = false);
+    static void RegisterAll(asIScriptEngine* eng);
 
-    void RegisterAll(asIScriptEngine* eng);
+    static bool CommonExtensions;
 
 private:
-    std::list<ExtensionRegisterCallback> Extensions;
-} ScriptExtensions;
+    static std::list<ExtensionRegisterCallback> Extensions;
+};
 
 }

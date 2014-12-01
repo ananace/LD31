@@ -10,9 +10,9 @@
 
 using namespace Script;
 
-ScriptExtensionStore ScriptExtensions;
+std::list<ScriptExtensions::ExtensionRegisterCallback> ScriptExtensions::Extensions;
 
-void ScriptExtensionStore::AddExtension(const ExtensionRegisterCallback& callback, bool preregister)
+void ScriptExtensions::AddExtension(const ExtensionRegisterCallback& callback, bool preregister)
 {
     if (preregister)
         Extensions.push_front(callback);
@@ -20,23 +20,28 @@ void ScriptExtensionStore::AddExtension(const ExtensionRegisterCallback& callbac
         Extensions.push_back(callback);
 }
 
-void ScriptExtensionStore::RegisterAll(asIScriptEngine* eng)
+void ScriptExtensions::RegisterAll(asIScriptEngine* eng)
 {
     for (auto& it : Extensions)
         it(eng);
 }
 
-ScriptExtensionStore::ScriptExtensionStore()
+bool Reg()
 {
     // Add all the default (Angelscript) extensions
-    AddExtension([](asIScriptEngine* eng){
+    ScriptExtensions::AddExtension([](asIScriptEngine* eng){
+        RegisterStdString(eng);
+
         RegisterScriptArray(eng, true);
         RegisterScriptDictionary(eng);
         RegisterScriptFile(eng);
         RegisterScriptGrid(eng);
         RegisterScriptMath(eng);
         RegisterScriptMathComplex(eng);
-        RegisterStdString(eng);
         RegisterStdStringUtils(eng);
     }, true);
+
+    return true;
 }
+
+bool ScriptExtensions::CommonExtensions = Reg();

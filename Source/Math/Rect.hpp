@@ -10,7 +10,7 @@ namespace Math
 struct Rect
 {
     Rect();
-    Rect(float top, float left, float width, float height);
+    Rect(float left, float top, float width, float height);
     Rect(const Vector2& topleft, float width, float height);
     Rect(const Vector2& topleft, const Vector2& bottomright);
     
@@ -34,6 +34,8 @@ struct Rect
     bool intersects(const Rect& rect, Rect& intersecting);
 
     float Top, Left, Width, Height;
+
+    static bool ScriptRegistered;
 };
 
 }
