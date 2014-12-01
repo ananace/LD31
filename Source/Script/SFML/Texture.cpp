@@ -40,7 +40,7 @@ namespace
         Script::ScriptExtensions::AddExtension([](asIScriptEngine* eng) {
             int r = 0;
 
-            r = eng->RegisterObjectType("Texture", 0, asOBJ_REF); assert(r >= 0);
+            r = eng->RegisterObjectType("Texture", 0, asOBJ_REF | asOBJ_NOCOUNT); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Texture", "string get_ID()", asMETHOD(Texture_t, getId), asCALL_THISCALL); assert(r >= 0);
 

@@ -15,14 +15,18 @@ namespace
     class BytecodeStore : public asIBinaryStream
     {
     public:
+        BytecodeStore() : mTellg(0) { }
+
         void Read(void *ptr, asUINT size)
         {
             char* data = (char*)ptr;
 
             for (uint32_t i = 0; i < size; ++i)
             {
-                data[i] = mStore[i];
+                data[i] = mStore[mTellg + i];
             }
+
+            mTellg += size;
         }
         void Write(const void *ptr, asUINT size)
         {
@@ -34,6 +38,7 @@ namespace
 
     private:
         std::vector<char> mStore;
+        size_t mTellg;
     };
 }
 

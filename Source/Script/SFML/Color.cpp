@@ -24,6 +24,11 @@ namespace
         memory->~Color();
     }
 
+    bool color_equals(const sf::Color& rhs, const sf::Color& lhs)
+    {
+        return lhs == rhs;
+    }
+
     bool Reg()
     {
         Script::ScriptExtensions::AddExtension([](asIScriptEngine* eng){
@@ -34,6 +39,16 @@ namespace
             r = eng->RegisterObjectBehaviour("Color", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(create_color), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Color", asBEHAVE_CONSTRUCT, "void f(uint8,uint8,uint8,uint8=255)", asFUNCTION(create_color_val), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Color", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destruct_color), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Color", "Color& opAssign(Color&in)", asMETHOD(sf::Color, operator=), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Color", "Color& opAddAssign(Color&in)", asFUNCTIONPR(sf::operator+=, (sf::Color&, const sf::Color&), sf::Color&), asCALL_CDECL_OBJFIRST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Color", "Color& opSubAssign(Color&in)", asFUNCTIONPR(sf::operator-=, (sf::Color&, const sf::Color&), sf::Color&), asCALL_CDECL_OBJFIRST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Color", "Color& opMulAssign(Color&in)", asFUNCTIONPR(sf::operator*=, (sf::Color&, const sf::Color&), sf::Color&), asCALL_CDECL_OBJFIRST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Color", "Color opAdd(Color&in)", asFUNCTIONPR(sf::operator+, (const sf::Color&, const sf::Color&), sf::Color), asCALL_CDECL_OBJFIRST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Color", "Color opSub(Color&in)", asFUNCTIONPR(sf::operator-, (const sf::Color&, const sf::Color&), sf::Color), asCALL_CDECL_OBJFIRST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Color", "Color opMul(Color&in)", asFUNCTIONPR(sf::operator*, (const sf::Color&, const sf::Color&), sf::Color), asCALL_CDECL_OBJFIRST); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Color", "bool opEquals(Color&in)", asFUNCTIONPR(sf::operator==, (const sf::Color&, const sf::Color&), bool), asCALL_CDECL_OBJFIRST); assert(r >= 0);
 
             r = eng->RegisterObjectProperty("Color", "uint8 R", asOFFSET(sf::Color, r)); assert(r >= 0);
             r = eng->RegisterObjectProperty("Color", "uint8 G", asOFFSET(sf::Color, g)); assert(r >= 0);

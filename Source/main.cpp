@@ -1,6 +1,3 @@
-#include <Math/Common.hpp>
-#include <Math/Vector.hpp>
-#include <Math/Rect.hpp>
 #include <Script/ScriptExtensions.hpp>
 #include <Script/SFML/Extensions.hpp>
 
@@ -25,10 +22,7 @@ int main(int argc, char** argv)
     engine->SetMessageCallback(asFUNCTION(MessageCallback), nullptr, asCALL_CDECL);
 
     // Make certain that the scripts registered correctly
-    assert(Script::ScriptExtensions::CommonExtensions);
-    assert(Math::CommonMathScriptRegistered);
-    assert(Math::Vector2::ScriptRegistered);
-    assert(Math::Rect::ScriptRegistered);
+    assert(Script::ScriptExtensions::RegisteredCommonExtensions());
     assert(Script::SFML::RegisteredExtensions());
 
     // Register the extensions into the engine
@@ -36,5 +30,7 @@ int main(int argc, char** argv)
 
     ///\TODO: Game class
 
+
+    engine->Release();
     return 0;
 }

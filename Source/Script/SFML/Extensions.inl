@@ -82,6 +82,21 @@ void destruct_shape(T* shape)
     shapes.erase(shape);
 }
 template<typename T>
+T& assign_shape(const T& rhs, T& lhs)
+{
+    if (shapes.count(const_cast<T*>(&rhs)) > 0)
+        shapes[const_cast<T*>(&rhs)]->GCAddRef();
+    if (shapes.count(&lhs) > 0)
+        shapes[&lhs]->GCRelease();
+
+    lhs = rhs;
+
+    if (shapes.count(const_cast<T*>(&rhs)) > 0)
+        shapes[&lhs] = shapes[const_cast<T*>(&rhs)];
+
+    return lhs;
+}
+template<typename T>
 Math::Vector2 getPoint(unsigned int uint, T& shape)
 {
     return shape.getPoint(uint);
@@ -162,6 +177,8 @@ void registerShape(const char* name, asIScriptEngine* eng)
     int r = 0;
 
     r = eng->RegisterObjectBehaviour(name, asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destruct_shape<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
+    r = eng->RegisterObjectMethod(name, (std::string(name) + "& opAssign(" + name + "&in)").c_str(), asFUNCTION(assign_shape<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
     
     r = eng->RegisterObjectMethod(name, "Vec2 get_array(uint)", asFUNCTION(getPoint<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "Color get_FillColor()", asMETHOD(T, getFillColor), asCALL_THISCALL); assert(r >= 0);

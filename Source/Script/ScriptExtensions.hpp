@@ -15,10 +15,15 @@ struct ScriptExtensions
     static void AddExtension(const ExtensionRegisterCallback& callback, int priority = 0);
     static void RegisterAll(asIScriptEngine* eng);
 
-    static bool CommonExtensions;
+    static bool RegisteredCommonExtensions();
 
 private:
-    static std::list<std::pair<int, ExtensionRegisterCallback>> Extensions;
+    static std::list<std::pair<int, ExtensionRegisterCallback>>* Extensions;
+
+    static bool CommonExtensions;
+    static bool CommonMath;
+    static bool Rect;
+    static bool Vector2;
 };
 
 }

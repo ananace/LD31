@@ -194,4 +194,4 @@ namespace
     }
 }
 
-bool Rect::ScriptRegistered = Reg();
+bool Script::ScriptExtensions::Rect = Reg();

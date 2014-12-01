@@ -198,6 +198,11 @@ namespace
         memory->~Vector2();
     }
 
+    void assign_Vector2(const Vector2& other, Vector2* vec)
+    {
+        vec->operator=(other);
+    }
+
     void rotate_Vector2(float ang, Vector2* vec)
     {
         vec->rotate(ang * Math::Deg2Rad);
@@ -230,7 +235,8 @@ namespace
             r = eng->RegisterObjectBehaviour("Vec2", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destroy_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Vec2", "bool opEquals(Vec2&in)", asMETHOD(Vector2, operator==), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Vec2", "Vec2& opAssign(Vec2&in)", asMETHOD(Vector2, operator=), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2& opAssign(Vec2&in)", asFUNCTION(assign_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
             r = eng->RegisterObjectMethod("Vec2", "Vec2& opAddAssign(Vec2&in)", asMETHOD(Vector2, operator+=), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "Vec2& opSubAssign(Vec2&in)", asMETHOD(Vector2, operator-=), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "Vec2& opMulAssign(Vec2&in)", asMETHODPR(Vector2, operator*=, (const Vector2&), Vector2&), asCALL_THISCALL); assert(r >= 0);
@@ -264,4 +270,4 @@ namespace
     }
 }
 
-bool Vector2::ScriptRegistered = Reg();
+bool Script::ScriptExtensions::Vector2 = Reg();

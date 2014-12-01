@@ -67,8 +67,6 @@ struct Vector2
     // Components
 
     float X, Y;
-
-    static bool ScriptRegistered;
 };
 
 }

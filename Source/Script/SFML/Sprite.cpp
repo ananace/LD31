@@ -39,8 +39,26 @@ namespace
     {
         sprite->~Sprite();
 
+        if (sprites.count(sprite) == 0)
+            return;
+
         sprites[sprite]->GCRelease();
         sprites.erase(sprite);
+    }
+
+    sf::Sprite& assign_Sprite(const sf::Sprite& rhs, sf::Sprite& lhs)
+    {
+        if (sprites.count(const_cast<sf::Sprite*>(&rhs)) > 0)
+            sprites[const_cast<sf::Sprite*>(&rhs)]->GCAddRef();
+        if (sprites.count(&lhs) > 0)
+            sprites[&lhs]->GCRelease();
+
+        lhs = rhs;
+
+        if (sprites.count(const_cast<sf::Sprite*>(&rhs)) > 0)
+            sprites[&lhs] = sprites[const_cast<sf::Sprite*>(&rhs)];
+
+        return lhs;
     }
 
     Texture_t* getTexture(sf::Sprite& sprite)
@@ -94,6 +112,8 @@ namespace
             r = eng->RegisterObjectBehaviour("Sprite", asBEHAVE_CONSTRUCT, "void f(Texture@)", asFUNCTION(create_Sprite_tex), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Sprite", asBEHAVE_CONSTRUCT, "void f(Texture@,Rect&in)", asFUNCTION(create_Sprite_texRect), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Sprite", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destruct_Sprite), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Sprite", "Sprite& opAssign(Sprite&in)", asFUNCTION(assign_Sprite), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Sprite", "Color get_Color()", asMETHOD(sf::Sprite, getColor), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Sprite", "void set_Color(Color&in)", asMETHOD(sf::Sprite, setColor), asCALL_THISCALL); assert(r >= 0);

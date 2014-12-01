@@ -15,24 +15,38 @@
 
 using namespace Script;
 
-std::list<std::pair<int, ScriptExtensions::ExtensionRegisterCallback>> ScriptExtensions::Extensions;
+std::list<std::pair<int, ScriptExtensions::ExtensionRegisterCallback>>* ScriptExtensions::Extensions = nullptr;
 
 void ScriptExtensions::AddExtension(const ExtensionRegisterCallback& callback, int order)
 {
-    auto it = Extensions.begin();
-    for (; it != Extensions.end(); ++it)
+    if (!Extensions)
+        Extensions = new std::list<std::pair<int, ScriptExtensions::ExtensionRegisterCallback>>();
+
+    if (Extensions->empty())
+    {
+        Extensions->push_back(std::make_pair(order, callback));
+        return;
+    }
+
+    auto it = Extensions->begin();
+    for (; it != Extensions->end(); ++it)
     {
         if (it->first > order)
             break;
     }
 
-    Extensions.insert(it, std::make_pair(order, callback));
+    Extensions->insert(it, std::make_pair(order, callback));
 }
 
 void ScriptExtensions::RegisterAll(asIScriptEngine* eng)
 {
-    for (auto& it : Extensions)
+    for (auto& it : *Extensions)
         it.second(eng);
+}
+
+bool ScriptExtensions::RegisteredCommonExtensions()
+{
+    return CommonExtensions && CommonMath && Rect && Vector2;
 }
 
 namespace

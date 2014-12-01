@@ -21,8 +21,6 @@ namespace Math
     T Slerp(const T& start, const T& end, float delta);
 
     float SlerpAngle(float start, float end, float delta);
-
-    extern bool CommonMathScriptRegistered;
 }
 
 #include "Common.inl"

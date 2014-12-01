@@ -55,4 +55,4 @@ namespace
     }
 }
 
-bool Math::CommonMathScriptRegistered = Reg();
+bool Script::ScriptExtensions::CommonMath = Reg();

@@ -35,8 +35,6 @@ struct Rect
     bool intersects(const Rect& rect, Rect& intersecting);
 
     float Top, Left, Width, Height;
-
-    static bool ScriptRegistered;
 };
 
 }
