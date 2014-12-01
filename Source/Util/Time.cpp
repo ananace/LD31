@@ -24,11 +24,13 @@ int64_t ClockImpl::sFreq = ClockImpl::init();
 
 Timestamp ClockImpl::now()
 {
-    QueryPerformanceFrequency((LARGE_INTEGER*)&sFreq);
-    sFreq /= 1000;
+    int64_t count = 0;
+    HANDLE currentThread = GetCurrentThread();
+    DWORD_PTR previousMask = SetThreadAffinityMask(currentThread, 1);
 
-    int64_t count;
     QueryPerformanceCounter((LARGE_INTEGER*)&count);
+
+    SetThreadAffinityMask(currentThread, previousMask);
 
     return time_point(duration(count / sFreq));
 }
@@ -42,7 +44,12 @@ time_t ClockImpl::to_time_t(const time_point& tp)
 
 int64_t ClockImpl::init()
 {
+    HANDLE currentThread = GetCurrentThread();
+    DWORD_PTR previousMask = SetThreadAffinityMask(currentThread, 1);
+
     QueryPerformanceFrequency((LARGE_INTEGER*)&sFreq);
+
+    SetThreadAffinityMask(currentThread, previousMask);
     sFreq /= 1000;
 
     sStart = now();
