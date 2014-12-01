@@ -179,7 +179,7 @@ Spinor Spinor::slerp(const Spinor& end, float t) const
         tr = end.Real;
     }
 
-    if (1 - cosom > 0.001)
+    if (1 - cosom > 0.001f)
     {
         omega = acos(cosom);
         sinom = sin(omega);

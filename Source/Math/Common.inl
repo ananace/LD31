@@ -27,9 +27,9 @@ inline bool FloatULPCompare(const float A, const float B)
 }
 
 template<typename T>
-inline T Lerp(const T& start, const T& end, float t)
+inline T Lerp(const T& start, const T& end, float delta)
 {
-    return (T)(start * (1 - t) + end * t);
+    return (T)(start * (1 - delta) + end * delta);
 }
 
 template<typename T>

@@ -20,7 +20,7 @@ bool Math::FloatCompare(const float a, const float b, const float EPSILON)
 
 float Math::SlerpAngle(float start, float end, float delta)
 {
-    return Slerp(Spinor(cos(start / 2), sin(start / 2)), Spinor(cos(end / 2), sin(end / 2)), delta).getAngle();
+    return Spinor(cos(start / 2), sin(start / 2)).slerp(Spinor(cos(end / 2), sin(end / 2)), delta).getAngle();
 }
 
 namespace
