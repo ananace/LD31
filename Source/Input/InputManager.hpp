@@ -13,17 +13,27 @@ namespace sf
 namespace Input
 {
 
-class InputManager
+static class Manager
 {
 public:
-    InputManager(uint8_t count = 0);
-    ~InputManager();
+    Manager();
+    ~Manager();
 
+    /// Set the number of binds for the manager
     void setBindCount(uint8_t count);
 
-    void bindInput(uint8_t id);
-    void bindInput(uint8_t id, const Input::Bind& bind);
+    /// Starts binding the selected input, next input will bind it
+    void bindInput(uint8_t id, bool alsoLinked = true);
+    /// Binds the selected input with the specified bind data
+    void bindInput(uint8_t id, const Input::Bind& bind, bool alsoLinked = true);
+    /// Check if the manager is currently binding an input
     bool isBinding() const;
+
+    /** \brief Link two inputs together
+     *
+     * This will cause a change of bind for inputA to affect inputB
+     */
+    void linkInputs(uint8_t inputA, uint8_t inputB);
 
     template<typename T>
     void setCurve(sf::Joystick::Axis axis);
@@ -43,12 +53,12 @@ public:
     bool isDisabled() const;
 
 private:
-    bool mDisabled;
+    bool mDisabled, mBindLinked;
     Input* mCurrentlyBinding;
     std::vector<Input> mInputs;
 
     std::vector<JoystickCurve*> mCurvesPerAxis;
-};
+} InputManager;
 
 }
 

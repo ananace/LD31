@@ -7,7 +7,7 @@
 namespace Input
 {
 
-class InputManager;
+class Manager;
 
 class Input
 {
@@ -77,14 +77,18 @@ public:
     ///@}
     
     Bind getBind() const;
+    const Input& getLinked() const;
     float getValue() const;
+
+    bool isLinked() const;
     bool isPressed() const;
 
 private:
+    Input* mLinkedInput;
     float mValue;
     Bind mBind;
 
-    friend class InputManager;
+    friend class Manager;
 };
 
 }

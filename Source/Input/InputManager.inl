@@ -1,7 +1,7 @@
 #include <type_traits>
 
 template<typename T>
-void Input::InputManager::setCurve(sf::Joystick::Axis axis)
+void Input::Manager::setCurve(sf::Joystick::Axis axis)
 {
     static_assert(std::is_base_of<JoystickCurve, T>::value, "T must be a proper Joystick Curve");
 

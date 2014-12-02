@@ -1,3 +1,4 @@
+#include <Input/InputManager.hpp>
 #include <Script/ScriptExtensions.hpp>
 #include <Script/SFML/Extensions.hpp>
 
@@ -79,6 +80,13 @@ void returnContext(asIScriptEngine* eng, asIScriptContext* ctx, void*)
     ctx->Release();
 }
 
+enum Inputs
+{
+    Input_Up,
+    Input_Down,
+    Input_MAX
+};
+
 int main(int argc, char** argv)
 {
     asIScriptEngine* engine = asCreateScriptEngine(ANGELSCRIPT_VERSION);
@@ -92,6 +100,11 @@ int main(int argc, char** argv)
 
     // Register the extensions into the engine
     Script::ScriptExtensions::RegisterAll(engine);
+    Input::InputManager.setBindCount(Input_MAX);
+    Input::InputManager.linkInputs(Input_Up, Input_Down);
+
+    Input::InputManager.bindInput(Input_Up, Input::Input::Bind{ Input::Input::Bind::Bind_Keyboard, { { sf::Keyboard::W, 0 } } });
+    // Input::InputManager.bindInput(Input_Down, Input::Input::Bind{ Input::Input::Bind::Bind_Keyboard, { { sf::Keyboard::S, 0 } } }); // Linking does this automagically
 
     // TODO: A Game
 
