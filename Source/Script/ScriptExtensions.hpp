@@ -24,6 +24,9 @@ private:
     static bool CommonMath;
     static bool Rect;
     static bool Vector2;
+
+    static bool InputExtensions;
+    static bool ScriptManagerExtensions;
 };
 
 }

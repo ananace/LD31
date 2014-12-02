@@ -69,7 +69,9 @@ public:
 
     /// Deref the input to get its exact value. [0..1]
     inline float operator*() const { return mValue; }
-    /// Convert to bool to check if it's pressed or not. (> PRESS_PERCENTAGE)
+    /// Cast to float to get its exact value. [0..1]
+    inline explicit operator float() const { return mValue; }
+    /// Implicitly cast to bool to check if it's pressed or not. (> PRESS_PERCENTAGE)
     inline operator bool() const { return mValue >= PRESS_PERCENTAGE; }
     /// ! operator for checking if the input's not pressed.
     inline bool operator!() const { return mValue < PRESS_PERCENTAGE; }

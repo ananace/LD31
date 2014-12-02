@@ -108,9 +108,7 @@ TEST_CASE("Basic script", "[script]")
 
     GIVEN("A managed script")
     {
-        Script::ScriptManager man(eng);
-
-        REQUIRE(man.loadScriptFromMemory("TestScript", "Color Test() { return Colors::Cyan; }"));
+        REQUIRE(Script::ScriptManager.loadScriptFromMemory("TestScript", "Color Test() { return Colors::Cyan; }"));
         auto* mod = eng->GetModule("TestScript");
 
         THEN("The script works")
@@ -128,7 +126,7 @@ TEST_CASE("Basic script", "[script]")
 
             AND_THEN("After reloading, the script still works")
             {
-                REQUIRE(man.loadScriptFromMemory("TestScript", "Color Test() { return Colors::Magenta; }"));
+                REQUIRE(Script::ScriptManager.loadScriptFromMemory("TestScript", "Color Test() { return Colors::Magenta; }"));
 
                 auto* func = mod->GetFunctionByDecl("Color Test()");
                 REQUIRE(func);

@@ -1,10 +1,16 @@
 #include "InputManager.hpp"
+#include <Script/ScriptExtensions.hpp>
+
 #include <SFML/Window/Event.hpp>
+
+#include <angelscript.h>
+
 #include <unordered_map>
+#include <cassert>
 
-using namespace Input;
+using Input::Manager;
 
-Manager InputManager;
+Manager Input::InputManager;
 
 namespace
 {
@@ -18,7 +24,53 @@ namespace
         { sf::Keyboard::Left, sf::Keyboard::Right },
         { sf::Keyboard::Right, sf::Keyboard::Left }
     };
+
+    const Input::Input* getBinding()
+    {
+        return Input::InputManager.getBinding();
+    }
+    const Input::Input* getInput(uint32_t inp)
+    {
+        return &Input::InputManager[inp];
+    }
+
+    const Input::Input* getLinked(const Input::Input* in)
+    {
+        return &in->getLinked();
+    }
+
+    bool Reg()
+    {
+        Script::ScriptExtensions::AddExtension([](asIScriptEngine* eng) {
+            int r = 0;
+
+            r = eng->RegisterObjectType("Input", 0, asOBJ_REF | asOBJ_NOCOUNT); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Input", "bool opImplConv()", asMETHOD(Input::Input, operator bool), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Input", "float opConv()", asMETHOD(Input::Input, operator float), asCALL_THISCALL); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Input", "float get_Value()", asMETHOD(Input::Input, getValue), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Input", "bool get_Pressed()", asMETHOD(Input::Input, isPressed), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Input", "bool get_Linked()", asMETHOD(Input::Input, isLinked), asCALL_THISCALL); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Input", "Input@ GetLinked()", asFUNCTION(getLinked), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
+
+            r = eng->SetDefaultNamespace("Inputs"); assert(r >= 0);
+            
+            r = eng->RegisterGlobalFunction("Input@ GetBinding()", asFUNCTION(getBinding), asCALL_CDECL); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("bool IsBinding()", asFUNCTION(getInput), asCALL_CDECL); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("void StartBind(uint8)", asFUNCTION(getInput), asCALL_CDECL); assert(r >= 0);
+
+            r = eng->RegisterGlobalFunction("Input@ GetInput(uint8)", asFUNCTION(getInput), asCALL_CDECL); assert(r >= 0);
+
+            r = eng->SetDefaultNamespace(""); assert(r >= 0);
+        });
+        return true;
+    }
 }
+
+bool Script::ScriptExtensions::InputExtensions = Reg();
 
 Manager::Manager() :
     mDisabled(false), mBindLinked(false), mCurrentlyBinding(nullptr)
@@ -45,7 +97,7 @@ void Manager::bindInput(uint8_t id, bool alsoLinked)
     mBindLinked = alsoLinked;
 }
 
-void Manager::bindInput(uint8_t id, const ::Input::Input::Bind& bind, bool alsoLinked)
+void Manager::bindInput(uint8_t id, const Input::Input::Bind& bind, bool alsoLinked)
 {
     auto& input = mInputs.at(id);
 
@@ -75,6 +127,11 @@ void Manager::bindInput(uint8_t id, const ::Input::Input::Bind& bind, bool alsoL
     }
 }
 
+const Input::Input& Manager::getBinding() const
+{
+    return *mCurrentlyBinding;
+}
+
 bool Manager::isBinding() const
 {
     return mCurrentlyBinding != nullptr;
@@ -98,19 +155,11 @@ float Manager::getDeadzone(sf::Joystick::Axis axis) const
     return mCurvesPerAxis[axis]->Deadzone;
 }
 
-::Input::Input& Manager::operator[](uint8_t id)
+const Input::Input& Manager::operator[](uint8_t id) const
 {
     return mInputs.at(id);
 }
-const ::Input::Input& Manager::operator[](uint8_t id) const
-{
-    return mInputs.at(id);
-}
-::Input::Input& Manager::at(uint8_t id)
-{
-    return mInputs.at(id);
-}
-const ::Input::Input& Manager::at(uint8_t id) const
+const Input::Input& Manager::at(uint8_t id) const
 {
     return mInputs.at(id);
 }

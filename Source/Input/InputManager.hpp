@@ -26,6 +26,8 @@ public:
     void bindInput(uint8_t id, bool alsoLinked = true);
     /// Binds the selected input with the specified bind data
     void bindInput(uint8_t id, const Input::Bind& bind, bool alsoLinked = true);
+    /// Get the currently binding input or nullptr if none
+    const Input* getBinding() const;
     /// Check if the manager is currently binding an input
     bool isBinding() const;
 
@@ -41,9 +43,7 @@ public:
     void setDeadzone(sf::Joystick::Axis axis, float zone);
     float getDeadzone(sf::Joystick::Axis axis) const;
 
-    Input& operator[](uint8_t id);
     const Input& operator[](uint8_t id) const;
-    Input& at(uint8_t id);
     const Input& at(uint8_t id) const;
 
     void handleEvent(const sf::Event& ev);

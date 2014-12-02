@@ -100,6 +100,7 @@ int main(int argc, char** argv)
 
     // Register the extensions into the engine
     Script::ScriptExtensions::RegisterAll(engine);
+
     Input::InputManager.setBindCount(Input_MAX);
     Input::InputManager.linkInputs(Input_Up, Input_Down);
 

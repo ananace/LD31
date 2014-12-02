@@ -20,13 +20,15 @@ struct CUserType;
 namespace Script
 {
 
-class ScriptManager
+static class Manager
 {
 public:
     typedef std::function<CUserType*()> SerializerCallback_t;
 
-    ScriptManager(asIScriptEngine*);
-    ~ScriptManager();
+    Manager();
+    ~Manager();
+
+    void setEngine(asIScriptEngine*);
 
     bool loadScriptFromFile(const std::string& file);
     bool loadScriptFromMemory(const std::string& file, const char* data, size_t length);
@@ -59,6 +61,6 @@ private:
     std::vector<CoRoutine*> mCoRoutines;
 
     CScriptBuilder mBuilder;
-};
+} ScriptManager;
 
 }

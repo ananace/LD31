@@ -1,4 +1,5 @@
 #include "ScriptManager.hpp"
+#include "ScriptExtensions.hpp"
 #include "ScriptObject.hpp"
 
 #include <nowide/fstream.hpp>
@@ -9,6 +10,8 @@
 #include <serializer/serializer.h>
 
 using namespace Script;
+
+Manager Script::ScriptManager;
 
 namespace
 {
@@ -40,26 +43,67 @@ namespace
         std::vector<char> mStore;
         size_t mTellg;
     };
+
+    void addCoRoutine(asIScriptFunction* func)
+    {
+        auto* ctx = asGetActiveContext();
+
+        ScriptManager.addCoRoutine(func);
+    }
+
+    void sleepCoRoutine(uint32_t ms)
+    {
+        ScriptManager.sleep(asGetActiveContext(), std::chrono::milliseconds(ms));
+    }
+
+
+    bool Reg()
+    {
+        ScriptExtensions::AddExtension([](asIScriptEngine* eng) {
+            ScriptManager.setEngine(eng);
+            int r = 0;
+
+            r = eng->RegisterFuncdef("void COROUTINE()"); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("void CreateCoRoutine(COROUTINE@+)", asFUNCTION(addCoRoutine), asCALL_CDECL); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("void Sleep(float)", asFUNCTION(sleepCoRoutine), asCALL_CDECL); assert(r >= 0);
+        });
+        return true;
+    }
 }
 
-struct ScriptManager::CoRoutine
+bool ScriptExtensions::ScriptManagerExtensions = Reg();
+
+struct Manager::CoRoutine
 {
     Util::Timestamp SleepUntil;
     asIScriptContext* Context;
 };
 
-ScriptManager::ScriptManager(asIScriptEngine* eng) :
-    mEngine(eng), mMetaMod(mEngine->GetModule("MetaMod", asGM_ALWAYS_CREATE))
+Manager::Manager() :
+    mEngine(nullptr), mMetaMod(nullptr)
 {
     
 }
-ScriptManager::~ScriptManager()
+Manager::~Manager()
 {
     for (auto& it : mCoRoutines)
         delete it;
 }
 
-bool ScriptManager::loadScriptFromFile(const std::string& file)
+void Manager::setEngine(asIScriptEngine* eng)
+{
+    for (auto& it : mCoRoutines)
+        delete it;
+
+    mLoadedScripts.clear();
+    mCoRoutines.clear();
+    mObjects.clear();
+
+    mEngine = eng;
+    mMetaMod = mEngine->GetModule("MetaMod", asGM_ALWAYS_CREATE);
+}
+
+bool Manager::loadScriptFromFile(const std::string& file)
 {
     nowide::ifstream ifs;
     ifs.open(file.c_str(), std::ios::in | std::ios::binary);
@@ -73,11 +117,11 @@ bool ScriptManager::loadScriptFromFile(const std::string& file)
 
     return loadScriptFromMemory(file, &storage[0], len);
 }
-bool ScriptManager::loadScriptFromMemory(const std::string& file, const std::string& data)
+bool Manager::loadScriptFromMemory(const std::string& file, const std::string& data)
 {
     return loadScriptFromMemory(file, data.c_str(), data.size());
 }
-bool ScriptManager::loadScriptFromMemory(const std::string& file, const char* data, size_t length)
+bool Manager::loadScriptFromMemory(const std::string& file, const char* data, size_t length)
 {
     auto it = std::find(mLoadedScripts.begin(), mLoadedScripts.end(), file);
     bool reload = it != mLoadedScripts.end();
@@ -200,7 +244,7 @@ bool ScriptManager::loadScriptFromMemory(const std::string& file, const char* da
     }
 }
 
-void ScriptManager::runCoroutines()
+void Manager::runCoroutines()
 {
     Util::Timestamp now = Util::ClockImpl::now();
 
@@ -237,28 +281,28 @@ void ScriptManager::runCoroutines()
     }
 }
 
-void ScriptManager::defineWord(const std::string& word)
+void Manager::defineWord(const std::string& word)
 {
     mBuilder.DefineWord(word.c_str());
 }
 
-void ScriptManager::notifyNewObject(asIScriptObject* obj)
+void Manager::notifyNewObject(asIScriptObject* obj)
 {
     mObjects.push_back(obj);
 }
-void ScriptManager::notifyObjectRemoved(asIScriptObject* obj)
+void Manager::notifyObjectRemoved(asIScriptObject* obj)
 {
     auto it = std::find(mObjects.begin(), mObjects.end(), obj);
     if (it != mObjects.end())
         mObjects.erase(it);
 }
 
-void ScriptManager::registerType(const std::string& name, const SerializerCallback_t& type)
+void Manager::registerType(const std::string& name, const SerializerCallback_t& type)
 {
     mSerializerTypes.push_back(std::make_tuple(name, type));
 }
 
-asIScriptContext* ScriptManager::addCoRoutine(asIScriptFunction* func)
+asIScriptContext* Manager::addCoRoutine(asIScriptFunction* func)
 {
     CoRoutine* co = new CoRoutine{ Util::ClockImpl::now(), mEngine->RequestContext() };
     int r = co->Context->Prepare(func);
@@ -275,7 +319,7 @@ asIScriptContext* ScriptManager::addCoRoutine(asIScriptFunction* func)
     return co->Context;
 }
 
-void ScriptManager::sleep(asIScriptContext* ctx, const Util::Timespan& duration)
+void Manager::sleep(asIScriptContext* ctx, const Util::Timespan& duration)
 {
     auto until = Util::ClockImpl::now() + duration;
 
@@ -293,7 +337,7 @@ void ScriptManager::sleep(asIScriptContext* ctx, const Util::Timespan& duration)
     });
 }
 
-void ScriptManager::runMetadata(const std::string& meta, asIScriptContext* ctx)
+void Manager::runMetadata(const std::string& meta, asIScriptContext* ctx)
 {
     auto mod = mBuilder.GetModule();
 
