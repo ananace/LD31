@@ -32,6 +32,8 @@ public:
     float getDeadzone(sf::Joystick::Axis axis) const;
 
     Input& operator[](uint8_t id);
+    const Input& operator[](uint8_t id) const;
+    Input& at(uint8_t id);
     const Input& at(uint8_t id) const;
 
     void handleEvent(const sf::Event& ev);

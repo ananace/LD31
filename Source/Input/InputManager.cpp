@@ -57,6 +57,14 @@ float InputManager::getDeadzone(sf::Joystick::Axis axis) const
 {
     return mInputs.at(id);
 }
+const ::Input::Input& InputManager::operator[](uint8_t id) const
+{
+    return mInputs.at(id);
+}
+::Input::Input& InputManager::at(uint8_t id)
+{
+    return mInputs.at(id);
+}
 const ::Input::Input& InputManager::at(uint8_t id) const
 {
     return mInputs.at(id);
@@ -157,6 +165,12 @@ void InputManager::update()
 void InputManager::disable(bool disable)
 {
     mDisabled = disable;
+
+    if (mDisabled)
+    {
+        for (auto& input : mInputs)
+            input.mValue = 0;
+    }
 }
 bool InputManager::isDisabled() const
 {
