@@ -12,6 +12,7 @@ class InputManager;
 class Input
 {
 public:
+    ///\brief Container for the bind data
     struct Bind
     {
         enum KeyboardModifiers : uint8_t
@@ -31,6 +32,7 @@ public:
             Modifier_Alt = Modifier_LAlt | Modifier_RAlt
         };
         enum {
+            Bind_None,
             Bind_Keyboard,
             Bind_Joystick_Axis,
             Bind_Joystick_Button
@@ -54,21 +56,25 @@ public:
         } Data;
     };
 
-    /// At what point should an input be considered "pressed"
+    ///\brief What percentage should count as "pressed"
     static const float PRESS_PERCENTAGE;
 
     Input();
     ~Input();
 
-    ///\region Quick-access
-    ///\note These are inlined for speed
+    /** @name Quick-access functions
+     * \note Inlined for speed
+     */
+    ///@{
 
-    /// Deref the input to get its exact value [0..1]
+    /// Deref the input to get its exact value. [0..1]
     inline float operator*() const { return mValue; }
-    /// Convert to bool to check if it's pressed or not (> 0.75f)
+    /// Convert to bool to check if it's pressed or not. (> PRESS_PERCENTAGE)
     inline operator bool() const { return mValue >= PRESS_PERCENTAGE; }
+    /// ! operator for checking if the input's not pressed.
+    inline bool operator!() const { return mValue < PRESS_PERCENTAGE; }
 
-    ///\endregion
+    ///@}
     
     Bind getBind() const;
     float getValue() const;

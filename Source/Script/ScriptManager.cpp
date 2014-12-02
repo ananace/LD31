@@ -214,7 +214,6 @@ void ScriptManager::runCoroutines()
         uint32_t gcSize1, gcSize2;
         mEngine->GetGCStatistics(&gcSize1);
 
-        ///\TODO Add a timeout for the co-routine execution
         int r = co->Context->Execute();
 
         mEngine->GetGCStatistics(&gcSize2);
