@@ -20,7 +20,7 @@ struct CUserType;
 namespace Script
 {
 
-static class Manager
+extern class Manager
 {
 public:
     typedef std::function<CUserType*()> SerializerCallback_t;

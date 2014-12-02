@@ -15,14 +15,12 @@ ScriptObject::ScriptObject(asIObjectType* type)
     type->SetUserData(this, (uintptr_t)mObject);
 
     mModule = mObject->GetObjectType()->GetModule();
-    ScriptManager* scriptMan = reinterpret_cast<ScriptManager*>(mModule->GetUserData());
-    scriptMan->notifyNewObject(mObject);
+    ScriptManager.notifyNewObject(mObject);
 }
 
 ScriptObject::~ScriptObject()
 {
-    ScriptManager* scriptMan = reinterpret_cast<ScriptManager*>(mModule->GetUserData());
-    scriptMan->notifyObjectRemoved(mObject);
+    ScriptManager.notifyObjectRemoved(mObject);
     mObject->GetObjectType()->SetUserData(nullptr, (uintptr_t)mObject);
     mObject->Release();
 }

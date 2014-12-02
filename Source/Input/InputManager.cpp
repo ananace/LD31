@@ -33,6 +33,10 @@ namespace
     {
         return &Input::InputManager[inp];
     }
+    void bindInput(uint8_t inp, bool autoLink)
+    {
+        Input::InputManager.bindInput(inp, autoLink);
+    }
 
     const Input::Input* getLinked(const Input::Input* in)
     {
@@ -60,7 +64,7 @@ namespace
             
             r = eng->RegisterGlobalFunction("Input@ GetBinding()", asFUNCTION(getBinding), asCALL_CDECL); assert(r >= 0);
             r = eng->RegisterGlobalFunction("bool IsBinding()", asFUNCTION(getInput), asCALL_CDECL); assert(r >= 0);
-            r = eng->RegisterGlobalFunction("void StartBind(uint8)", asFUNCTION(getInput), asCALL_CDECL); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("void StartBind(uint8,bool = true)", asFUNCTION(bindInput), asCALL_CDECL); assert(r >= 0);
 
             r = eng->RegisterGlobalFunction("Input@ GetInput(uint8)", asFUNCTION(getInput), asCALL_CDECL); assert(r >= 0);
 
@@ -127,9 +131,9 @@ void Manager::bindInput(uint8_t id, const Input::Input::Bind& bind, bool alsoLin
     }
 }
 
-const Input::Input& Manager::getBinding() const
+const Input::Input* Manager::getBinding() const
 {
-    return *mCurrentlyBinding;
+    return mCurrentlyBinding;
 }
 
 bool Manager::isBinding() const

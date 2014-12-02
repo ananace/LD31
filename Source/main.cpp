@@ -84,6 +84,9 @@ enum Inputs
 {
     Input_Up,
     Input_Down,
+    Input_Left,
+    Input_Right,
+
     Input_MAX
 };
 
@@ -103,6 +106,7 @@ int main(int argc, char** argv)
 
     Input::InputManager.setBindCount(Input_MAX);
     Input::InputManager.linkInputs(Input_Up, Input_Down);
+    Input::InputManager.linkInputs(Input_Left, Input_Right);
 
     Input::InputManager.bindInput(Input_Up, Input::Input::Bind{ Input::Input::Bind::Bind_Keyboard, { { sf::Keyboard::W, 0 } } });
     // Input::InputManager.bindInput(Input_Down, Input::Input::Bind{ Input::Input::Bind::Bind_Keyboard, { { sf::Keyboard::S, 0 } } }); // Linking does this automagically

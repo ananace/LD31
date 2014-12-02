@@ -13,7 +13,7 @@ namespace sf
 namespace Input
 {
 
-static class Manager
+extern class Manager
 {
 public:
     Manager();
