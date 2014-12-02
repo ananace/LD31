@@ -3,6 +3,19 @@
 CONFIGURE_FILE(Defines.hpp.in ${CURRENT_SOURCE_DIR}/Defines.hpp)
 
 SET(LD31_HEADERS
+    Input/Input.hpp
+	Input/InputManager.hpp
+    Input/InputManager.inl
+    Input/JoystickCurve.hpp
+
+    Math/Common.hpp
+    Math/Common.inl
+    Math/Rect.hpp
+    Math/Rect.inl
+    Math/Spinor.hpp
+    Math/Vector.hpp
+    Math/Vector.inl
+
 	Script/ScriptExtensions.hpp
 	Script/ScriptManager.hpp
 	Script/ScriptObject.hpp
@@ -16,17 +29,18 @@ SET(LD31_HEADERS
 	Util/ResourceManager.hpp
 	Util/ResourceManager.inl
 	Util/Time.hpp
-
-    Math/Common.hpp
-    Math/Common.inl
-    Math/Rect.hpp
-    Math/Rect.inl
-    Math/Spinor.hpp
-    Math/Vector.hpp
-    Math/Vector.inl
 )
 
 SET(LD31_SOURCES
+    Input/Input.cpp
+	Input/InputManager.cpp
+    Input/JoystickCurve.cpp
+
+    Math/Common.cpp
+    Math/Rect.cpp
+    Math/Spinor.cpp
+    Math/Vector.cpp
+
 	Script/ScriptExtensions.cpp
 	Script/ScriptManager.cpp
 	Script/ScriptObject.cpp
@@ -49,11 +63,6 @@ SET(LD31_SOURCES
 	Util/FontFinder.cpp
     Util/RefCount.cpp
     Util/Time.cpp
-
-    Math/Common.cpp
-    Math/Rect.cpp
-    Math/Spinor.cpp
-    Math/Vector.cpp
 )
 
 SET(MISC_HEADERS
@@ -64,6 +73,8 @@ SET(MISC_SOURCES
 )
 
 # Source groups
+SOURCE_GROUP("Header files\\Input" REGULAR_EXPRESSION "Input/[^./]+.(hpp|inl)")
+SOURCE_GROUP("Source files\\Input" REGULAR_EXPRESSION "Input/[^./]+.cpp")
 
 SOURCE_GROUP("Header files\\Script" REGULAR_EXPRESSION "Script/[^./]+.(hpp|inl)")
 SOURCE_GROUP("Source files\\Script" REGULAR_EXPRESSION "Script/[^./]+.cpp")
