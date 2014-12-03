@@ -13,11 +13,18 @@ namespace sf
 namespace Input
 {
 
-extern class Manager
+/** \brief A class for managing inputs and binds
+ *
+ */
+extern class InputMan
 {
 public:
-    Manager();
-    ~Manager();
+    /// Constructor
+    InputMan();
+    /// Not copyable
+    InputMan(const InputMan&) = delete;
+    /// Destructor
+    ~InputMan();
 
     /// Set the number of binds for the manager
     void setBindCount(uint8_t count);
@@ -33,32 +40,45 @@ public:
 
     /** \brief Link two inputs together
      *
-     * This will cause a change of bind for inputA to affect inputB
+     * This will cause a change of binding for inputA to affect inputB
      */
     void linkInputs(uint8_t inputA, uint8_t inputB);
 
+    /// Sets the joystick curve for the specified axis
     template<typename T>
     void setCurve(sf::Joystick::Axis axis);
 
+    ///\brief Sets a deadzone for the specified axis
+    ///\note This value is globally applied, for all joysticks
     void setDeadzone(sf::Joystick::Axis axis, float zone);
+    /// Gets the deadzone value for the specified axis
     float getDeadzone(sf::Joystick::Axis axis) const;
 
+    /// Gets the Input at the specified ID
     const Input& operator[](uint8_t id) const;
+    /// Gets the Input at the specified ID
     const Input& at(uint8_t id) const;
 
+    /// Handle an event, only used for binding
     void handleEvent(const sf::Event& ev);
+    ///\brief Updates all the input values
+    ///\note For best results, run this once in the start of the update loop
     void update();
 
+    ///\brief Disable or enable the input system
+    ///\note When disabling the input system, all input values will be zeroed for the duration
     void disable(bool disable = true);
+    /// Check if the input system is disabled
     bool isDisabled() const;
 
 private:
-    bool mDisabled, mBindLinked;
-    Input* mCurrentlyBinding;
-    std::vector<Input> mInputs;
+    bool mDisabled, ///< Is the input system disabled
+         mBindLinked; ///< Should the next bind also applied to the linked Input
+    Input* mCurrentlyBinding; ///< The Input currently being bound (or nullptr if none)
+    std::vector<Input> mInputs; ///< The list of available inputs
 
-    std::vector<JoystickCurve*> mCurvesPerAxis;
-} InputManager;
+    std::vector<JoystickCurve*> mCurvesPerAxis; ///< The joystic curves, stored by axis
+} InputManager; ///< The default global instance
 
 }
 

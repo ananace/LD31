@@ -60,16 +60,6 @@ bool Rect::operator==(const Rect& rhs) const
     return FloatCompare(Top, rhs.Top, 0.0000001f) && FloatCompare(Left, rhs.Left, 0.0000001f) && FloatCompare(Width, rhs.Width, 0.0000001f) && FloatCompare(Height, rhs.Height, 0.0000001f);
 }
 
-Rect& Rect::operator=(Rect other)
-{
-    std::swap(Top, other.Top);
-    std::swap(Left, other.Left);
-    std::swap(Width, other.Width);
-    std::swap(Height, other.Height);
-
-    return *this;
-}
-
 Vector2 Rect::getTopLeft() const
 {
     return Vector2(Left, Top);
@@ -133,10 +123,6 @@ namespace
         new(memory)Rect(tl, br);
     }
 
-    void destroy_rect(Rect* memory) {
-        memory->~Rect();
-    }
-
     void rect_setBottomRight(const Vector2& br, Rect& rect)
     {
         auto tl = rect.getTopLeft();
@@ -169,7 +155,6 @@ namespace
             r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_CONSTRUCT, "void f(float,float,float,float)", asFUNCTION(create_rect_loose), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_CONSTRUCT, "void f(Vec2,float,float)", asFUNCTION(create_rect_tlwh), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_CONSTRUCT, "void f(Vec2,Vec2)", asFUNCTION(create_rect_tlbr), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destroy_rect), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Rect", "Rect& opAssign(Rect)", asMETHOD(Rect, operator=), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Rect", "bool opEquals(Rect&in)", asMETHOD(Rect, operator==), asCALL_THISCALL); assert(r >= 0);

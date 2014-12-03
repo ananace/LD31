@@ -27,14 +27,6 @@ bool Vector2::operator==(const Vector2& rhs) const
     return FloatCompare(X, rhs.X, 0.0000001f) && FloatCompare(Y, rhs.Y, 0.0000001f);
 }
 
-Vector2& Vector2::operator=(Vector2 rhs)
-{
-    std::swap(X, rhs.X);
-    std::swap(Y, rhs.Y);
-
-    return *this;
-}
-
 Vector2& Vector2::operator+=(const Vector2& rhs)
 {
     X += rhs.X;
@@ -232,7 +224,6 @@ namespace
 
             r = eng->RegisterObjectBehaviour("Vec2", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(create_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Vec2", asBEHAVE_CONSTRUCT, "void f(float,float)", asFUNCTION(create_Vector2_val), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectBehaviour("Vec2", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destroy_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Vec2", "bool opEquals(Vec2&in)", asMETHOD(Vector2, operator==), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "Vec2& opAssign(Vec2&in)", asFUNCTION(assign_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);

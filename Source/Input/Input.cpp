@@ -3,13 +3,8 @@
 const float Input::Input::PRESS_PERCENTAGE = 0.75f;
 
 Input::Input::Input() :
-    mLinkedInput(nullptr), mValue(0), mBind({Bind::Bind_None})
+    mLinkedInput(nullptr), mValue(0), mBind({ Bind::Bind_None })
 {
-
-}
-Input::Input::~Input()
-{
-
 }
 
 Input::Input::Bind Input::Input::getBind() const
@@ -23,6 +18,13 @@ const Input::Input& Input::Input::getLinked() const
 float Input::Input::getValue() const
 {
     return mValue;
+}
+float Input::Input::getCombinedValue() const
+{
+    if (mLinkedInput == nullptr)
+        return mValue;
+
+    return mLinkedInput->mValue - mValue;
 }
 
 bool Input::Input::isLinked() const

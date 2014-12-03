@@ -4,7 +4,8 @@
 
 #include <angelscript.h>
 
-#include <memory>
+#include <scriptmath/scriptmathcomplex.h>
+
 #include <cassert>
 #include <cmath>
 
@@ -31,14 +32,6 @@ bool Spinor::operator==(const Spinor& rhs)
     return FloatCompare(Real, rhs.Real, 0.0000001f) && FloatCompare(Complex, rhs.Complex, 0.0000001f);
 }
 
-Spinor& Spinor::operator=(Spinor other)
-{
-    std::swap(Real, other.Real);
-    std::swap(Complex, other.Complex);
-
-    return *this;
-}
-
 Spinor& Spinor::operator+=(const Spinor& rhs)
 {
     Real += rhs.Real;
@@ -63,12 +56,25 @@ Spinor& Spinor::operator*=(float val)
     Complex *= val;
     return *this;
 }
-/*
+
 Spinor& Spinor::operator/=(const Spinor& rhs)
 {
-	
+    float len = rhs.Real * rhs.Real + rhs.Complex * rhs.Complex;
+    if (len == 0)
+    {
+        Real = 0;
+        Complex = 0;
+    }
+    else
+    {
+        float newReal = (Real * rhs.Real - Complex * rhs.Complex) / len;
+        Complex = (Complex * rhs.Real - Real * rhs.Complex) / len;
+        Real = newReal;
+    }
+
+    return *this;
 }
-*/
+
 Spinor& Spinor::operator/=(float val)
 {
     Real /= val;
@@ -92,12 +98,16 @@ Spinor Spinor::operator*(float val) const
 {
     return Spinor(Real * val, Complex * val);
 }
-/*
+
 Spinor Spinor::operator/(const Spinor& rhs) const
 {
-	
+    float len = rhs.Real * rhs.Real + rhs.Complex * rhs.Complex;
+    if (len == 0)
+        return Spinor();
+
+    return Spinor((Real * rhs.Real - Complex * rhs.Complex) / len, (Complex * rhs.Real - Real * rhs.Complex) / len);
 }
-*/
+
 Spinor Spinor::operator/(float val) const
 {
     return Spinor(Real / val, Complex / val);
@@ -214,9 +224,22 @@ Spinor Spinor::slerp(const Spinor& end, float t) const
 
 namespace
 {
-    void Spinor_assign(const Spinor& rhs, Spinor& lhs)
+    void Spinor_create(Spinor* memory) {
+        new(memory)Spinor();
+    }
+    void Spinor_create_ang(float ang, Spinor* memory) {
+        new(memory)Spinor(ang);
+    }
+    void Spinor_create_val(float real, float complex, Spinor* memory) {
+        new(memory)Spinor(real, complex);
+    }
+    void Spinor_create_complex(const Complex& complex, Spinor* memory) {
+        new(memory)Spinor(complex.r, complex.i);
+    }
+
+    void Spinor_assign(const Complex& rhs, Spinor& lhs)
     {
-        lhs = rhs;
+        lhs = Spinor(rhs.r, rhs.i);
     }
 
     bool Reg()
@@ -226,9 +249,16 @@ namespace
 
             r = eng->RegisterObjectType("Spinor", sizeof(Spinor), asOBJ_VALUE | asGetTypeTraits<Spinor>()); assert(r >= 0);
 
+            r = eng->RegisterObjectBehaviour("Spinor", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(Spinor_create), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectBehaviour("Spinor", asBEHAVE_CONSTRUCT, "void f(float)", asFUNCTION(Spinor_create_ang), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectBehaviour("Spinor", asBEHAVE_CONSTRUCT, "void f(float,float)", asFUNCTION(Spinor_create_val), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectBehaviour("Spinor", asBEHAVE_CONSTRUCT, "void f(complex&in)", asFUNCTION(Spinor_create_complex), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
             r = eng->RegisterObjectMethod("Spinor", "bool opCmp(Spinor&in)", asMETHOD(Spinor, operator==), asCALL_THISCALL); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Spinor", "Spinor& opAssign(Spinor&in)", asFUNCTION(Spinor_assign), asCALL_CDECL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "Spinor& opAssign(Spinor&in)", asMETHOD(Spinor, operator=), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "Spinor& opAssign(complex&in)", asFUNCTION(Spinor_assign), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
             r = eng->RegisterObjectMethod("Spinor", "Spinor& opAddAssign(Spinor&in)", asMETHOD(Spinor, operator+=), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Spinor", "Spinor& opSubAssign(Spinor&in)", asMETHOD(Spinor, operator-=), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Spinor", "Spinor& opMulAssign(Spinor&in)", asMETHODPR(Spinor, operator*=, (const Spinor&), Spinor&), asCALL_THISCALL); assert(r >= 0);

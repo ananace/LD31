@@ -8,9 +8,9 @@
 #include <unordered_map>
 #include <cassert>
 
-using Input::Manager;
+using Input::InputMan;
 
-Manager Input::InputManager;
+InputMan Input::InputManager;
 
 namespace
 {
@@ -76,7 +76,7 @@ namespace
 
 bool Script::ScriptExtensions::InputExtensions = Reg();
 
-Manager::Manager() :
+InputMan::InputMan() :
     mDisabled(false), mBindLinked(false), mCurrentlyBinding(nullptr)
 {
     mCurvesPerAxis.resize(sf::Joystick::AxisCount);
@@ -84,24 +84,24 @@ Manager::Manager() :
         mCurvesPerAxis[i] = new Curves::Linear();
 }
 
-Manager::~Manager()
+InputMan::~InputMan()
 {
     for (auto& ptr : mCurvesPerAxis)
         delete ptr;
 }
 
-void Manager::setBindCount(uint8_t count)
+void InputMan::setBindCount(uint8_t count)
 {
     mInputs.resize(count);
 }
 
-void Manager::bindInput(uint8_t id, bool alsoLinked)
+void InputMan::bindInput(uint8_t id, bool alsoLinked)
 {
     mCurrentlyBinding = &mInputs.at(id);
     mBindLinked = alsoLinked;
 }
 
-void Manager::bindInput(uint8_t id, const Input::Input::Bind& bind, bool alsoLinked)
+void InputMan::bindInput(uint8_t id, const Input::Input::Bind& bind, bool alsoLinked)
 {
     auto& input = mInputs.at(id);
 
@@ -131,44 +131,44 @@ void Manager::bindInput(uint8_t id, const Input::Input::Bind& bind, bool alsoLin
     }
 }
 
-const Input::Input* Manager::getBinding() const
+const Input::Input* InputMan::getBinding() const
 {
     return mCurrentlyBinding;
 }
 
-bool Manager::isBinding() const
+bool InputMan::isBinding() const
 {
     return mCurrentlyBinding != nullptr;
 }
 
-void Manager::linkInputs(uint8_t inputA, uint8_t inputB)
+void InputMan::linkInputs(uint8_t inputA, uint8_t inputB)
 {
     mInputs[inputA].mLinkedInput = &mInputs[inputB];
     mInputs[inputB].mLinkedInput = &mInputs[inputA];
 }
 
-void Manager::setDeadzone(sf::Joystick::Axis axis, float zone)
+void InputMan::setDeadzone(sf::Joystick::Axis axis, float zone)
 {
     if (zone < 0 || zone >= 1)
         return;
 
     mCurvesPerAxis[axis]->Deadzone = zone;
 }
-float Manager::getDeadzone(sf::Joystick::Axis axis) const
+float InputMan::getDeadzone(sf::Joystick::Axis axis) const
 {
     return mCurvesPerAxis[axis]->Deadzone;
 }
 
-const Input::Input& Manager::operator[](uint8_t id) const
+const Input::Input& InputMan::operator[](uint8_t id) const
 {
     return mInputs.at(id);
 }
-const Input::Input& Manager::at(uint8_t id) const
+const Input::Input& InputMan::at(uint8_t id) const
 {
     return mInputs.at(id);
 }
 
-void Manager::handleEvent(const sf::Event& ev)
+void InputMan::handleEvent(const sf::Event& ev)
 {
     if (mDisabled || !mCurrentlyBinding)
         return;
@@ -239,7 +239,7 @@ void Manager::handleEvent(const sf::Event& ev)
     } break;
     }
 }
-void Manager::update()
+void InputMan::update()
 {
     if (mDisabled || mCurrentlyBinding != nullptr)
         return;
@@ -283,7 +283,7 @@ void Manager::update()
     }
 }
 
-void Manager::disable(bool disable)
+void InputMan::disable(bool disable)
 {
     mDisabled = disable;
 
@@ -293,7 +293,7 @@ void Manager::disable(bool disable)
             input.mValue = 0;
     }
 }
-bool Manager::isDisabled() const
+bool InputMan::isDisabled() const
 {
     return mDisabled;
 }
