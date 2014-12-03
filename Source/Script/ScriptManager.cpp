@@ -56,6 +56,12 @@ namespace
         ScriptManager.sleep(asGetActiveContext(), std::chrono::milliseconds(ms));
     }
 
+    void contextCallback(asIScriptContext *ctx, Util::Timestamp *timeOut)
+    {
+        if (Util::ClockImpl::now() > *timeOut)
+            ctx->Suspend();
+    }
+
 
     bool Reg()
     {
@@ -244,9 +250,10 @@ bool Manager::loadScriptFromMemory(const std::string& file, const char* data, si
     }
 }
 
-void Manager::runCoroutines()
+void Manager::runCoroutines(const Util::Timespan& duration)
 {
     Util::Timestamp now = Util::ClockImpl::now();
+    Util::Timestamp end = now + duration;
 
     for (auto it = mCoRoutines.begin(); it != mCoRoutines.end();)
     {
@@ -258,6 +265,7 @@ void Manager::runCoroutines()
         uint32_t gcSize1, gcSize2;
         mEngine->GetGCStatistics(&gcSize1);
 
+        co->Context->SetLineCallback(asFUNCTION(contextCallback), &end, asCALL_CDECL);
         int r = co->Context->Execute();
 
         mEngine->GetGCStatistics(&gcSize2);

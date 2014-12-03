@@ -70,6 +70,36 @@ namespace
 #include <sys/types.h>
 #include <sys/stat.h>
 
+std::string FileSystem::getBasename(const std::string& filename)
+{
+#ifdef _WIN32
+    size_t find = filename.find_last_of('\\');
+    if (find == std::string::npos)
+        return filename;
+
+    return filename.substr(find + 1);
+#else
+    char buf[BUFSIZ];
+    strcpy(buf, filename.c_str());
+    return basename(buf);
+#endif
+}
+
+std::string FileSystem::getDirname(const std::string& filename)
+{
+#ifdef _WIN32
+    size_t find = filename.find_last_of('\\');
+    if (find == std::string::npos)
+        return filename;
+
+    return filename.substr(0, find);
+#else
+    char buf[BUFSIZ];
+    strcpy(buf, filename.c_str());
+    return dirname(buf);
+#endif
+}
+
 std::string FileSystem::getFullFilePath(const std::string& filename)
 {
 #ifdef _WIN32

@@ -93,6 +93,9 @@ enum Inputs
 
 int main(int argc, char** argv)
 {
+    // Run program from it's executable directory
+    Util::FileSystem::setSaneWorkingDir(argv[0]);
+
     asIScriptEngine* engine = asCreateScriptEngine(ANGELSCRIPT_VERSION);
 
     engine->SetMessageCallback(asFUNCTION(MessageCallback), nullptr, asCALL_CDECL);
@@ -112,9 +115,6 @@ int main(int argc, char** argv)
     Input::InputManager.bindInput(Input_Up, Input::Input::Bind{ Input::Input::Bind::Bind_Keyboard, { { sf::Keyboard::W, 0 } } });
     // Input::InputManager.bindInput(Input_Down, Input::Input::Bind{ Input::Input::Bind::Bind_Keyboard, { { sf::Keyboard::S, 0 } } }); // Linking does this automagically
 
-    auto cwd = Util::FileSystem::getWorkingDirectory();
-    auto udir = Util::FileSystem::getUserDir();
-    //auto appdir = Util::FileSystem::getApplicationDir("LD31", "Ananace");
     auto files = Util::FileSystem::findFiles("*.as", true);
 
     // TODO: A Game

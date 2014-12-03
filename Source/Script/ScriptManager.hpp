@@ -34,8 +34,7 @@ public:
     bool loadScriptFromMemory(const std::string& file, const char* data, size_t length);
     bool loadScriptFromMemory(const std::string& file, const std::string& data);
 
-    ///\todo Add a timeout for the co-routine execution
-    void runCoroutines();
+    void runCoroutines(const Util::Timespan& duration = std::chrono::milliseconds(5));
 
     void defineWord(const std::string& word);
 
