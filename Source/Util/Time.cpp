@@ -1,5 +1,4 @@
 #include "Time.hpp"
-#include <Defines.hpp>
 
 #include <chrono>
 #include <iostream>

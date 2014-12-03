@@ -13,6 +13,8 @@ struct Rect
     Rect(float left, float top, float width, float height);
     Rect(const Vector2& topleft, float width, float height);
     Rect(const Vector2& topleft, const Vector2& bottomright);
+    Rect(const Rect&) = default;
+    ~Rect() = default;
     
     template<typename T>
     Rect(const sf::Rect<T>& rect);

@@ -1,12 +1,14 @@
 #pragma once
 
+#include <Defines.hpp>
+
 #include <chrono>
 #include <cstdint>
 
 namespace Util
 {
 
-#ifdef _MSC_VER
+#ifdef LD31_WINDOWS
 class ClockImpl
 {
 public:

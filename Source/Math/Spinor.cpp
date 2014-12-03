@@ -1,7 +1,11 @@
 #include "Spinor.hpp"
 #include "Common.hpp"
+#include <Script/ScriptExtensions.hpp>
+
+#include <angelscript.h>
 
 #include <memory>
+#include <cassert>
 #include <cmath>
 
 using namespace Math;
@@ -125,32 +129,45 @@ Spinor Spinor::getNormalized() const
     return Spinor(Real / len, Complex / len);
 }
 
-/*
+
 void Spinor::setLength(float len)
 {
-	
+    float oldLen = sqrt(Real * Real + Complex * Complex);
+    if (oldLen == 0)
+        return;
+
+    float newLen = len / oldLen;
+    Real *= newLen;
+    Complex *= newLen;
 }
-*/
+
 float Spinor::getLength() const
 {
     return sqrt(Real * Real + Complex * Complex);
 }
-/*
+
 void Spinor::setLengthSquared(float len)
 {
-	
+    float oldLen = Real * Real + Complex * Complex;
+    if (oldLen == 0)
+        return;
+
+    float newLen = len / oldLen;
+    Real *= newLen;
+    Complex *= newLen;
 }
-*/
+
 float Spinor::getLengthSquared() const
 {
     return Real * Real + Complex * Complex;
 }
-/*
+
 void Spinor::setAngle(float ang)
 {
-	
+    Real = cos(ang);
+    Complex = sin(ang);
 }
-*/
+
 float Spinor::getAngle() const
 {
     return atan2(Complex, Real) * 2;
@@ -194,3 +211,55 @@ Spinor Spinor::slerp(const Spinor& end, float t) const
 
     return Spinor(scale0 * Real + scale1 * tr, scale0 * Complex + scale1 * tc);
 }
+
+namespace
+{
+    void Spinor_assign(const Spinor& rhs, Spinor& lhs)
+    {
+        lhs = rhs;
+    }
+
+    bool Reg()
+    {
+        Script::ScriptExtensions::AddExtension([](asIScriptEngine* eng) {
+            int r = 0;
+
+            r = eng->RegisterObjectType("Spinor", sizeof(Spinor), asOBJ_VALUE | asGetTypeTraits<Spinor>()); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Spinor", "bool opCmp(Spinor&in)", asMETHOD(Spinor, operator==), asCALL_THISCALL); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Spinor", "Spinor& opAssign(Spinor&in)", asFUNCTION(Spinor_assign), asCALL_CDECL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "Spinor& opAddAssign(Spinor&in)", asMETHOD(Spinor, operator+=), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "Spinor& opSubAssign(Spinor&in)", asMETHOD(Spinor, operator-=), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "Spinor& opMulAssign(Spinor&in)", asMETHODPR(Spinor, operator*=, (const Spinor&), Spinor&), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "Spinor& opMulAssign(float)", asMETHODPR(Spinor, operator*=, (float), Spinor&), asCALL_THISCALL); assert(r >= 0);
+            // r = eng->RegisterObjectMethod("Spinor", "Spinor& opDivAssign(Spinor&in)", asMETHODPR(Spinor, operator/=, (const Spinor&), Spinor&), asCALL_THISCALL); assert(r >= 0);
+            // r = eng->RegisterObjectMethod("Spinor", "Spinor& opDivAssign(float)", asMETHODPR(Spinor, operator/=, (float), Spinor&), asCALL_THISCALL); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Spinor", "Spinor opAdd(Spinor&in)", asMETHOD(Spinor, operator+), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "Spinor opSub(Spinor&in)", asMETHOD(Spinor, operator+), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "Spinor opMul(Spinor&in)", asMETHODPR(Spinor, operator*, (const Spinor&) const, Spinor), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "Spinor opMul(float)", asMETHODPR(Spinor, operator*, (float) const, Spinor), asCALL_THISCALL); assert(r >= 0);
+            // r = eng->RegisterObjectMethod("Spinor", "Spinor opDiv(Spinor&in)", asMETHODPR(Spinor, operator/, (const Spinor&) const, Spinor), asCALL_THISCALL); assert(r >= 0);
+            // r = eng->RegisterObjectMethod("Spinor", "Spinor opDiv(float)", asMETHODPR(Spinor, operator/, (float) const, Spinor), asCALL_THISCALL); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Spinor", "float get_Angle()", asMETHOD(Spinor, getAngle), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "void set_Angle(float)", asMETHOD(Spinor, setAngle), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "void get_Inverted()", asMETHOD(Spinor, getInverted), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "float get_Length()", asMETHOD(Spinor, getLength), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "void set_Length(float)", asMETHOD(Spinor, setLength), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "float get_LengthSquared()", asMETHOD(Spinor, getLengthSquared), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "void set_LengthSquared(float)", asMETHOD(Spinor, setLengthSquared), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "void get_Normalized()", asMETHOD(Spinor, getNormalized), asCALL_THISCALL); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Spinor", "float Dot(Spinor&in)", asMETHOD(Spinor, dotProduct), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "void Invert()", asMETHOD(Spinor, invert), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "void Normalize()", asMETHOD(Spinor, normalize), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Spinor", "Spinor Slerp(Spinor&in,float)", asMETHOD(Spinor, slerp), asCALL_THISCALL); assert(r >= 0);
+        });
+
+        return true;
+    }
+}
+
+bool Script::ScriptExtensions::Spinor = Reg();

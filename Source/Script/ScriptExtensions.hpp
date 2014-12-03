@@ -23,6 +23,7 @@ private:
     static bool CommonExtensions;
     static bool CommonMath;
     static bool Rect;
+    static bool Spinor;
     static bool Vector2;
 
     static bool InputExtensions;

@@ -47,7 +47,7 @@ void ScriptExtensions::RegisterAll(asIScriptEngine* eng)
 
 bool ScriptExtensions::RegisteredAllExtensions()
 {
-    return CommonExtensions && CommonMath && Rect && Vector2 && InputExtensions && ScriptManagerExtensions && SFML::Extensions::RegisteredExtensions();
+    return CommonExtensions && CommonMath && Rect && Spinor && Vector2 && InputExtensions && ScriptManagerExtensions && SFML::Extensions::RegisteredExtensions();
 }
 
 namespace

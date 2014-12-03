@@ -7,23 +7,28 @@ namespace Math
 
 struct Vector2
 {
-    // Default constructor
+    /// Default constructor
     Vector2();
-    // Component constructor
-    Vector2(float x, float y);
+    /// Component constructor
+    Vector2(float x, float y);    
 
-    // SFML conversion constructor
+    /// SFML conversion constructor
     template<typename T>
     Vector2(const sf::Vector2<T>& vec);
 
-    // SFML conversion casting
+    /// Copy constructor
+    Vector2(const Vector2&) = default;
+    /// Destructor
+    ~Vector2() = default;
+
+    /// SFML conversion casting
     template<typename T>
     operator sf::Vector2<T>() const;
 
-    // Epsilon comparison
+    /// Epsilon comparison
     bool operator==(const Vector2& rhs) const;
 
-    // Assignment operator
+    /// Assignment operator
     Vector2& operator=(Vector2 rhs);
 
     // Arithmetic assignment operators

@@ -8,6 +8,8 @@ struct Spinor
     Spinor();
     Spinor(float ang);
     Spinor(float real, float complex);
+    Spinor(const Spinor&) = default;
+    ~Spinor() = default;
 
     // Comparison operator
     bool operator==(const Spinor& rhs);
