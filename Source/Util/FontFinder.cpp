@@ -5,7 +5,13 @@
 
 namespace
 {
-    bool wildcmp(const wchar_t* wild, const wchar_t* string)
+#ifdef _WIN32
+    typedef wchar_t wildchar_type;
+#else
+    typedef char wildchar_type;
+#endif
+
+    bool wildcmp(const wildchar_type* wild, const wildchar_type* string)
     {
         while ((*string) && (*wild != '*'))
         {
@@ -16,7 +22,7 @@ namespace
             string++;
         }
 
-        const wchar_t* cp = NULL, *mp = NULL;
+        const wildchar_type* cp = NULL, *mp = NULL;
 
         while (*string)
         {

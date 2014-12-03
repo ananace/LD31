@@ -1,6 +1,7 @@
 #include <Input/InputManager.hpp>
 #include <Script/ScriptExtensions.hpp>
 #include <Script/SFML/Extensions.hpp>
+#include <Util/FileSystem.hpp>
 
 #include <angelscript.h>
 
@@ -110,6 +111,10 @@ int main(int argc, char** argv)
 
     Input::InputManager.bindInput(Input_Up, Input::Input::Bind{ Input::Input::Bind::Bind_Keyboard, { { sf::Keyboard::W, 0 } } });
     // Input::InputManager.bindInput(Input_Down, Input::Input::Bind{ Input::Input::Bind::Bind_Keyboard, { { sf::Keyboard::S, 0 } } }); // Linking does this automagically
+
+    auto cwd = Util::FileSystem::getWorkingDirectory();
+    auto udir = Util::FileSystem::getUserDir();
+    auto files = Util::FileSystem::findFiles("*.as", true);
 
     // TODO: A Game
 

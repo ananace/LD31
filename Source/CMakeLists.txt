@@ -23,6 +23,7 @@ SET(LD31_HEADERS
 	Script/SFML/Extensions.hpp
 	Script/SFML/Extensions.inl
 
+    Util/FileSystem.hpp
 	Util/FontFinder.hpp
 	Util/RefCount.hpp
     Util/RefCount.inl
@@ -60,6 +61,7 @@ SET(LD31_SOURCES
 	Script/SFML/Texture.cpp
 	Script/SFML/View.cpp
 
+    Util/FileSystem.cpp
 	Util/FontFinder.cpp
     Util/RefCount.cpp
     Util/Time.cpp
