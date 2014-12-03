@@ -77,7 +77,7 @@ namespace
 bool Script::ScriptExtensions::InputExtensions = Reg();
 
 InputMan::InputMan() :
-    mDisabled(false), mBindLinked(false), mCurrentlyBinding(nullptr)
+    mDisabled(false), mBindLinked(false), mMouseWheelDelta(0), mMouseWheelPos(0), mCurrentlyBinding(nullptr)
 {
     mCurvesPerAxis.resize(sf::Joystick::AxisCount);
     for (uint32_t i = 0; i < sf::Joystick::AxisCount; ++i)
@@ -167,6 +167,19 @@ uint8_t InputMan::getSensitivity(sf::Joystick::Axis axis) const
     return mCurvesPerAxis[axis]->Sensitivity;
 }
 
+Math::Vector2 InputMan::getMousePos() const
+{
+    return mMousePos;
+}
+int InputMan::getMouseWheelDelta() const
+{
+    return mMouseWheelDelta;
+}
+int InputMan::getMouseWheelPos() const
+{
+    return mMouseWheelPos;
+}
+
 const Input::Input& InputMan::operator[](uint8_t id) const
 {
     return mInputs.at(id);
@@ -178,6 +191,18 @@ const Input::Input& InputMan::at(uint8_t id) const
 
 void InputMan::handleEvent(const sf::Event& ev)
 {
+    if (ev.type == sf::Event::MouseMoved)
+    {
+        mMousePos.X = (float)ev.mouseMove.x;
+        mMousePos.Y = (float)ev.mouseMove.y;
+        return;
+    }
+    else if (ev.type == sf::Event::MouseWheelMoved)
+    {
+        mMouseWheelDelta = ev.mouseWheel.delta;
+        mMouseWheelPos += mMouseWheelDelta;
+    }
+
     if (mDisabled || !mCurrentlyBinding)
         return;
 

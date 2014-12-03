@@ -68,6 +68,10 @@ Vector2 Rect::getBottomRight() const
 {
     return Vector2(Left + Width, Top + Height);
 }
+Vector2 Rect::getCenter() const
+{
+    return Vector2(Left + Width / 2.f, Top + Height / 2.f);
+}
 Vector2 Rect::getSize() const
 {
     return Vector2(Width, Height);
@@ -164,6 +168,7 @@ namespace
             r = eng->RegisterObjectProperty("Rect", "float Width", asOFFSET(Rect, Width)); assert(r >= 0);
             r = eng->RegisterObjectProperty("Rect", "float Height", asOFFSET(Rect, Height)); assert(r >= 0);
 
+            r = eng->RegisterObjectMethod("Rect", "Vec2 get_Center()", asMETHOD(Rect, getCenter), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Rect", "Vec2 get_TopLeft()", asMETHOD(Rect, getTopLeft), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Rect", "void set_TopLeft(Vec2&in)", asFUNCTION(rect_setTopLeft), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Rect", "Vec2 get_BottomRight()", asMETHOD(Rect, getBottomRight), asCALL_THISCALL); assert(r >= 0);

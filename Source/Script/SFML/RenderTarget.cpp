@@ -5,7 +5,9 @@
 #include <Util/ResourceManager.hpp>
 
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Shader.hpp>
+#include <SFML/Window/Mouse.hpp>
 
 #include <angelscript.h>
 
@@ -20,29 +22,33 @@ namespace
         target.draw(draw, &(**shader));
     }
 
-    Math::Vector2 getSize(sf::RenderTarget& target)
+    Math::Vector2 getMouse(sf::RenderTarget* target)
     {
-        return target.getSize();
+        return sf::Mouse::getPosition(*(sf::RenderWindow*)target);
     }
-    Math::Rect getViewport(const sf::View& view, sf::RenderTarget& target)
+    Math::Vector2 getSize(sf::RenderTarget* target)
     {
-        return target.getViewport(view);
+        return target->getSize();
     }
-    Math::Vector2 mapCoordsToPixel(const Math::Vector2& vec, sf::RenderTarget& target)
+    Math::Rect getViewport(const sf::View& view, sf::RenderTarget* target)
     {
-        return target.mapCoordsToPixel(vec);
+        return target->getViewport(view);
     }
-    Math::Vector2 mapCoordsToPixel_view(const Math::Vector2& vec, const sf::View& view, sf::RenderTarget& target)
+    Math::Vector2 mapCoordsToPixel(const Math::Vector2& vec, sf::RenderTarget* target)
     {
-        return target.mapCoordsToPixel(vec, view);
+        return target->mapCoordsToPixel(vec);
     }
-    Math::Vector2 mapPixelToCoords(const Math::Vector2& vec, sf::RenderTarget& target)
+    Math::Vector2 mapCoordsToPixel_view(const Math::Vector2& vec, const sf::View& view, sf::RenderTarget* target)
     {
-        return target.mapPixelToCoords(vec);
+        return target->mapCoordsToPixel(vec, view);
     }
-    Math::Vector2 mapPixelToCoords_view(const Math::Vector2& vec, const sf::View& view, sf::RenderTarget& target)
+    Math::Vector2 mapPixelToCoords(const Math::Vector2& vec, sf::RenderTarget* target)
     {
-        return target.mapPixelToCoords(vec, view);
+        return target->mapPixelToCoords(vec);
+    }
+    Math::Vector2 mapPixelToCoords_view(const Math::Vector2& vec, const sf::View& view, sf::RenderTarget* target)
+    {
+        return target->mapPixelToCoords(vec, view);
     }
 
     bool Reg()
@@ -53,6 +59,7 @@ namespace
             r = eng->RegisterObjectType("Renderer", 0, asOBJ_REF | asOBJ_NOCOUNT);
 
             r = eng->RegisterObjectMethod("Renderer", "View& get_DefaultView()", asMETHOD(sf::RenderTarget, getDefaultView), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "Vec2 get_MousePos()", asFUNCTION(getMouse), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "Vec2 get_Size()", asFUNCTION(getSize), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "View& get_View()", asMETHOD(sf::RenderTarget, getView), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "void set_View(View&in)", asMETHOD(sf::RenderTarget, setView), asCALL_THISCALL); assert(r >= 0);

@@ -44,6 +44,8 @@ struct Rect
     Vector2 getTopLeft() const;
     /// Gets the bottom right corner
     Vector2 getBottomRight() const;
+    /// Gets the center of the rect
+    Vector2 getCenter() const;
     /// Gets the width and height as a 2D vector
     Vector2 getSize() const;
 

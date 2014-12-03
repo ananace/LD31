@@ -13,6 +13,7 @@ namespace SFML
         static bool Color; // Value
         static bool ConvexShape; // Value
         static bool Font; // Ref, No count
+        static bool Mouse; // Interface
         static bool Music; // Ref
         static bool RectangleShape; // Value
         static bool RenderTarget; // Ref, No count

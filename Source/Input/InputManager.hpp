@@ -2,6 +2,7 @@
 
 #include "Input.hpp"
 #include "JoystickCurve.hpp"
+#include <Math/Vector.hpp>
 
 #include <vector>
 
@@ -59,6 +60,11 @@ public:
     /// Gets the sensitivity value for the given axis
     uint8_t getSensitivity(sf::Joystick::Axis axis) const;
 
+    /// Get the mouse position relative to the main window
+    Math::Vector2 getMousePos() const;
+    int getMouseWheelDelta() const;
+    int getMouseWheelPos() const;
+
     /// Gets the Input at the specified ID
     const Input& operator[](uint8_t id) const;
     /// Gets the Input at the specified ID
@@ -79,6 +85,11 @@ public:
 private:
     bool mDisabled, ///< Is the input system disabled
          mBindLinked; ///< Should the next bind also applied to the linked Input
+
+    Math::Vector2 mMousePos; ///< The current mouse position
+    int mMouseWheelDelta,
+        mMouseWheelPos;
+
     Input* mCurrentlyBinding; ///< The Input currently being bound (or nullptr if none)
     std::vector<Input> mInputs; ///< The list of available inputs
 

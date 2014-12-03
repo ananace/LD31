@@ -1,5 +1,25 @@
+SET(LD31_Game_HEADERS
+	Application.hpp
+
+	View/Camera.hpp
+)
+
+SET(LD31_Game_SOURCES
+	Application.cpp
+
+	View/Camera.cpp
+)
+SOURCE_GROUP("Header files" REGULAR_EXPRESSION "[^./]+.(hpp|inl)")
+SOURCE_GROUP("Source files" REGULAR_EXPRESSION "[^./]+.cpp")
+
+SOURCE_GROUP("Header files\\View" REGULAR_EXPRESSION "View/[^./]+.(hpp|inl)")
+SOURCE_GROUP("Source files\\View" REGULAR_EXPRESSION "View/[^./]+.cpp")
+
 ADD_EXECUTABLE(LD31_Game
 	main.cpp
+
+	${LD31_Game_HEADERS}
+	${LD31_Game_SOURCES}
 )
 
 TARGET_LINK_LIBRARIES(LD31_Game
