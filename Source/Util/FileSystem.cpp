@@ -275,6 +275,10 @@ bool FileSystem::deleteFile(const std::string& file)
 
 std::string FileSystem::getUserDir()
 {
+    static std::string UserDir;
+    if (!UserDir.empty())
+        return UserDir;
+
 #ifdef _WIN32
     typedef BOOL(WINAPI *fnGetUserProfDirW)(HANDLE, LPWSTR, LPDWORD);
     fnGetUserProfDirW pGetDir = nullptr;
@@ -317,7 +321,7 @@ std::string FileSystem::getUserDir()
     CloseHandle(accessToken);
     FreeLibrary(lib);
 
-    return nowide::narrow(wstr);
+    UserDir = nowide::narrow(wstr);
 #else
     char *envr = getenv("HOME");
     if (envr && isFolder(envr))
@@ -331,49 +335,59 @@ std::string FileSystem::getUserDir()
         if (add_dirsep)
             storage[len] = '/';
 
-        return std::string(&storage[0], len + add_dirsep);
+        UserDir = std::string(&storage[0], len + add_dirsep);
     }
-
-    uid_t uid = getuid();
-    struct passwd *pw;
-
-    pw = getpwuid(uid);
-    if ((pw != NULL) && (pw->pw_dir != NULL) && (*pw->pw_dir != '\0'))
+    else
     {
-        const size_t dlen = strlen(pw->pw_dir);
-        const size_t add_dirsep = (pw->pw_dir[dlen - 1] != '/') ? 1 : 0;
+        uid_t uid = getuid();
+        struct passwd *pw;
 
-        std::vector<char> storage(dlen + add_dirsep);
-        strcpy(&storage[0], pw->pw_dir);
+        pw = getpwuid(uid);
+        if ((pw != NULL) && (pw->pw_dir != NULL) && (*pw->pw_dir != '\0'))
+        {
+            const size_t dlen = strlen(pw->pw_dir);
+            const size_t add_dirsep = (pw->pw_dir[dlen - 1] != '/') ? 1 : 0;
 
-        if (add_dirsep)
-            storage[len] = '/';
+            std::vector<char> storage(dlen + add_dirsep);
+            strcpy(&storage[0], pw->pw_dir);
 
-        return std::string(&storage[0], len + add_dirsep);
+            if (add_dirsep)
+                storage[len] = '/';
+
+            UserDir = std::string(&storage[0], len + add_dirsep);
+        }
     }
-
-    return "";
 #endif
+
+    return UserDir;
 }
 
 std::string FileSystem::getApplicationDir(const std::string& appname, const std::string& orgname)
 {
+    static std::string BaseAppDir;
+    if (!BaseAppDir.empty())
 #ifdef _WIN32
+        return BaseAppDir + "\\" + (orgname.empty() ? appname : orgname + "\\" + appname);
+
     WCHAR path[MAX_PATH];
     size_t len = 0;
 
     if (SHGetFolderPathW(NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, 0, path) != S_OK)
         return "";
 
-    std::string appDir = nowide::narrow(path);
+    BaseAppDir = nowide::narrow(path);
+
+    std::string appDir = BaseAppDir;
     if (!orgname.empty())
         appDir += "\\" + orgname;
     appDir += "\\" + appname;
-    if (!isFolder(appDir))
-        if (!createFolder(appDir, true))
-            return "";
 
     return appDir;
+#else
+        return BaseAppDir + "/" + (orgname.empty() ? appname : orgname + "/" + appname);
+
+#if (defined __APPLE__) || (defined __MACH__)
+    std::string appDir = getUserDir() + "Library/Application Support"
 #else
     const char *envr = getenv("XDG_DATA_HOME");
     
@@ -385,14 +399,13 @@ std::string FileSystem::getApplicationDir(const std::string& appname, const std:
     }
     else
         appDir = std::string(envr);
+#endif
+
+    BaseAppDir = appDir;
 
     if (!orgname.empty())
         appDir += "/" + orgname;
     appDir += "/" + appname;
-
-    if (!isFolder(appDir))
-        if (!createFolder(appDir, true))
-            return "";
 
     return appDir;
 #endif
