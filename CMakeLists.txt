@@ -76,6 +76,13 @@ IF (MSVC)
 	ADD_SUBDIRECTORY(External/nowide_standalone)
 ENDIF()
 
+IF (LINUX)
+	FIND_PATH(FontConfig_INCLUDE_DIR fontconfig/fontconfig.h)
+	FIND_LIBRARY(FontConfig_LIBRARIES NAMES fontconfig)
+
+	INCLUDE_DIRECTORIES(${FontConfig_INCLUDE_DIR})
+ENDIF()
+
 # Include directories
 
 INCLUDE_DIRECTORIES(

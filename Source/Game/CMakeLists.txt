@@ -31,6 +31,7 @@ TARGET_LINK_LIBRARIES(LD31_Game
 	nowide-static
 	
 	${Angelscript_LIBRARIES}
+	${FontConfig_LIBRARIES}
 	${SFML_LIBRARIES}
 )
 
