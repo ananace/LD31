@@ -2,6 +2,7 @@
 
 #include <Input/InputManager.hpp>
 #include <Script/ScriptManager.hpp>
+#include <Util/FileSystem.hpp>
 
 #include <SFML/Window/Event.hpp>
 
@@ -16,7 +17,13 @@ namespace
 
 Application::Application()
 {
-
+    if (Util::FileSystem::isFolder("Scripts"))
+    {
+        for (auto& script : Util::FileSystem::findFiles(Util::FileSystem::fixPath("Scripts/*.as")))
+        {
+            Script::ScriptManager.loadScriptFromFile(script);
+        }
+    }
 }
 
 void Application::runGameLoop()

@@ -225,16 +225,19 @@ Spinor Spinor::slerp(const Spinor& end, float t) const
 namespace
 {
     void Spinor_create(Spinor* memory) {
-        new(memory)Spinor();
+        new(memory) Spinor();
     }
     void Spinor_create_ang(float ang, Spinor* memory) {
-        new(memory)Spinor(ang);
+        new(memory) Spinor(ang);
     }
     void Spinor_create_val(float real, float complex, Spinor* memory) {
-        new(memory)Spinor(real, complex);
+        new(memory) Spinor(real, complex);
     }
     void Spinor_create_complex(const Complex& complex, Spinor* memory) {
-        new(memory)Spinor(complex.r, complex.i);
+        new(memory) Spinor(complex.r, complex.i);
+    }
+    void Spinor_destruct(Spinor* memory) {
+        memory->~Spinor();
     }
 
     void Spinor_assign(const Complex& rhs, Spinor& lhs)
@@ -253,6 +256,7 @@ namespace
             r = eng->RegisterObjectBehaviour("Spinor", asBEHAVE_CONSTRUCT, "void f(float)", asFUNCTION(Spinor_create_ang), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Spinor", asBEHAVE_CONSTRUCT, "void f(float,float)", asFUNCTION(Spinor_create_val), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Spinor", asBEHAVE_CONSTRUCT, "void f(complex&in)", asFUNCTION(Spinor_create_complex), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectBehaviour("Spinor", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(Spinor_destruct), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Spinor", "bool opCmp(Spinor&in)", asMETHOD(Spinor, operator==), asCALL_THISCALL); assert(r >= 0);
 

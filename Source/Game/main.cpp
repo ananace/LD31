@@ -81,8 +81,7 @@ int main(int argc, char** argv)
 {
     // Run program from it's executable directory
     Util::FileSystem::setSaneWorkingDir(argv[0]);
-    Application app;
-
+    
     asIScriptEngine* engine = asCreateScriptEngine(ANGELSCRIPT_VERSION);
 
     engine->SetMessageCallback(asFUNCTION(MessageCallback), nullptr, asCALL_CDECL);
@@ -93,6 +92,8 @@ int main(int argc, char** argv)
 
     // Register the extensions into the engine
     Script::ScriptExtensions::RegisterAll(engine);
+
+    Application app;
 
     app.runGameLoop();
 

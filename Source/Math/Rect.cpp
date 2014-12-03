@@ -118,13 +118,16 @@ namespace
         new(memory) Rect();
     }
     void create_rect_loose(float l, float t, float w, float h, void* memory) {
-        new(memory)Rect(l, t, w, h);
+        new(memory) Rect(l, t, w, h);
     }
     void create_rect_tlwh(const Vector2& tl, float w, float h, void* memory) {
-        new(memory)Rect(tl, w, h);
+        new(memory) Rect(tl, w, h);
     }
     void create_rect_tlbr(const Vector2& tl, const Vector2& br, void* memory) {
-        new(memory)Rect(tl, br);
+        new(memory) Rect(tl, br);
+    }
+    void destruct_rect(Rect* memory) {
+        memory->~Rect();
     }
 
     void rect_setBottomRight(const Vector2& br, Rect& rect)
@@ -159,6 +162,7 @@ namespace
             r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_CONSTRUCT, "void f(float,float,float,float)", asFUNCTION(create_rect_loose), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_CONSTRUCT, "void f(Vec2,float,float)", asFUNCTION(create_rect_tlwh), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_CONSTRUCT, "void f(Vec2,Vec2)", asFUNCTION(create_rect_tlbr), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destruct_rect), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Rect", "Rect& opAssign(Rect)", asMETHOD(Rect, operator=), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Rect", "bool opEquals(Rect&in)", asMETHOD(Rect, operator==), asCALL_THISCALL); assert(r >= 0);

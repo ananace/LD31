@@ -10,9 +10,14 @@ namespace Util
 class FileSystem
 {
 public:
+    /// Path separator
+    static const char SEPARATOR;
+
     /// Sets the working dir to the location of the current executable
     static void setSaneWorkingDir(const std::string& argv0) { changeWorkingDirectory(getDirname(getFullFilePath(argv0))); }
 
+    /// Fixes the path, replaing any incorrect slashes
+    static std::string fixPath(const std::string& path);
     /// Gets the basename of the specified path
     static std::string getBasename(const std::string& path);
     /// Gets the dirname of the specified path

@@ -73,6 +73,21 @@ namespace
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef LD31_WINDOWS
+const char FileSystem::SEPARATOR = '\\';
+char WRONG_SEPARATOR = '/';
+#else
+const char FileSystem::SEPARATOR = '/';
+char WRONG_SEPARATOR = '\';
+#endif
+
+std::string FileSystem::fixPath(const std::string& path)
+{
+    std::string copy = path;
+    std::replace(copy.begin(), copy.end(), WRONG_SEPARATOR, SEPARATOR);
+    return copy;
+}
+
 std::string FileSystem::getBasename(const std::string& filename)
 {
 #ifdef LD31_WINDOWS

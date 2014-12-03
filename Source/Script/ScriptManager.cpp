@@ -1,6 +1,7 @@
 #include "ScriptManager.hpp"
 #include "ScriptExtensions.hpp"
 #include "ScriptObject.hpp"
+#include <Util/FileSystem.hpp>
 
 #include <nowide/fstream.hpp>
 
@@ -75,6 +76,76 @@ namespace
         });
         return true;
     }
+
+    void skipWhitespace(std::string::iterator& it)
+    {
+        char c = *it;
+        if (c != ' ' && c != '\t')
+            return;
+
+        while ((c = *it++) != 0 && (c == ' ' || c == '\t'));
+    }
+
+    std::string stripMetadataLines(const std::string& data)
+    {
+        std::istringstream iss(data);
+        std::ostringstream oss;
+
+        while (iss && !iss.eof())
+        {
+            std::string line;
+            std::getline(iss, line);
+            
+            if (line.empty())
+            {
+                oss << std::endl;
+                continue;
+            }
+
+            auto it = line.begin();
+            skipWhitespace(it);
+
+            if (*it == '[')
+            {
+                line.insert(it, { '/', '/', ' ' });
+            }
+
+            oss << line << std::endl;
+        }
+
+        return oss.str();
+    }
+
+    int includeCallback(const char *include, const char *from, CScriptBuilder *builder, void *)
+    {
+        std::string path = Util::FileSystem::getDirname(Util::FileSystem::fixPath(from)) + Util::FileSystem::SEPARATOR + Util::FileSystem::fixPath(include);
+        std::string scriptContent;
+
+        {
+            nowide::ifstream ifs;
+            ifs.open(path.c_str());
+
+            if (ifs.is_open() && ifs)
+            {
+                ifs.seekg(0, std::ios::end);
+                size_t len = (size_t)ifs.tellg();
+                ifs.seekg(0, std::ios::beg);
+
+                std::vector<char> storage(len);
+                ifs.read(&storage[0], len);
+                scriptContent = std::string(&storage[0], len);
+            }
+        }
+
+        if (scriptContent.empty())
+            return asERROR;
+        
+        scriptContent = stripMetadataLines(scriptContent);
+
+        return builder->AddSectionFromMemory(path.c_str(), scriptContent.c_str());
+    }
+
+    uint32_t META_MASK = 0xBEEF;
 }
 
 bool ScriptExtensions::ScriptManagerExtensions = Reg();
@@ -88,7 +159,7 @@ struct Manager::CoRoutine
 Manager::Manager() :
     mEngine(nullptr), mMetaMod(nullptr)
 {
-    
+    mBuilder.SetIncludeCallback(includeCallback, nullptr);
 }
 Manager::~Manager()
 {
@@ -109,10 +180,14 @@ void Manager::setEngine(asIScriptEngine* eng)
     mMetaMod = mEngine->GetModule("MetaMod", asGM_ALWAYS_CREATE);
 }
 
-bool Manager::loadScriptFromFile(const std::string& file)
+bool Manager::loadScriptFromFile(const std::string& filename)
 {
+    std::string file = Util::FileSystem::fixPath(filename);
+
     nowide::ifstream ifs;
-    ifs.open(file.c_str(), std::ios::in | std::ios::binary);
+    ifs.open(file.c_str(), std::ios::binary);
+    if (!ifs.is_open() || !ifs)
+        return false;
 
     ifs.seekg(0, std::ios::end);
     size_t len = (size_t)ifs.tellg();
@@ -204,9 +279,10 @@ bool Manager::loadScriptFromMemory(const std::string& file, const char* data, si
         if (ret < 0)
             return false;
 
+        
         auto ctx = mEngine->RequestContext();
         auto mod = mBuilder.GetModule();
-        mod->SetUserData(this);
+        auto mask = mod->SetAccessMask(META_MASK);
 
         for (uint32_t i = 0; i < mod->GetObjectTypeCount(); ++i)
         {
@@ -244,6 +320,8 @@ bool Manager::loadScriptFromMemory(const std::string& file, const char* data, si
                 }
             }
         }
+
+        mod->SetAccessMask(mask);
 
         mLoadedScripts.push_back(file);
         return true;
@@ -357,7 +435,7 @@ void Manager::runMetadata(const std::string& meta, asIScriptContext* ctx)
     do
     {
         size_t next = meta.find(';', cur);
-        ExecuteString(mEngine, ("Meta::" + meta.substr(cur, next)).c_str(), mod, ctx);
+        ExecuteString(mEngine, (meta.substr(cur, next)).c_str(), mod, ctx);
 
         if (next == std::string::npos)
             break;
