@@ -26,3 +26,6 @@
 *.exe
 *.out
 *.app
+
+# Configured files
+Source/Defines.hpp
