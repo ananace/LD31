@@ -6,7 +6,7 @@
 
 std::unordered_map<void*, Texture_t*> Script::SFML::shapes;
 
-bool Script::SFML::RegisteredExtensions()
+bool Script::SFML::Extensions::RegisteredExtensions()
 {
     const int TotalExtensions = 13;
 

@@ -3,9 +3,11 @@
 namespace Script
 {
 
+struct ScriptExtensions;
+
 namespace SFML
 {
-    struct Extensions
+    class Extensions
     {
         static bool CircleShape; // Value
         static bool Color; // Value
@@ -20,9 +22,10 @@ namespace SFML
         static bool Text; // Value
         static bool Texture; // Ref
         static bool View; // Ref, No count
-    };
 
-    bool RegisteredExtensions();
+        static bool RegisteredExtensions();
+        friend struct ScriptExtensions;
+    };
 }
 
 }

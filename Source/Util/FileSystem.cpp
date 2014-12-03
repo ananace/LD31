@@ -186,11 +186,8 @@ std::vector<std::string> FileSystem::findFiles(const std::string& wildcard, bool
 
     FindClose(hFind);
 #else
-    char buf[BUFSIZ];
-    strcpy(buf, wildcard.c_str());
-    std::string dirName = dirname(buf);
-    strcpy(buf, wildcard.c_str());
-    std::string findName = basename(buf);
+    std::string dirName = getDirname(wildcard);
+    std::string findName = getBasename(wildcard);
 
     DIR* dp;
     dirent* dirp;
@@ -282,12 +279,7 @@ bool FileSystem::createFolder(const std::string& folder, bool recurse)
 
     if (recurse)
     {
-        std::string upOne = fixed;
-        auto found = upOne.find_last_of(appendix);
-        if (found == std::string::npos)
-            return false;
-
-        upOne.erase(found);
+        std::string upOne = getDirname(fixed);
 
         createFolder(upOne, true);
     }
@@ -301,6 +293,43 @@ bool FileSystem::createFolder(const std::string& folder, bool recurse)
 bool FileSystem::deleteFile(const std::string& file)
 {
     return nowide::remove(file.c_str()) == 0;
+}
+
+std::string FileSystem::getTempFile(const std::string& ext)
+{
+    char buf[L_tmpnam];
+#ifdef _WIN32
+    if (tmpnam_s(buf) != 0)
+        return "";
+#else
+    tmpnam(buf);
+#endif
+    size_t len = strlen(buf);
+    if (buf[len - 1] == '.')
+        buf[len - 1] = 0;
+
+    return getTempDir() + buf + ext;
+}
+
+std::string FileSystem::getTempDir()
+{
+#ifdef _WIN32
+    static std::string TempDir;
+    if (!TempDir.empty())
+        return TempDir;
+
+    wchar_t buf[BUFSIZ];
+    GetTempPathW(BUFSIZ, buf);
+    std::string temp = nowide::narrow(buf);
+    if (temp.back() == '\\')
+        temp.erase(temp.size() - 1);
+
+    TempDir = temp;
+
+    return temp;
+#else
+    return "/tmp";
+#endif
 }
 
 std::string FileSystem::getUserDir()
@@ -345,7 +374,7 @@ std::string FileSystem::getUserDir()
     if (wstr[psize - 2] != '\\')
     {
         wstr[psize - 1] = '\\';
-        wstr[psize - 0] = '\0';
+        wstr[psize - 0] = 0;
     }
 
     CloseHandle(accessToken);
@@ -397,7 +426,7 @@ std::string FileSystem::getApplicationDir(const std::string& appname, const std:
     static std::string BaseAppDir;
     if (!BaseAppDir.empty())
 #ifdef _WIN32
-        return BaseAppDir + "\\" + (orgname.empty() ? appname : orgname + "\\" + appname);
+        return BaseAppDir + "\\" + (orgname.empty() ? appname : orgname + "\\" + appname) + "\\";
 
     WCHAR path[MAX_PATH];
     size_t len = 0;
@@ -410,11 +439,11 @@ std::string FileSystem::getApplicationDir(const std::string& appname, const std:
     std::string appDir = BaseAppDir;
     if (!orgname.empty())
         appDir += "\\" + orgname;
-    appDir += "\\" + appname;
+    appDir += "\\" + appname + "\\";
 
     return appDir;
 #else
-        return BaseAppDir + "/" + (orgname.empty() ? appname : orgname + "/" + appname);
+        return BaseAppDir + "/" + (orgname.empty() ? appname : orgname + "/" + appname) + "/";
 
 #if (defined __APPLE__) || (defined __MACH__)
     std::string appDir = getUserDir() + "Library/Application Support"
@@ -435,7 +464,7 @@ std::string FileSystem::getApplicationDir(const std::string& appname, const std:
 
     if (!orgname.empty())
         appDir += "/" + orgname;
-    appDir += "/" + appname;
+    appDir += "/" + appname + "/";
 
     return appDir;
 #endif

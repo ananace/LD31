@@ -1,4 +1,5 @@
 #include "ScriptExtensions.hpp"
+#include "SFML/Extensions.hpp"
 
 #include <angelscript.h>
 
@@ -44,9 +45,9 @@ void ScriptExtensions::RegisterAll(asIScriptEngine* eng)
         it.second(eng);
 }
 
-bool ScriptExtensions::RegisteredCommonExtensions()
+bool ScriptExtensions::RegisteredAllExtensions()
 {
-    return CommonExtensions && CommonMath && Rect && Vector2 && InputExtensions && ScriptManagerExtensions;
+    return CommonExtensions && CommonMath && Rect && Vector2 && InputExtensions && ScriptManagerExtensions && SFML::Extensions::RegisteredExtensions();
 }
 
 namespace

@@ -15,7 +15,7 @@ struct ScriptExtensions
     static void AddExtension(const ExtensionRegisterCallback& callback, int priority = 0);
     static void RegisterAll(asIScriptEngine* eng);
 
-    static bool RegisteredCommonExtensions();
+    static bool RegisteredAllExtensions();
 
 private:
     static std::list<std::pair<int, ExtensionRegisterCallback>>* Extensions;

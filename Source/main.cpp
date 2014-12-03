@@ -21,7 +21,7 @@ void MessageCallback(const asSMessageInfo *msg, void* /*param*/)
 
 void ExceptionCallback(asIScriptContext *ctx, void* /*param*/)
 {
-    std::cout << "!! Script Exception occured !!\n" << std::endl;
+    std::cout << "!! Script Exception occured !!" << std::endl;
 
     const asIScriptFunction *function = ctx->GetExceptionFunction();
     if (function->GetModule())
@@ -81,16 +81,6 @@ void returnContext(asIScriptEngine* eng, asIScriptContext* ctx, void*)
     ctx->Release();
 }
 
-enum Inputs
-{
-    Input_Up,
-    Input_Down,
-    Input_Left,
-    Input_Right,
-
-    Input_MAX
-};
-
 int main(int argc, char** argv)
 {
     // Run program from it's executable directory
@@ -102,23 +92,12 @@ int main(int argc, char** argv)
     engine->SetContextCallbacks(getContext, returnContext);
 
     // Make certain that the scripts registered correctly
-    assert(Script::ScriptExtensions::RegisteredCommonExtensions());
-    assert(Script::SFML::RegisteredExtensions());
+    assert(Script::ScriptExtensions::RegisteredAllExtensions());
 
     // Register the extensions into the engine
     Script::ScriptExtensions::RegisterAll(engine);
 
-    Input::InputManager.setBindCount(Input_MAX);
-    Input::InputManager.linkInputs(Input_Up, Input_Down);
-    Input::InputManager.linkInputs(Input_Left, Input_Right);
-
-    Input::InputManager.bindInput(Input_Up, Input::Input::Bind{ Input::Input::Bind::Bind_Keyboard, { { sf::Keyboard::W, 0 } } });
-    // Input::InputManager.bindInput(Input_Down, Input::Input::Bind{ Input::Input::Bind::Bind_Keyboard, { { sf::Keyboard::S, 0 } } }); // Linking does this automagically
-
-    auto files = Util::FileSystem::findFiles("*.as", true);
-
-    // TODO: A Game
-
+    // TODO: Put Game Here
 
     engine->Release();
     return 0;

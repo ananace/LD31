@@ -40,8 +40,10 @@ public:
     /// Deletes a file at the specified path
     static bool deleteFile(const std::string& file);
 
+    /// Gets the path to a temporary file
+    static std::string getTempFile(const std::string& extension = ".tmp");
     /// Gets the temporary file directory
-    static std::string getUserDir();
+    static std::string getTempDir();
     /// Gets the user directory of the current user
     static std::string getUserDir();
 

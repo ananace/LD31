@@ -32,8 +32,7 @@ TEST_CASE("Basic script", "[script]")
 
     REQUIRE(eng->SetMessageCallback(asFUNCTION(MessageCallback), nullptr, asCALL_CDECL) >= 0);
 
-    REQUIRE(Script::ScriptExtensions::RegisteredCommonExtensions());
-    REQUIRE(Script::SFML::RegisteredExtensions());
+    REQUIRE(Script::ScriptExtensions::RegisteredAllExtensions());
 
     REQUIRE_NOTHROW(Script::ScriptExtensions::RegisterAll(eng));
 

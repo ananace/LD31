@@ -253,7 +253,7 @@ bool Manager::loadScriptFromMemory(const std::string& file, const char* data, si
 void Manager::runCoroutines(const Util::Timespan& duration)
 {
     Util::Timestamp now = Util::ClockImpl::now();
-    Util::Timestamp end = now + duration;
+    Util::Timestamp end = now + duration; // Keep this as a total duration, or per-coroutine?
 
     for (auto it = mCoRoutines.begin(); it != mCoRoutines.end();)
     {
@@ -278,6 +278,10 @@ void Manager::runCoroutines(const Util::Timespan& duration)
         // Execution of the co-routine ended for some reason
         if (r != asEXECUTION_SUSPENDED)
         {
+            std::ostringstream oss;
+            oss << "CoRoutine for " << co->Context->GetFunction()->GetScriptSectionName() << " (" << co->Context->GetFunction()->GetDeclaration() << ") ending...";
+            mEngine->WriteMessage("CoRoutines", 0, 0, asMSGTYPE_INFORMATION, oss.str().c_str());
+
             mEngine->ReturnContext(co->Context);
             delete co;
 
