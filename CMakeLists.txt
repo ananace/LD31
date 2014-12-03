@@ -52,6 +52,11 @@ IF (EXISTS ${PROJECT_SOURCE_DIR}/.git)
 		INCLUDE("${CMAKE_MODULE_PATH}/GetGitRevisionDescription.cmake")
 
 		GIT_DESCRIBE(LD31_GIT_DESCRIBE --long)
+		IF (LD31_GIT_DESCRIBE)
+			SET(LD31_HAS_TAG true)
+		ELSE()
+			SET(LD31_HAS_TAG false)
+		ENDIF()
 	ENDIF()
 ENDIF()
 

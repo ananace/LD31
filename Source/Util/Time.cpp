@@ -1,4 +1,5 @@
 #include "Time.hpp"
+#include <Defines.hpp>
 
 #include <chrono>
 #include <iostream>
@@ -6,8 +7,7 @@
 #include <ratio>
 #include <sstream>
 
-#ifdef _MSC_VER
-#define WIN32_LEAN_AND_MEAN
+#ifdef LD31_WINDOWS
 #include <windows.h>
 #else
 #include <unistd.h>
@@ -17,7 +17,7 @@
 
 using namespace Util;
 
-#ifdef _MSC_VER
+#ifdef LD31_WINDOWS
 std::chrono::system_clock::time_point ClockImpl::sSystemStart;
 Timestamp ClockImpl::sStart;
 int64_t ClockImpl::sFreq = ClockImpl::init();
@@ -65,7 +65,7 @@ std::ostream& operator<<(std::ostream& os, const Timestamp& out)
 {
     std::time_t time = ClockImpl::to_time_t(out);
 
-#ifdef _MSC_VER
+#ifdef LD31_WINDOWS
     tm tm_t;
     assert(localtime_s(&tm_t, &time) == 0);
 
@@ -106,7 +106,7 @@ void sleep(const Timestamp& ts)
     assert(ts > now);
     auto length = ts - now;
 
-#ifdef _MSC_VER
+#ifdef LD31_WINDOWS
     Sleep((DWORD)std::chrono::duration_cast<std::chrono::milliseconds>(length).count());
 #else
     usleep(std::chrono::duration_cast<std::chrono::microseconds>(length).count());
@@ -115,7 +115,7 @@ void sleep(const Timestamp& ts)
 
 void sleep(const Timespan& ts)
 {
-#ifdef _MSC_VER
+#ifdef LD31_WINDOWS
     Sleep((DWORD)std::chrono::duration_cast<std::chrono::milliseconds>(ts).count());
 #else
     usleep(std::chrono::duration_cast<std::chrono::microseconds>(ts).count());

@@ -1,11 +1,12 @@
 #include "FontFinder.hpp"
+#include <Defines.hpp>
 
 #include <array>
 #include <sstream>
 
 namespace
 {
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     typedef wchar_t wildchar_type;
 #else
     typedef char wildchar_type;
@@ -53,9 +54,8 @@ namespace
     }
 }
 
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
 #include <nowide/convert.hpp>
-#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
 namespace
@@ -165,8 +165,7 @@ bool Util::FontFinder::findFont(sf::Font& out, const std::string& name, const st
 
     return out.loadFromFile(path);
 }
-
-#else
+#elif LD31_UNIX
 #include <fontconfig/fontconfig.h>
 #include <algorithm>
 #include <tuple>
@@ -252,4 +251,7 @@ sf::Font& Util::FontFinder::getDefaultFont()
 bool Util::FontFinder::findFont(sf::Font& font, const std::string& wildcard, const std::string& stylecard)
 {
     return font.loadFromFile(getFont(wildcard, stylecard));
+}
+#else
+#  error("Does not currently support finding fonts on OS X")
 #endif

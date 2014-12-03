@@ -1,4 +1,5 @@
 #include "FileSystem.hpp"
+#include <Defines.hpp>
 
 #include <nowide/convert.hpp>
 #include <nowide/cstdio.hpp>
@@ -8,7 +9,7 @@ using Util::FileSystem;
 
 namespace
 {
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     typedef wchar_t wildchar_type;
 #else
     typedef char wildchar_type;
@@ -56,7 +57,7 @@ namespace
     }
 }
 
-#ifdef _WIN32
+#if defined LD31_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <direct.h>
@@ -72,7 +73,7 @@ namespace
 
 std::string FileSystem::getBasename(const std::string& filename)
 {
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     size_t find = filename.find_last_of('\\');
     if (find == std::string::npos)
         return filename;
@@ -87,7 +88,7 @@ std::string FileSystem::getBasename(const std::string& filename)
 
 std::string FileSystem::getDirname(const std::string& filename)
 {
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     size_t find = filename.find_last_of('\\');
     if (find == std::string::npos)
         return filename;
@@ -102,7 +103,7 @@ std::string FileSystem::getDirname(const std::string& filename)
 
 std::string FileSystem::getFullFilePath(const std::string& filename)
 {
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     std::wstring fname = nowide::widen(filename);
 
     wchar_t filenameBuf[BUFSIZ];
@@ -126,7 +127,7 @@ std::string FileSystem::getFullFilePath(const std::string& filename)
 
 std::string FileSystem::getWorkingDirectory()
 {
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     wchar_t buf[BUFSIZ];
     _wgetcwd(buf, BUFSIZ);
 
@@ -139,7 +140,7 @@ std::string FileSystem::getWorkingDirectory()
 }
 bool FileSystem::changeWorkingDirectory(const std::string& dir)
 {
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     return _wchdir(nowide::widen(dir).c_str()) == 0;
 #else
     return chdir(dir.c_str()) == 0;
@@ -150,7 +151,7 @@ std::vector<std::string> FileSystem::findFiles(const std::string& wildcard, bool
 {
     std::vector<std::string> files;
 
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     std::wstring wcard = nowide::widen(wildcard);
     std::wstring wpath;
 
@@ -220,7 +221,7 @@ std::vector<std::string> FileSystem::findFiles(const std::string& wildcard, bool
 
 bool FileSystem::isFile(const std::string& file)
 { 
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     struct _stat32 fileStat;
     int err = _wstat32(nowide::widen(file).c_str(), &fileStat);
 #else
@@ -234,7 +235,7 @@ bool FileSystem::isFile(const std::string& file)
 }
 bool FileSystem::isFolder(const std::string& folder)
 {
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     struct _stat32 fileStat;
     int err = _wstat32(nowide::widen(folder).c_str(), &fileStat);
 #else
@@ -262,7 +263,7 @@ bool FileSystem::copyFile(const std::string& file, const std::string& to)
 bool FileSystem::createFolder(const std::string& folder, bool recurse)
 {
     std::string fixed = folder;
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     const char appendix = '\\';
 #else
     const char appendix = '/';
@@ -284,7 +285,7 @@ bool FileSystem::createFolder(const std::string& folder, bool recurse)
         createFolder(upOne, true);
     }
 
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     return _wmkdir(nowide::widen(folder).c_str()) == 0;
 #else
     return mkdir(fixed.c_str(), S_IRWXU | S_IRWXG | S_IRXO) == 0;
@@ -298,7 +299,7 @@ bool FileSystem::deleteFile(const std::string& file)
 std::string FileSystem::getTempFile(const std::string& ext)
 {
     char buf[L_tmpnam];
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     if (tmpnam_s(buf) != 0)
         return "";
 #else
@@ -313,7 +314,7 @@ std::string FileSystem::getTempFile(const std::string& ext)
 
 std::string FileSystem::getTempDir()
 {
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     static std::string TempDir;
     if (!TempDir.empty())
         return TempDir;
@@ -338,7 +339,7 @@ std::string FileSystem::getUserDir()
     if (!UserDir.empty())
         return UserDir;
 
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
     typedef BOOL(WINAPI *fnGetUserProfDirW)(HANDLE, LPWSTR, LPDWORD);
     fnGetUserProfDirW pGetDir = nullptr;
     HMODULE lib = nullptr;
@@ -425,7 +426,7 @@ std::string FileSystem::getApplicationDir(const std::string& appname, const std:
 {
     static std::string BaseAppDir;
     if (!BaseAppDir.empty())
-#ifdef _WIN32
+#ifdef LD31_WINDOWS
         return BaseAppDir + "\\" + (orgname.empty() ? appname : orgname + "\\" + appname) + "\\";
 
     WCHAR path[MAX_PATH];
@@ -445,7 +446,7 @@ std::string FileSystem::getApplicationDir(const std::string& appname, const std:
 #else
         return BaseAppDir + "/" + (orgname.empty() ? appname : orgname + "/" + appname) + "/";
 
-#if (defined __APPLE__) || (defined __MACH__)
+#if LD31_MACOSX
     std::string appDir = getUserDir() + "Library/Application Support"
 #else
     const char *envr = getenv("XDG_DATA_HOME");

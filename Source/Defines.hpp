@@ -1,14 +1,14 @@
 #pragma once
 
-#define LD31_VERSION_MAJOR @LD31_VERSION_MAJOR@
-#define LD31_VERSION_MINOR @LD31_VERSION_MINOR@
-#define LD31_VERSION_PATCH @LD31_VERSION_PATCH@
-#define LD31_VERSION_TWEAK @LD31_VERSION_TWEAK@
+#define LD31_VERSION_MAJOR 0
+#define LD31_VERSION_MINOR 0
+#define LD31_VERSION_PATCH 0
+#define LD31_VERSION_TWEAK 1
 
-#define LD31_VERSION "@LD31_VERSION@"
+#define LD31_VERSION "0.0.0.1"
 
-#if @LD31_HAS_TAG@
-#  define LD31_GIT_DESCRIBE "@LD31_GIT_DESCRIBE@"
+#if false
+#  define LD31_GIT_DESCRIBE "-128-NOTFOUND"
 #else
 #  define LD31_GIT_DESCRIBE "Out-of-Git build"
 #endif
@@ -19,7 +19,6 @@
 #elif ((defined __APPLE__) && (defined __MACH__))
 #  define LD31_MACOSX
 #  define LD31_POSIX
-#  error("Currently doesn't support OS X")
 #elif (defined __linux)
 #  define LD31_LINUX
 #  define LD31_UNIX
