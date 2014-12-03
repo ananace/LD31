@@ -15,6 +15,10 @@ SOURCE_GROUP("Source files" REGULAR_EXPRESSION "[^./]+.cpp")
 SOURCE_GROUP("Header files\\View" REGULAR_EXPRESSION "View/[^./]+.(hpp|inl)")
 SOURCE_GROUP("Source files\\View" REGULAR_EXPRESSION "View/[^./]+.cpp")
 
+INCLUDE_DIRECTORIES(
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 ADD_EXECUTABLE(LD31_Game
 	main.cpp
 

@@ -1,3 +1,4 @@
+#include <Application.hpp>
 #include <Input/InputManager.hpp>
 #include <Script/ScriptExtensions.hpp>
 #include <Script/SFML/Extensions.hpp>
@@ -90,6 +91,7 @@ int main(int argc, char** argv)
 {
     // Run program from it's executable directory
     Util::FileSystem::setSaneWorkingDir(argv[0]);
+    Application app;
 
     asIScriptEngine* engine = asCreateScriptEngine(ANGELSCRIPT_VERSION);
 
@@ -104,6 +106,8 @@ int main(int argc, char** argv)
 
     // TODO: Put Game Here
     std::cout << Util::ClockImpl::now() << std::endl;
+
+    app.runGameLoop();
 
     engine->Release();
     return 0;

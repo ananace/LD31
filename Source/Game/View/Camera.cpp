@@ -89,7 +89,7 @@ void Camera::move(const Math::Vector2& delta)
 
 float Camera::getZoom() const // mView.getSize() / mBaseSize
 {
-    return (mBaseSize / mView.getSize()).getLength();
+    return (mBaseSize.X / mView.getSize().x + mBaseSize.Y / mView.getSize().y) / 2;
 }
 void Camera::setZoom(float zoom) // mView.setSize(mBaseSize * zoom)
 {
