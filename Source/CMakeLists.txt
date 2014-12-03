@@ -3,20 +3,20 @@
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Defines.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/Defines.hpp)
 
 SET(LD31_HEADERS
-    Defines.hpp
+	Defines.hpp
 
-    Input/Input.hpp
+	Input/Input.hpp
 	Input/InputManager.hpp
-    Input/InputManager.inl
-    Input/JoystickCurve.hpp
+	Input/InputManager.inl
+	Input/JoystickCurve.hpp
 
-    Math/Common.hpp
-    Math/Common.inl
-    Math/Rect.hpp
-    Math/Rect.inl
-    Math/Spinor.hpp
-    Math/Vector.hpp
-    Math/Vector.inl
+	Math/Common.hpp
+	Math/Common.inl
+	Math/Rect.hpp
+	Math/Rect.inl
+	Math/Spinor.hpp
+	Math/Vector.hpp
+	Math/Vector.inl
 
 	Script/ScriptExtensions.hpp
 	Script/ScriptManager.hpp
@@ -25,24 +25,24 @@ SET(LD31_HEADERS
 	Script/SFML/Extensions.hpp
 	Script/SFML/Extensions.inl
 
-    Util/FileSystem.hpp
+	Util/FileSystem.hpp
 	Util/FontFinder.hpp
 	Util/RefCount.hpp
-    Util/RefCount.inl
+	Util/RefCount.inl
 	Util/ResourceManager.hpp
 	Util/ResourceManager.inl
 	Util/Time.hpp
 )
 
 SET(LD31_SOURCES
-    Input/Input.cpp
+	Input/Input.cpp
 	Input/InputManager.cpp
-    Input/JoystickCurve.cpp
+	Input/JoystickCurve.cpp
 
-    Math/Common.cpp
-    Math/Rect.cpp
-    Math/Spinor.cpp
-    Math/Vector.cpp
+	Math/Common.cpp
+	Math/Rect.cpp
+	Math/Spinor.cpp
+	Math/Vector.cpp
 
 	Script/ScriptExtensions.cpp
 	Script/ScriptManager.cpp
@@ -64,10 +64,10 @@ SET(LD31_SOURCES
 	Script/SFML/Texture.cpp
 	Script/SFML/View.cpp
 
-    Util/FileSystem.cpp
+	Util/FileSystem.cpp
 	Util/FontFinder.cpp
-    Util/RefCount.cpp
-    Util/Time.cpp
+	Util/RefCount.cpp
+	Util/Time.cpp
 )
 
 SET(MISC_HEADERS
