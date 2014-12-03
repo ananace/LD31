@@ -1,7 +1,8 @@
 #include "FileSystem.hpp"
 
-#include <nowide/fstream.hpp>
+#include <nowide/convert.hpp>
 #include <nowide/cstdio.hpp>
+#include <nowide/fstream.hpp>
 
 using Util::FileSystem;
 
@@ -59,6 +60,7 @@ namespace
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <direct.h>
+#include <shlobj.h>
 #else
 #include <pwd.h>
 #include <cstdlib>
@@ -68,20 +70,37 @@ namespace
 #include <sys/types.h>
 #include <sys/stat.h>
 
+std::string FileSystem::getFullFilePath(const std::string& filename)
+{
+#ifdef _WIN32
+    std::wstring fname = nowide::widen(filename);
+
+    wchar_t filenameBuf[BUFSIZ];
+    wchar_t** lastPart = nullptr;
+    int ret = GetFullPathNameW(fname.c_str(), BUFSIZ, filenameBuf, lastPart);
+    if (ret == 0)
+    {
+        errno = EINVAL;
+        return "";
+    }
+
+    return nowide::narrow(filenameBuf);
+#else
+    char buf[BUFSIZ];
+    char* real = realpath(filename.c_str(), buf);
+    if (real)
+        return real;
+    return "";
+#endif
+}
+
 std::string FileSystem::getWorkingDirectory()
 {
 #ifdef _WIN32
     wchar_t buf[BUFSIZ];
     _wgetcwd(buf, BUFSIZ);
 
-    nowide::stackstring sname;
-    if (!sname.convert(buf))
-    {
-        errno = EINVAL;
-        return "";
-    }
-
-    return std::string(sname.c_str());
+    return std::string(nowide::narrow(buf));
 #else
     char buf[BUFSIZ];
     getcwd(buf, BUFSIZ);
@@ -91,13 +110,7 @@ std::string FileSystem::getWorkingDirectory()
 bool FileSystem::changeWorkingDirectory(const std::string& dir)
 {
 #ifdef _WIN32
-    nowide::wstackstring wname;
-    if (!wname.convert(dir.c_str())) {
-        errno = EINVAL;
-        return false;
-    }
-
-    return _wchdir(wname.c_str()) == 0;
+    return _wchdir(nowide::widen(dir).c_str()) == 0;
 #else
     return chdir(dir.c_str()) == 0;
 #endif
@@ -108,21 +121,22 @@ std::vector<std::string> FileSystem::findFiles(const std::string& wildcard, bool
     std::vector<std::string> files;
 
 #ifdef _WIN32
-    nowide::wstackstring wname;
-    if (!wname.convert((getWorkingDirectory() + "\\*").c_str())) {
-        errno = EINVAL;
-        return files;
-    }
-    nowide::wstackstring wcard;
-    if (!wcard.convert(wildcard.c_str())) {
-        errno = EINVAL;
-        return files;
+    std::wstring wcard = nowide::widen(wildcard);
+    std::wstring wpath;
+
+    size_t pos = wcard.find_last_of('\\');
+    if (pos == std::wstring::npos)
+        wpath = L".";
+    else
+    {
+        wpath = wcard.substr(0, pos);
+        wcard.erase(0, pos + 1);
     }
 
     WIN32_FIND_DATAW FindFileData;
     HANDLE hFind;
     unsigned int iFiles = 0;
-    hFind = FindFirstFileW(wname.c_str(), &FindFileData);
+    hFind = FindFirstFileW((wpath + L"\\*").c_str(), &FindFileData);
 
     while (hFind != INVALID_HANDLE_VALUE)
     {
@@ -130,41 +144,11 @@ std::vector<std::string> FileSystem::findFiles(const std::string& wildcard, bool
 
         if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && recursive && wcscmp(fname, L".") != 0 && wcscmp(fname, L"..") != 0)
         {
-            if (_wchdir(fname) != 0)
-            {
-                errno = EINVAL;
-                return files;
-            }
-
-            auto contents = findFiles(wildcard, recursive);
+            auto contents = findFiles(nowide::narrow(wpath) + "\\" + nowide::narrow(fname) + "\\" + nowide::narrow(wcard), recursive);
             std::copy(contents.begin(), contents.end(), std::back_inserter(files));
-            
-            if (_wchdir(L"..") != 0)
-            {
-                errno = EINVAL;
-                return files;
-            }
         }
         else if (wildcmp(wcard.c_str(), fname))
-        {
-            wchar_t filenameBuf[BUFSIZ];
-            wchar_t** lastPart = nullptr;
-            int ret = GetFullPathNameW(fname, BUFSIZ, filenameBuf, lastPart);
-            if (ret == 0)
-            {
-                errno = EINVAL;
-                return files;
-            }
-
-            nowide::stackstring sname;
-            if (!sname.convert(filenameBuf))
-            {
-                errno = EINVAL;
-                return files;
-            }
-
-            files.push_back(sname.c_str());
-        }
+            files.push_back(nowide::narrow(wpath) + "\\" + nowide::narrow(fname));
 
         if (!FindNextFileW(hFind, &FindFileData))
             break;
@@ -172,31 +156,30 @@ std::vector<std::string> FileSystem::findFiles(const std::string& wildcard, bool
 
     FindClose(hFind);
 #else
+    char buf[BUFSIZ];
+    strcpy(buf, wildcard.c_str());
+    std::string dirName = dirname(buf);
+    strcpy(buf, wildcard.c_str());
+    std::string findName = basename(buf);
+
     DIR* dp;
     dirent* dirp;
     int iFiles = 0;
-    if ((dp = opendir(getWorkingDirectory().c_str())) == NULL)
+    if ((dp = opendir(dirName.c_str())) == NULL)
     {
         return files;
     }
 
     while ((dirp = readdir(dp)) != NULL)
     {
-        std::string name(dirp->d_name);
-        std::string fullName = dirName + "/" + name;
+        std::string fullName = dirName + "/" + dirp->d_name;
         
         if (isFolder(fullName) && recursive && (name != "." && name != ".."))
         {
-            if (chdir(name.c_str()) != 0)
-                return files;
-
-            auto contents = findFiles(wildcard, recursive);
+            auto contents = findFiles(fullName + "/" + findName, recursive);
             std::copy(contents.begin(), contents.end(), std::back_inserter(files));
-                
-            if (chdir("..") != 0)
-                return files;
         }
-        else if (wildcmp(wildcard.c_str(), name.c_str()))
+        else if (wildcmp(findName.c_str(), dirp->d_name))
         {
             files.push_back(fullName);
         }
@@ -211,14 +194,8 @@ std::vector<std::string> FileSystem::findFiles(const std::string& wildcard, bool
 bool FileSystem::isFile(const std::string& file)
 { 
 #ifdef _WIN32
-    nowide::wstackstring wname;
-    if (!wname.convert(file.c_str())) {
-        errno = EINVAL;
-        return false;
-    }
-
     struct _stat32 fileStat;
-    int err = _wstat32(wname.c_str(), &fileStat);
+    int err = _wstat32(nowide::widen(file).c_str(), &fileStat);
 #else
     struct stat fileStat;
     int err = stat(file.c_str(), &fileStat);
@@ -231,14 +208,8 @@ bool FileSystem::isFile(const std::string& file)
 bool FileSystem::isFolder(const std::string& folder)
 {
 #ifdef _WIN32
-    nowide::wstackstring wname;
-    if (!wname.convert(folder.c_str())) {
-        errno = EINVAL;
-        return false;
-    }
-
     struct _stat32 fileStat;
-    int err = _wstat32(wname.c_str(), &fileStat);
+    int err = _wstat32(nowide::widen(folder).c_str(), &fileStat);
 #else
     struct stat fileStat;
     int err = stat(file.c_str(), &fileStat);
@@ -264,8 +235,13 @@ bool FileSystem::copyFile(const std::string& file, const std::string& to)
 bool FileSystem::createFolder(const std::string& folder, bool recurse)
 {
     std::string fixed = folder;
-    std::replace_if(fixed.begin(), fixed.end(), [](char c)->bool { return c == '\\'; }, '/');
-    if (fixed.back() == '/')
+#ifdef _WIN32
+    const char appendix = '\\';
+#else
+    const char appendix = '/';
+#endif
+
+    if (fixed.back() == appendix)
         fixed.erase(fixed.size() - 1);
 
     if (fixed.empty())
@@ -277,19 +253,17 @@ bool FileSystem::createFolder(const std::string& folder, bool recurse)
     if (recurse)
     {
         std::string upOne = fixed;
-        upOne.erase(upOne.find_last_of('/'));
+        auto found = upOne.find_last_of(appendix);
+        if (found == std::string::npos)
+            return false;
+
+        upOne.erase(found);
 
         createFolder(upOne, true);
     }
 
 #ifdef _WIN32
-    nowide::wstackstring wname;
-    if (!wname.convert(fixed.c_str())) {
-        errno = EINVAL;
-        return false;
-    }
-
-    return _wmkdir(wname.c_str()) == 0;
+    return _wmkdir(nowide::widen(folder).c_str()) == 0;
 #else
     return mkdir(fixed.c_str(), S_IRWXU | S_IRWXG | S_IRXO) == 0;
 #endif
@@ -299,7 +273,7 @@ bool FileSystem::deleteFile(const std::string& file)
     return nowide::remove(file.c_str()) == 0;
 }
 
-std::string FileSystem::getUserDir(const std::string& affix)
+std::string FileSystem::getUserDir()
 {
 #ifdef _WIN32
     typedef BOOL(WINAPI *fnGetUserProfDirW)(HANDLE, LPWSTR, LPDWORD);
@@ -310,6 +284,7 @@ std::string FileSystem::getUserDir(const std::string& affix)
     lib = LoadLibraryA("userenv.dll");
     if (!lib)
         return "";
+
     pGetDir = (fnGetUserProfDirW)GetProcAddress(lib, "GetUserProfileDirectoryW");
     if (!pGetDir)
     {
@@ -339,22 +314,10 @@ std::string FileSystem::getUserDir(const std::string& affix)
         wstr[psize - 0] = '\0';
     }
 
-    nowide::stackstring sname;
-    if (!sname.convert(wstr))
-    {
-        CloseHandle(accessToken);
-        FreeLibrary(lib);
-        
-        errno = EINVAL;
-        return "";
-    }
-
     CloseHandle(accessToken);
     FreeLibrary(lib);
 
-    std::string profileDir = std::string(sname.c_str()) + affix;
-
-    return profileDir;
+    return nowide::narrow(wstr);
 #else
     char *envr = getenv("HOME");
     if (envr && isFolder(envr))
@@ -390,5 +353,47 @@ std::string FileSystem::getUserDir(const std::string& affix)
     }
 
     return "";
+#endif
+}
+
+std::string FileSystem::getApplicationDir(const std::string& appname, const std::string& orgname)
+{
+#ifdef _WIN32
+    WCHAR path[MAX_PATH];
+    size_t len = 0;
+
+    if (SHGetFolderPathW(NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, 0, path) != S_OK)
+        return "";
+
+    std::string appDir = nowide::narrow(path);
+    if (!orgname.empty())
+        appDir += "\\" + orgname;
+    appDir += "\\" + appname;
+    if (!isFolder(appDir))
+        if (!createFolder(appDir, true))
+            return "";
+
+    return appDir;
+#else
+    const char *envr = getenv("XDG_DATA_HOME");
+    
+    std::string appDir;
+    if (!envr)
+    {
+        // Fall back to $HOME/.local/share/<appname>
+        appDir = getUserDir() + ".local/share";
+    }
+    else
+        appDir = std::string(envr);
+
+    if (!orgname.empty())
+        appDir += "/" + orgname;
+    appDir += "/" + appname;
+
+    if (!isFolder(appDir))
+        if (!createFolder(appDir, true))
+            return "";
+
+    return appDir;
 #endif
 }

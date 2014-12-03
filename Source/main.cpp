@@ -114,6 +114,7 @@ int main(int argc, char** argv)
 
     auto cwd = Util::FileSystem::getWorkingDirectory();
     auto udir = Util::FileSystem::getUserDir();
+    //auto appdir = Util::FileSystem::getApplicationDir("LD31", "Ananace");
     auto files = Util::FileSystem::findFiles("*.as", true);
 
     // TODO: A Game

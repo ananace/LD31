@@ -9,6 +9,7 @@ namespace Util
 class FileSystem
 {
 public:
+    static std::string getFullFilePath(const std::string& filename);
     static std::string getWorkingDirectory();
     static bool changeWorkingDirectory(const std::string& dir);
 
@@ -21,7 +22,8 @@ public:
     static bool createFolder(const std::string& file, bool recurseUpwards = false);
     static bool deleteFile(const std::string& file);
 
-    static std::string getUserDir(const std::string& affix = "");
+    static std::string getUserDir();
+    static std::string getApplicationDir(const std::string& appname, const std::string& orgname = "");
 };
 
 }
