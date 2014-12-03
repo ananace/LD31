@@ -3,6 +3,8 @@
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Defines.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/Defines.hpp)
 
 SET(LD31_HEADERS
+    Defines.hpp
+
     Input/Input.hpp
 	Input/InputManager.hpp
     Input/InputManager.inl

@@ -47,7 +47,7 @@ public:
     /// Gets the user directory of the current user
     static std::string getUserDir();
 
-    /// Gets a sane application directory specific to the current user, good for writing data
+    /// Gets a sane application directory specific to the current user, for storing data in
     static std::string getApplicationDir(const std::string& appname, const std::string& orgname = "");
 };
 

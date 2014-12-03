@@ -5,7 +5,7 @@
 using namespace Input::Curves;
 
 Input::JoystickCurve::JoystickCurve() :
-    Deadzone(0), Sensitivity(0)
+    Deadzone(0), Sensitivity(255)
 {
 }
 

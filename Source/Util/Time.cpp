@@ -18,7 +18,7 @@ using namespace Util;
 
 #ifdef LD31_WINDOWS
 std::chrono::system_clock::time_point ClockImpl::sSystemStart;
-Timestamp ClockImpl::sStart;
+uint64_t ClockImpl::sStart;
 int64_t ClockImpl::sFreq = ClockImpl::init();
 
 Timestamp ClockImpl::now()
@@ -38,7 +38,8 @@ time_t ClockImpl::to_time_t(const time_point& tp)
 {
     using std::chrono::system_clock;
     using std::chrono::duration_cast;
-    return system_clock::to_time_t(system_clock::time_point(sSystemStart + duration_cast<system_clock::duration>(tp - sStart)));
+
+    return system_clock::to_time_t(system_clock::time_point(sSystemStart + duration_cast<system_clock::duration>(tp - time_point(duration(sStart)))));
 }
 
 int64_t ClockImpl::init()
@@ -47,11 +48,11 @@ int64_t ClockImpl::init()
     DWORD_PTR previousMask = SetThreadAffinityMask(currentThread, 1);
 
     QueryPerformanceFrequency((LARGE_INTEGER*)&sFreq);
+    QueryPerformanceCounter((LARGE_INTEGER*)&sStart);
 
     SetThreadAffinityMask(currentThread, previousMask);
+    
     sFreq /= 1000;
-
-    sStart = now();
     sSystemStart = std::chrono::system_clock::now();
 
     return sFreq;

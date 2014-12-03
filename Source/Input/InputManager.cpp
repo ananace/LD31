@@ -158,6 +158,14 @@ float InputMan::getDeadzone(sf::Joystick::Axis axis) const
 {
     return mCurvesPerAxis[axis]->Deadzone;
 }
+void InputMan::setSensitivity(sf::Joystick::Axis axis, uint8_t s)
+{
+    mCurvesPerAxis[axis]->Sensitivity = s;
+}
+uint8_t InputMan::getSensitivity(sf::Joystick::Axis axis) const
+{
+    return mCurvesPerAxis[axis]->Sensitivity;
+}
 
 const Input::Input& InputMan::operator[](uint8_t id) const
 {

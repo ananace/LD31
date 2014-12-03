@@ -53,6 +53,11 @@ public:
     void setDeadzone(sf::Joystick::Axis axis, float zone);
     /// Gets the deadzone value for the specified axis
     float getDeadzone(sf::Joystick::Axis axis) const;
+    /// Sets a sensitivity value for the specified axis
+    ///\note This value is globally applied, for all joysticks
+    void setSensitivity(sf::Joystick::Axis axis, uint8_t sensitivity);
+    /// Gets the sensitivity value for the given axis
+    uint8_t getSensitivity(sf::Joystick::Axis axis) const;
 
     /// Gets the Input at the specified ID
     const Input& operator[](uint8_t id) const;
