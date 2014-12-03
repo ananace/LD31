@@ -1,9 +1,7 @@
 #include <Application.hpp>
 #include <Input/InputManager.hpp>
 #include <Script/ScriptExtensions.hpp>
-#include <Script/SFML/Extensions.hpp>
 #include <Util/FileSystem.hpp>
-#include <Util/Time.hpp>
 
 #include <angelscript.h>
 
@@ -26,12 +24,8 @@ void ExceptionCallback(asIScriptContext *ctx, void* /*param*/)
     std::cout << "!! Script Exception occured !!" << std::endl;
 
     const asIScriptFunction *function = ctx->GetExceptionFunction();
-    if (function->GetModule())
-        std::cout << function->GetModuleName();
-    else
-        std::cout << function->GetScriptSectionName();
     int col = 0;
-    std::cout << ":" << ctx->GetExceptionLineNumber(&col) << ":" << col << " in " << function->GetDeclaration() << ":" << std::endl;
+    std::cout << function->GetScriptSectionName() << ":" << ctx->GetExceptionLineNumber(&col) << ":" << col << " in " << function->GetDeclaration() << ":" << std::endl;
 
     std::cout << ctx->GetExceptionString() << std::endl;
 
@@ -46,12 +40,8 @@ void ExceptionCallback(asIScriptContext *ctx, void* /*param*/)
             {
                 if (function->GetFuncType() == asFUNC_SCRIPT)
                 {
-                    if (function->GetModule())
-                        std::cout << function->GetModuleName();
-                    else
-                        std::cout << function->GetScriptSectionName();
                     int col = 0;
-                    std::cout << ":" << ctx->GetLineNumber(n, &col) << ":" << col << " in " << function->GetDeclaration() << std::endl;
+                    std::cout << function->GetScriptSectionName() << ":" << ctx->GetLineNumber(n, &col) << ":" << col << " in " << function->GetDeclaration() << std::endl;
                 }
                 else
                 {
@@ -103,9 +93,6 @@ int main(int argc, char** argv)
 
     // Register the extensions into the engine
     Script::ScriptExtensions::RegisterAll(engine);
-
-    // TODO: Put Game Here
-    std::cout << Util::ClockImpl::now() << std::endl;
 
     app.runGameLoop();
 

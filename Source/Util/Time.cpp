@@ -76,7 +76,7 @@ std::ostream& operator<<(std::ostream& os, const Timestamp& out)
     typedef std::ostreambuf_iterator<char, std::char_traits<char>> Iter;
     typedef std::time_put<char, Iter> TimePut;
     Iter begin = Iter(os.rdbuf());
-    Iter end = std::use_facet<TimePut>(os.getloc()).put(begin, os, os.fill(), std::localtime(&time), "%F %T", "%F %T" + std::char_traits<char>::length("%F %T"));
+    Iter end = std::use_facet<TimePut>(os.getloc()).put(begin, os, os.fill(), std::localtime(&time), "%F %T", &"%F %T"[std::char_traits<char>::length("%F %T")]);
     if (end.failed())
         os.setstate(std::ios_base::badbit);
 #endif

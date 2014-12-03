@@ -28,10 +28,10 @@ ADD_EXECUTABLE(LD31_Game
 
 TARGET_LINK_LIBRARIES(LD31_Game
 	LD31
-	nowide-static
 	
 	${Angelscript_LIBRARIES}
 	${FontConfig_LIBRARIES}
+	${Nowide_LIBRARIES}
 	${SFML_LIBRARIES}
 )
 

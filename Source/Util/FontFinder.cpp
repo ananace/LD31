@@ -165,13 +165,19 @@ bool Util::FontFinder::findFont(sf::Font& out, const std::string& name, const st
 
     return out.loadFromFile(path);
 }
-#elif LD31_UNIX
+#elif defined LD31_UNIX
 #include <fontconfig/fontconfig.h>
+
 #include <algorithm>
 #include <tuple>
 
 namespace
 {
+    struct
+    {
+        FcConfig* config;
+    } FontConfigData;
+
     std::string getFont(const std::string& wildcard, const std::string& stylecard)
     {
         std::string ret;

@@ -3,6 +3,8 @@
 #include <Defines.hpp>
 
 #include <chrono>
+#include <iostream>
+
 #include <cstdint>
 
 namespace Util

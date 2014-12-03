@@ -74,9 +74,10 @@ ENDIF()
 
 IF (MSVC)
 	ADD_SUBDIRECTORY(External/nowide_standalone)
-ENDIF()
-
-IF (LINUX)
+	SET(Nowide_LIBRARIES nowide-static)
+ELSEIF (APPLE)
+	# Apple specific CMake code
+ELSE()
 	FIND_PATH(FontConfig_INCLUDE_DIR fontconfig/fontconfig.h)
 	FIND_LIBRARY(FontConfig_LIBRARIES NAMES fontconfig)
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 namespace Math
 {
 
@@ -18,7 +20,7 @@ inline bool FloatULPCompare(const float A, const float B)
     if (bInt < 0)
         bInt = 0x80000000 - bInt;
 
-    int intDiff = abs(aInt - bInt);
+    int intDiff = std::abs(aInt - bInt);
 
     if (intDiff <= MaxUlpError)
         return true;

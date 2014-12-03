@@ -3,8 +3,6 @@
 namespace Script
 {
 
-struct ScriptExtensions;
-
 namespace SFML
 {
     class Extensions
@@ -24,8 +22,8 @@ namespace SFML
         static bool Texture; // Ref
         static bool View; // Ref, No count
 
+    public:
         static bool RegisteredExtensions();
-        friend struct ScriptExtensions;
     };
 }
 

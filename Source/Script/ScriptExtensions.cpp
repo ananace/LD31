@@ -135,7 +135,7 @@ namespace
             r = eng->RegisterGlobalFunction("void print(float)", asFUNCTION(print<float>), asCALL_CDECL);
             r = eng->RegisterGlobalFunction("void print(string)", asFUNCTION(print<std::string>), asCALL_CDECL);
             r = eng->RegisterGlobalFunction("void print(const ?&in)", asFUNCTION(printany), asCALL_CDECL);
-            r = eng->RegisterGlobalFunction("void println()", asFUNCTION(println), asCALL_CDECL);
+            r = eng->RegisterGlobalFunction("void println()", asFUNCTIONPR(println, (), void), asCALL_CDECL);
             r = eng->RegisterGlobalFunction("void println(int)", asFUNCTION(println<int>), asCALL_CDECL);
             r = eng->RegisterGlobalFunction("void println(float)", asFUNCTION(println<float>), asCALL_CDECL);
             r = eng->RegisterGlobalFunction("void println(string)", asFUNCTION(println<std::string>), asCALL_CDECL);

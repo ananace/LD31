@@ -40,7 +40,8 @@ namespace
             r = eng->RegisterObjectBehaviour("Color", asBEHAVE_CONSTRUCT, "void f(uint8,uint8,uint8,uint8=255)", asFUNCTION(create_color_val), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Color", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destruct_color), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Color", "Color& opAssign(Color&in)", asMETHOD(sf::Color, operator=), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Color", "Color& opAssign(Color&in)", asMETHODPR(sf::Color, operator=, (const sf::Color&), sf::Color&), asCALL_THISCALL); assert(r >= 0);
+
             r = eng->RegisterObjectMethod("Color", "Color& opAddAssign(Color&in)", asFUNCTIONPR(sf::operator+=, (sf::Color&, const sf::Color&), sf::Color&), asCALL_CDECL_OBJFIRST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Color", "Color& opSubAssign(Color&in)", asFUNCTIONPR(sf::operator-=, (sf::Color&, const sf::Color&), sf::Color&), asCALL_CDECL_OBJFIRST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Color", "Color& opMulAssign(Color&in)", asFUNCTIONPR(sf::operator*=, (sf::Color&, const sf::Color&), sf::Color&), asCALL_CDECL_OBJFIRST); assert(r >= 0);

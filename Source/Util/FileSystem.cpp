@@ -63,8 +63,10 @@ namespace
 #include <direct.h>
 #include <shlobj.h>
 #else
-#include <pwd.h>
 #include <cstdlib>
+#include <dirent.h>
+#include <libgen.h>
+#include <pwd.h>
 #include <unistd.h>
 #endif
 
@@ -192,7 +194,6 @@ std::vector<std::string> FileSystem::findFiles(const std::string& wildcard, bool
 
     DIR* dp;
     dirent* dirp;
-    int iFiles = 0;
     if ((dp = opendir(dirName.c_str())) == NULL)
     {
         return files;
@@ -200,14 +201,15 @@ std::vector<std::string> FileSystem::findFiles(const std::string& wildcard, bool
 
     while ((dirp = readdir(dp)) != NULL)
     {
-        std::string fullName = dirName + "/" + dirp->d_name;
+        std::string name = dirp->d_name;
+        std::string fullName = dirName + "/" + name;
         
         if (isFolder(fullName) && recursive && (name != "." && name != ".."))
         {
             auto contents = findFiles(fullName + "/" + findName, recursive);
             std::copy(contents.begin(), contents.end(), std::back_inserter(files));
         }
-        else if (wildcmp(findName.c_str(), dirp->d_name))
+        else if (wildcmp(findName.c_str(), name.c_str()))
         {
             files.push_back(fullName);
         }
@@ -240,7 +242,7 @@ bool FileSystem::isFolder(const std::string& folder)
     int err = _wstat32(nowide::widen(folder).c_str(), &fileStat);
 #else
     struct stat fileStat;
-    int err = stat(file.c_str(), &fileStat);
+    int err = stat(folder.c_str(), &fileStat);
 #endif
     if (err != 0)
         return false;
@@ -288,7 +290,7 @@ bool FileSystem::createFolder(const std::string& folder, bool recurse)
 #ifdef LD31_WINDOWS
     return _wmkdir(nowide::widen(folder).c_str()) == 0;
 #else
-    return mkdir(fixed.c_str(), S_IRWXU | S_IRWXG | S_IRXO) == 0;
+    return mkdir(fixed.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0;
 #endif
 }
 bool FileSystem::deleteFile(const std::string& file)
@@ -387,7 +389,7 @@ std::string FileSystem::getUserDir()
     if (envr && isFolder(envr))
     {
         size_t len = strlen(envr);
-        const size_t add_dirsep = (envr[envrlen - 1] != '/') ? 1 : 0;
+        const size_t add_dirsep = (envr[len - 1] != '/') ? 1 : 0;
 
         std::vector<char> storage(len + add_dirsep);
         strcpy(&storage[0], envr);
@@ -412,9 +414,9 @@ std::string FileSystem::getUserDir()
             strcpy(&storage[0], pw->pw_dir);
 
             if (add_dirsep)
-                storage[len] = '/';
+                storage[dlen] = '/';
 
-            UserDir = std::string(&storage[0], len + add_dirsep);
+            UserDir = std::string(&storage[0], dlen + add_dirsep);
         }
     }
 #endif
