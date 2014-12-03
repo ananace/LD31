@@ -14,6 +14,8 @@ struct JoystickCurve
     JoystickCurve(const JoystickCurve&) = delete;
     /// No assigning
     JoystickCurve& operator=(const JoystickCurve&) = delete;
+    /// Virtual default destructor
+    virtual ~JoystickCurve() = default;
 
     /// Apply the curve + deadzone + sensitivity to the input value
     virtual float apply(float input) const = 0;

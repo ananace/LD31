@@ -27,6 +27,7 @@ SET(LD31_HEADERS
 
 	Util/FileSystem.hpp
 	Util/FontFinder.hpp
+	Util/INIFile.hpp
 	Util/RefCount.hpp
 	Util/RefCount.inl
 	Util/ResourceManager.hpp
@@ -65,6 +66,7 @@ SET(LD31_SOURCES
 	Script/SFML/View.cpp
 
 	Util/FileSystem.cpp
+	Util/INIFile.cpp
 	Util/FontFinder.cpp
 	Util/RefCount.cpp
 	Util/Time.cpp

@@ -14,7 +14,7 @@ InputMan Input::InputManager;
 
 namespace
 {
-    std::unordered_map<sf::Keyboard::Key, sf::Keyboard::Key> OppositeKeys = {
+    std::unordered_map<sf::Keyboard::Key, sf::Keyboard::Key, std::hash<int>> OppositeKeys = {
         { sf::Keyboard::W, sf::Keyboard::S },
         { sf::Keyboard::S, sf::Keyboard::W },
         { sf::Keyboard::A, sf::Keyboard::D },
@@ -33,11 +33,6 @@ namespace
     {
         return &Input::InputManager[inp];
     }
-    void bindInput(uint8_t inp, bool autoLink)
-    {
-        Input::InputManager.bindInput(inp, autoLink);
-    }
-
     const Input::Input* getLinked(const Input::Input* in)
     {
         return &in->getLinked();
@@ -62,9 +57,12 @@ namespace
 
             r = eng->SetDefaultNamespace("Inputs"); assert(r >= 0);
             
+            r = eng->RegisterGlobalFunction("bool get_Disabled()", asMETHOD(Input::InputMan, isDisabled), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("void set_Disabled(bool)", asMETHOD(Input::InputMan, disable), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
+
             r = eng->RegisterGlobalFunction("Input@ GetBinding()", asFUNCTION(getBinding), asCALL_CDECL); assert(r >= 0);
-            r = eng->RegisterGlobalFunction("bool IsBinding()", asFUNCTION(getInput), asCALL_CDECL); assert(r >= 0);
-            r = eng->RegisterGlobalFunction("void StartBind(uint8,bool = true)", asFUNCTION(bindInput), asCALL_CDECL); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("bool get_Binding()", asMETHOD(Input::InputMan, getBinding), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("void StartBind(uint8,bool = true)", asMETHODPR(Input::InputMan, bindInput, (uint8_t, bool), void), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
 
             r = eng->RegisterGlobalFunction("Input@ GetInput(uint8)", asFUNCTION(getInput), asCALL_CDECL); assert(r >= 0);
 

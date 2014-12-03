@@ -9,9 +9,9 @@ namespace
 {
     namespace Tick
     {
-        const Util::Timespan oneTick(std::chrono::nanoseconds(std::nano::den) / (int)Application::TICKRATE);
+        const Util::Timespan OneTick(std::chrono::nanoseconds(std::nano::den) / (int)Application::TICKRATE);
     }
-    const Util::Timespan maxFrameTime(500 * (std::nano::den / std::milli::den));
+    const Util::Timespan MaxFrameTime(500 * (std::nano::den / std::milli::den));
 }
 
 Application::Application()
@@ -34,7 +34,7 @@ void Application::runGameLoop()
     while (mWindow.isOpen())
     {
         Util::Timestamp now = Util::ClockImpl::now();
-        Util::Timespan frameTime = std::min(now - oldFrame, maxFrameTime);
+        Util::Timespan frameTime = std::min(now - oldFrame, MaxFrameTime);
         totalTime += frameTime;
 
         while (mWindow.pollEvent(ev))
@@ -45,24 +45,35 @@ void Application::runGameLoop()
                 mWindow.close();
                 break;
 
+            case sf::Event::LostFocus:
+                Input::InputManager.disable();
+                break;
+
+            case sf::Event::GainedFocus:
+                Input::InputManager.disable(false);
+                break;
+
             case sf::Event::Resized:
             {
-                Math::Vector2 size(ev.size.width, ev.size.height);
+                Math::Vector2 size((float)ev.size.width, (float)ev.size.height);
+
                 mGameCamera.notifyDisplayUpdate(size);
                 mUICamera.notifyDisplayUpdate(size);
             } break;
             }
         }
 
-        while (totalTime > Tick::oneTick)
+        while (totalTime > Tick::OneTick)
         {
             Input::InputManager.update();
-            Script::ScriptManager.runCoroutines(Tick::oneTick / 2);
+            Script::ScriptManager.runCoroutines(Tick::OneTick / 2);
 
-            // TODO: Run game loop here
+            // TODO: Run game ticks here
 
-            totalTime -= Tick::oneTick;
+            totalTime -= Tick::OneTick;
         }
+        
+        // TODO: Run game variadic update here
 
         mWindow.clear();
 
