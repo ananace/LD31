@@ -113,11 +113,6 @@ bool Util::Resource<Stored, typename Identifier>::load()
 }
 
 template<typename ResourceType, typename Identifier>
-Util::ResourceManager<typename ResourceType, typename Identifier>::ResourceManager()
-{
-
-}
-template<typename ResourceType, typename Identifier>
 Util::ResourceManager<typename ResourceType, typename Identifier>::~ResourceManager()
 {
 

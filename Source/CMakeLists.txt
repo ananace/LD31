@@ -99,7 +99,7 @@ IF (LD31_JIT)
 	SOURCE_GROUP("Source files\\Misc\\AngelscriptJIT" FILES ${AngelscriptJIT_SOURCES})
 ENDIF()
 
-# The game
+# The game "engine"
 
 ADD_LIBRARY(LD31 STATIC
 	${LD31_HEADERS}

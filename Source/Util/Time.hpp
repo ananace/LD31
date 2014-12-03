@@ -28,9 +28,9 @@ private:
     /// The time point when the clock initialized
     static std::chrono::system_clock::time_point sSystemStart;
     /// The cpu cycle count when the clock initialized
-    static uint64_t sStart;
+    static int64_t sStart,
     /// The cycle frequency of the cpu
-    static int64_t sFreq;
+                   sFreq;
 };
 #else
 /// The POSIX implementation of a high-precision clock
@@ -46,3 +46,6 @@ void sleep(const Timespan& ts);
 void sleep(const Timestamp& until);
 
 }
+
+std::ostream& operator<<(std::ostream& os, const Util::Timespan& out);
+std::ostream& operator<<(std::ostream& os, const Util::Timestamp& out);

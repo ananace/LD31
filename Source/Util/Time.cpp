@@ -18,7 +18,7 @@ using namespace Util;
 
 #ifdef LD31_WINDOWS
 std::chrono::system_clock::time_point ClockImpl::sSystemStart;
-uint64_t ClockImpl::sStart;
+int64_t ClockImpl::sStart;
 int64_t ClockImpl::sFreq = ClockImpl::init();
 
 Timestamp ClockImpl::now()
@@ -31,7 +31,7 @@ Timestamp ClockImpl::now()
 
     SetThreadAffinityMask(currentThread, previousMask);
 
-    return time_point(duration(count / sFreq));
+    return time_point(duration((count * std::nano::den) / sFreq));
 }
 
 time_t ClockImpl::to_time_t(const time_point& tp)
@@ -39,7 +39,7 @@ time_t ClockImpl::to_time_t(const time_point& tp)
     using std::chrono::system_clock;
     using std::chrono::duration_cast;
 
-    return system_clock::to_time_t(system_clock::time_point(sSystemStart + duration_cast<system_clock::duration>(tp - time_point(duration(sStart)))));
+    return system_clock::to_time_t(system_clock::time_point(sSystemStart + duration_cast<system_clock::duration>(tp - time_point(duration((sStart * std::nano::den) / sFreq)))));
 }
 
 int64_t ClockImpl::init()
@@ -52,7 +52,6 @@ int64_t ClockImpl::init()
 
     SetThreadAffinityMask(currentThread, previousMask);
     
-    sFreq /= 1000;
     sSystemStart = std::chrono::system_clock::now();
 
     return sFreq;

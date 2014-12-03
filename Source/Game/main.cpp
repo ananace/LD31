@@ -2,6 +2,7 @@
 #include <Script/ScriptExtensions.hpp>
 #include <Script/SFML/Extensions.hpp>
 #include <Util/FileSystem.hpp>
+#include <Util/Time.hpp>
 
 #include <angelscript.h>
 
@@ -81,6 +82,10 @@ void returnContext(asIScriptEngine* eng, asIScriptContext* ctx, void*)
     ctx->Release();
 }
 
+#ifdef LD31_WINDOWS
+#include <Windows.h>
+#endif
+
 int main(int argc, char** argv)
 {
     // Run program from it's executable directory
@@ -98,6 +103,7 @@ int main(int argc, char** argv)
     Script::ScriptExtensions::RegisterAll(engine);
 
     // TODO: Put Game Here
+    std::cout << Util::ClockImpl::now() << std::endl;
 
     engine->Release();
     return 0;

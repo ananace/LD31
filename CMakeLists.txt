@@ -44,7 +44,6 @@ OPTION(LD31_JIT "Use the Angelscript JIT compiler?")
 # CMake modules
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMake)
-INCLUDE("${CMAKE_MODULE_PATH}/Functions.cmake")
 
 IF (EXISTS ${PROJECT_SOURCE_DIR}/.git)
 	FIND_PACKAGE(Git)
