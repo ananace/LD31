@@ -142,6 +142,21 @@ std::string FileSystem::getFullFilePath(const std::string& filename)
 #endif
 }
 
+Util::Timestamp FileSystem::getLastModified(const std::string& file)
+{
+#ifdef LD31_WINDOWS
+    struct _stat64 fileStat;
+    int err = _wstat64(nowide::widen(file).c_str(), &fileStat);
+#else
+    struct stat fileStat;
+    int err = stat(file.c_str(), &fileStat);
+#endif
+    if (err != 0)
+        return Util::Timestamp();
+
+    return Util::Timestamp(Util::Timespan(fileStat.st_mtime));
+}
+
 std::string FileSystem::getWorkingDirectory()
 {
 #ifdef LD31_WINDOWS
@@ -155,6 +170,7 @@ std::string FileSystem::getWorkingDirectory()
     return std::string(buf);
 #endif    
 }
+
 bool FileSystem::changeWorkingDirectory(const std::string& dir)
 {
 #ifdef LD31_WINDOWS

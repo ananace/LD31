@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Time.hpp"
+
 #include <string>
 #include <vector>
 
@@ -25,6 +27,8 @@ public:
 
     /// Gets the full and absolute path to the specified file
     static std::string getFullFilePath(const std::string& filename);
+    static Util::Timestamp getLastModified(const std::string& filename);
+    
     /// Gets the current working directory
     static std::string getWorkingDirectory();
     /// Changes the current working directory

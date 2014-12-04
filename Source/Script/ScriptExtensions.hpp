@@ -27,6 +27,7 @@ private:
     static bool Vector2;
 
     static bool InputExtensions;
+    static bool ScriptHookExtensions;
     static bool ScriptManagerExtensions;
 };
 

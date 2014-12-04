@@ -4,10 +4,12 @@
 
 #include <SFML/Graphics/RenderWindow.hpp>
 
+class asIScriptEngine;
+
 class Application
 {
 public:
-    Application();
+    Application(asIScriptEngine* eng);
     Application(const Application&) = delete;
     ~Application() = default;
 
@@ -15,10 +17,10 @@ public:
 
     void runGameLoop();
 
-
     static const uint8_t TICKRATE = 33;
 
 private:
+    asIScriptEngine* mEngine;
     sf::RenderWindow mWindow;
 
     View::Camera mGameCamera, mUICamera;

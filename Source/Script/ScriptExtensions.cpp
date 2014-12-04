@@ -53,7 +53,7 @@ bool ScriptExtensions::RegisteredAllExtensions()
 namespace
 {
     template<typename T>
-    void print(const T& in)
+    void print(T in)
     {
         std::cout << in;
     }
@@ -97,7 +97,7 @@ namespace
     }
 
     template<typename T>
-    void println(const T& in)
+    void println(T in)
     {
         std::cout << in << std::endl;;
     }
@@ -133,12 +133,12 @@ namespace
             
             r = eng->RegisterGlobalFunction("void print(int)", asFUNCTION(print<int>), asCALL_CDECL);
             r = eng->RegisterGlobalFunction("void print(float)", asFUNCTION(print<float>), asCALL_CDECL);
-            r = eng->RegisterGlobalFunction("void print(string)", asFUNCTION(print<std::string>), asCALL_CDECL);
+            r = eng->RegisterGlobalFunction("void print(string&in)", asFUNCTION(print<const std::string&>), asCALL_CDECL);
             r = eng->RegisterGlobalFunction("void print(const ?&in)", asFUNCTION(printany), asCALL_CDECL);
             r = eng->RegisterGlobalFunction("void println()", asFUNCTIONPR(println, (), void), asCALL_CDECL);
             r = eng->RegisterGlobalFunction("void println(int)", asFUNCTION(println<int>), asCALL_CDECL);
             r = eng->RegisterGlobalFunction("void println(float)", asFUNCTION(println<float>), asCALL_CDECL);
-            r = eng->RegisterGlobalFunction("void println(string)", asFUNCTION(println<std::string>), asCALL_CDECL);
+            r = eng->RegisterGlobalFunction("void println(string&in)", asFUNCTION(println<const std::string&>), asCALL_CDECL);
             r = eng->RegisterGlobalFunction("void println(const ?&in)", asFUNCTION(printlnany), asCALL_CDECL);
         });
 

@@ -93,7 +93,7 @@ int main(int argc, char** argv)
     // Register the extensions into the engine
     Script::ScriptExtensions::RegisterAll(engine);
 
-    Application app;
+    Application app(engine);
 
     app.runGameLoop();
 

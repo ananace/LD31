@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class asIObjectType;
 class asIScriptModule;
 class asIScriptObject;
@@ -17,8 +19,9 @@ public:
 
     void updateObject(asIScriptObject* newObject);
 
+    static ScriptObject* Create(const std::string& name);
+
 private:
-    asIScriptModule* mModule;
     asIScriptObject* mObject;
 };
 

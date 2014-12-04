@@ -112,18 +112,18 @@ void InputMan::bindInput(uint8_t id, const Input::Input::Bind& bind, bool alsoLi
         switch (bind.Type)
         {
         case Input::Bind::Bind_Keyboard:
-            if (OppositeKeys.count(bind.Data.Keyboard.Key) > 0)
+            if (OppositeKeys.count(bind.Keyboard.Key) > 0)
             {
                 linked->mBind.Type = Input::Bind::Bind_Keyboard;
-                linked->mBind.Data.Keyboard.Key = OppositeKeys[bind.Data.Keyboard.Key];
-                linked->mBind.Data.Keyboard.Modifiers = bind.Data.Keyboard.Modifiers;
+                linked->mBind.Keyboard.Key = OppositeKeys[bind.Keyboard.Key];
+                linked->mBind.Keyboard.Modifiers = bind.Keyboard.Modifiers;
             }
             break;
 
         case Input::Bind::Bind_Joystick_Axis:
             linked->mBind.Type = Input::Bind::Bind_Joystick_Axis;
-            linked->mBind.Data.JoystickAxis = bind.Data.JoystickAxis;
-            linked->mBind.Data.JoystickAxis.Positive = !bind.Data.JoystickAxis.Positive;
+            linked->mBind.JoystickAxis = bind.JoystickAxis;
+            linked->mBind.JoystickAxis.Positive = !bind.JoystickAxis.Positive;
             break;
         }
     }
@@ -221,16 +221,16 @@ void InputMan::handleEvent(const sf::Event& ev)
             (sf::Keyboard::isKeyPressed(sf::Keyboard::RAlt) ? Input::Bind::Modifier_RAlt : 0);
 
         mCurrentlyBinding->mBind.Type = Input::Bind::Bind_Keyboard;
-        mCurrentlyBinding->mBind.Data.Keyboard.Key = ev.key.code;
-        mCurrentlyBinding->mBind.Data.Keyboard.Modifiers = currentKeyModifiers;
+        mCurrentlyBinding->mBind.Keyboard.Key = ev.key.code;
+        mCurrentlyBinding->mBind.Keyboard.Modifiers = currentKeyModifiers;
 
         if (mBindLinked && mCurrentlyBinding->mLinkedInput && OppositeKeys.count(ev.key.code) > 0)
         {
             auto* linked = mCurrentlyBinding->mLinkedInput;
 
             linked->mBind.Type = Input::Bind::Bind_Keyboard;
-            linked->mBind.Data.Keyboard.Key = OppositeKeys[ev.key.code];
-            linked->mBind.Data.Keyboard.Modifiers = currentKeyModifiers;
+            linked->mBind.Keyboard.Key = OppositeKeys[ev.key.code];
+            linked->mBind.Keyboard.Modifiers = currentKeyModifiers;
         }
 
         mCurrentlyBinding = nullptr;
@@ -239,8 +239,8 @@ void InputMan::handleEvent(const sf::Event& ev)
     case sf::Event::JoystickButtonPressed:
     {
         mCurrentlyBinding->mBind.Type = Input::Bind::Bind_Joystick_Button;
-        mCurrentlyBinding->mBind.Data.JoystickButton.ID = ev.joystickButton.joystickId;
-        mCurrentlyBinding->mBind.Data.JoystickButton.Button = ev.joystickButton.button;
+        mCurrentlyBinding->mBind.JoystickButton.ID = ev.joystickButton.joystickId;
+        mCurrentlyBinding->mBind.JoystickButton.Button = ev.joystickButton.button;
 
         mCurrentlyBinding = nullptr;
     } break;
@@ -251,18 +251,18 @@ void InputMan::handleEvent(const sf::Event& ev)
         if (abs(pos) > Input::PRESS_PERCENTAGE * 100.f)
         {
             mCurrentlyBinding->mBind.Type = Input::Bind::Bind_Joystick_Axis;
-            mCurrentlyBinding->mBind.Data.JoystickAxis.ID = ev.joystickMove.joystickId;
-            mCurrentlyBinding->mBind.Data.JoystickAxis.Axis = ev.joystickMove.axis;
-            mCurrentlyBinding->mBind.Data.JoystickAxis.Positive = pos > 0;
+            mCurrentlyBinding->mBind.JoystickAxis.ID = ev.joystickMove.joystickId;
+            mCurrentlyBinding->mBind.JoystickAxis.Axis = ev.joystickMove.axis;
+            mCurrentlyBinding->mBind.JoystickAxis.Positive = pos > 0;
 
             if (mBindLinked && mCurrentlyBinding->mLinkedInput)
             {
                 auto* linked = mCurrentlyBinding->mLinkedInput;
 
                 linked->mBind.Type = Input::Bind::Bind_Joystick_Axis;
-                linked->mBind.Data.JoystickAxis.ID = ev.joystickMove.joystickId;
-                linked->mBind.Data.JoystickAxis.Axis = ev.joystickMove.axis;
-                linked->mBind.Data.JoystickAxis.Positive = pos < 0;
+                linked->mBind.JoystickAxis.ID = ev.joystickMove.joystickId;
+                linked->mBind.JoystickAxis.Axis = ev.joystickMove.axis;
+                linked->mBind.JoystickAxis.Positive = pos < 0;
             }
 
             mCurrentlyBinding = nullptr;
@@ -286,7 +286,7 @@ void InputMan::update()
     for (auto& input : mInputs)
     {
         float val = 0;
-        auto& data = input.mBind.Data;
+        auto& data = input.mBind;
 
         switch (input.mBind.Type)
         {

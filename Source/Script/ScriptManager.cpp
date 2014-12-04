@@ -7,6 +7,7 @@
 
 #include <angelscript.h>
 
+#include <scriptarray/scriptarray.h>
 #include <scripthelper/scripthelper.h>
 #include <serializer/serializer.h>
 
@@ -16,6 +17,42 @@ Manager Script::ScriptManager;
 
 namespace
 {
+    // This serializes the std::string type
+    struct CStringType : public CUserType
+    {
+        void Store(CSerializedValue *val, void *ptr)
+        {
+            val->SetUserData(new std::string(*(std::string*)ptr));
+        }
+        void Restore(CSerializedValue *val, void *ptr)
+        {
+            std::string *buffer = (std::string*)val->GetUserData();
+            *(std::string*)ptr = *buffer;
+        }
+        void CleanupUserData(CSerializedValue *val)
+        {
+            std::string *buffer = (std::string*)val->GetUserData();
+            delete buffer;
+        }
+    };
+    // This serializes the CScriptArray type
+    struct CArrayType : public CUserType
+    {
+        void Store(CSerializedValue *val, void *ptr)
+        {
+            CScriptArray *arr = (CScriptArray*)ptr;
+            for (unsigned int i = 0; i < arr->GetSize(); i++)
+                val->m_children.push_back(new CSerializedValue(val, "", "", arr->At(i), arr->GetElementTypeId()));
+        }
+        void Restore(CSerializedValue *val, void *ptr)
+        {
+            CScriptArray *arr = (CScriptArray*)ptr;
+            arr->Resize(val->m_children.size());
+            for (size_t i = 0; i < val->m_children.size(); ++i)
+                val->m_children[i]->Restore(arr->At(i), arr->GetElementTypeId());
+        }
+    };
+
     class BytecodeStore : public asIBinaryStream
     {
     public:
@@ -131,6 +168,9 @@ namespace
                 size_t len = (size_t)ifs.tellg();
                 ifs.seekg(0, std::ios::beg);
 
+                if (len == 0)
+                    return asERROR;
+
                 std::vector<char> storage(len);
                 ifs.read(&storage[0], len);
                 scriptContent = std::string(&storage[0], len);
@@ -141,6 +181,7 @@ namespace
             return asERROR;
         
         scriptContent = stripMetadataLines(scriptContent);
+        ScriptManager.notifyIncluded(path, Util::FileSystem::fixPath(from));
 
         return builder->AddSectionFromMemory(path.c_str(), scriptContent.c_str());
     }
@@ -160,6 +201,9 @@ Manager::Manager() :
     mEngine(nullptr), mMetaMod(nullptr)
 {
     mBuilder.SetIncludeCallback(includeCallback, nullptr);
+
+    mSerializerTypes.push_back(std::make_tuple("string", []() -> CUserType* { return new CStringType(); }));
+    mSerializerTypes.push_back(std::make_tuple("array", []() -> CUserType* { return new CArrayType(); }));
 }
 Manager::~Manager()
 {
@@ -193,8 +237,9 @@ bool Manager::loadScriptFromFile(const std::string& filename)
     size_t len = (size_t)ifs.tellg();
     ifs.seekg(0, std::ios::beg);
 
-    std::vector<char> storage(len);
+    std::vector<char> storage(len + 1);
     ifs.read(&storage[0], len);
+    storage[len] = 0;
 
     return loadScriptFromMemory(file, &storage[0], len);
 }
@@ -204,26 +249,17 @@ bool Manager::loadScriptFromMemory(const std::string& file, const std::string& d
 }
 bool Manager::loadScriptFromMemory(const std::string& file, const char* data, size_t length)
 {
-    auto it = std::find(mLoadedScripts.begin(), mLoadedScripts.end(), file);
-    bool reload = it != mLoadedScripts.end();
+    bool reload = mLoadedScripts.count(file) > 0;
+
+    asIScriptModule* mod = nullptr;
+
+    CSerializer serial;
+    std::vector<asIScriptObject*> stored;
 
     if (reload)
     {
-        mBuilder.StartNewModule(mEngine, "!!Scratchspace!!");
-        mBuilder.AddSectionFromMemory(file.c_str(), data, length);
-
-        int ret = mBuilder.BuildModule();
-        if (ret < 0)
-            return false;
-
-        CSerializer serial;
-        for (auto& type : mSerializerTypes)
-        {
-            serial.AddUserType(std::get<1>(type)(), std::get<0>(type));
-        }
-
         auto module = mEngine->GetModule(file.c_str());
-        std::vector<asIScriptObject*> stored;
+
         for (auto& obj : mObjects)
         {
             if (obj->GetObjectType()->GetModule() == module)
@@ -233,22 +269,85 @@ bool Manager::loadScriptFromMemory(const std::string& file, const char* data, si
             }
         }
 
-        uint32_t gcSize1, gcSize2;
-        mEngine->GetGCStatistics(&gcSize1);
-
         serial.Store(module);
 
-        {
-            BytecodeStore store;
-            auto* mod = mBuilder.GetModule();
-            mod->SaveByteCode(&store);
-            mod->Discard();
 
-            module->LoadByteCode(&store);
+        mBuilder.StartNewModule(mEngine, file.c_str());
+        mBuilder.AddSectionFromMemory(file.c_str(), data, length);
+
+        int ret = mBuilder.BuildModule();
+        if (ret < 0)
+            return false;
+        
+        for (auto& type : mSerializerTypes)
+        {
+            serial.AddUserType(std::get<1>(type)(), std::get<0>(type));
         }
+
+        module = mBuilder.GetModule();
 
         serial.Restore(module);
 
+        mod = module;
+    }
+    else
+    {
+        mBuilder.StartNewModule(mEngine, file.c_str());
+        mBuilder.AddSectionFromMemory(file.c_str(), data, length);
+
+        int ret = mBuilder.BuildModule();
+        if (ret < 0)
+            return false;
+
+        mod = mBuilder.GetModule();
+
+        mLoadedScripts[file].Loaded = true;
+    }
+
+    auto ctx = mEngine->RequestContext();
+    auto mask = mod->SetAccessMask(META_MASK);
+
+    for (uint32_t i = 0; i < mod->GetObjectTypeCount(); ++i)
+    {
+        auto type = mod->GetObjectTypeByIndex(i);
+        int typeId = type->GetTypeId();
+
+        std::string data;
+        if (!(data = mBuilder.GetMetadataStringForType(typeId)).empty())
+        {
+            mMetaMod->SetUserData(type);
+
+            runMetadata(data, ctx);
+        }
+
+        for (uint32_t j = 0; j < type->GetMethodCount(); ++j)
+        {
+            auto func = type->GetMethodByIndex(j);
+
+            if (!(data = mBuilder.GetMetadataStringForTypeMethod(typeId, func)).empty())
+            {
+                mMetaMod->SetUserData(func);
+
+                runMetadata(data, ctx);
+            }
+        }
+
+        for (uint32_t j = 0; j < type->GetPropertyCount(); ++j)
+        {
+            if (!(data = mBuilder.GetMetadataStringForTypeProperty(typeId, j)).empty())
+            {
+                mMetaMod->SetUserData(type);
+                mMetaMod->SetUserData(&j, 1);
+
+                runMetadata(data, ctx);
+            }
+        }
+    }
+
+    mod->SetAccessMask(mask);
+
+    if (reload)
+    {
         for (auto& obj : stored)
         {
             notifyObjectRemoved(obj);
@@ -261,71 +360,37 @@ bool Manager::loadScriptFromMemory(const std::string& file, const char* data, si
             notifyNewObject(newObj);
         }
 
-        mEngine->GetGCStatistics(&gcSize2);
-
-        if (gcSize2 > gcSize1)
-            mEngine->GarbageCollect(asGC_FULL_CYCLE | asGC_DESTROY_GARBAGE);
-
-        mEngine->GarbageCollect(asGC_ONE_STEP | asGC_DETECT_GARBAGE);
-
-        return true;
+        mEngine->GarbageCollect(asGC_FULL_CYCLE | asGC_DESTROY_GARBAGE);
     }
-    else
+
+    return true;
+}
+
+void Manager::checkForModification()
+{
+    auto now = Util::ClockImpl::now();
+    if (now < mLastModificationCheck + std::chrono::seconds(1))
+        return;
+
+    for (auto& file : mLoadedScripts)
     {
-        mBuilder.StartNewModule(mEngine, file.c_str());
-        mBuilder.AddSectionFromMemory(file.c_str(), data, length);
+        Util::Timestamp lastModified = Util::FileSystem::getLastModified(file.first);
 
-        int ret = mBuilder.BuildModule();
-        if (ret < 0)
-            return false;
-
-        
-        auto ctx = mEngine->RequestContext();
-        auto mod = mBuilder.GetModule();
-        auto mask = mod->SetAccessMask(META_MASK);
-
-        for (uint32_t i = 0; i < mod->GetObjectTypeCount(); ++i)
+        if (file.second.LastModified == Util::Timestamp())
+            file.second.LastModified = lastModified;
+        else if (file.second.LastModified != lastModified)
         {
-            auto type = mod->GetObjectTypeByIndex(i);
-            int typeId = type->GetTypeId();
+            for (auto& loadedFrom : file.second.IncludedFrom)
+                loadScriptFromFile(loadedFrom);
 
-            std::string data;
-            if (!(data = mBuilder.GetMetadataStringForType(typeId)).empty())
-            {
-                mMetaMod->SetUserData(type);
+            if (file.second.Loaded)
+                loadScriptFromFile(file.first);
 
-                runMetadata(data, ctx);
-            }
-
-            for (uint32_t j = 0; j < type->GetMethodCount(); ++j)
-            {
-                auto func = type->GetMethodByIndex(j);
-
-                if (!(data = mBuilder.GetMetadataStringForTypeMethod(typeId, func)).empty())
-                {
-                    mMetaMod->SetUserData(func);
-
-                    runMetadata(data, ctx);
-                }
-            }
-
-            for (uint32_t j = 0; j < type->GetPropertyCount(); ++j)
-            {
-                if (!(data = mBuilder.GetMetadataStringForTypeProperty(typeId, j)).empty())
-                {
-                    mMetaMod->SetUserData(type);
-                    mMetaMod->SetUserData(&j, 1);
-
-                    runMetadata(data, ctx);
-                }
-            }
+            file.second.LastModified = lastModified;
         }
-
-        mod->SetAccessMask(mask);
-
-        mLoadedScripts.push_back(file);
-        return true;
     }
+
+    mLastModificationCheck = now;
 }
 
 void Manager::runCoroutines(const Util::Timespan& duration)
@@ -374,6 +439,11 @@ void Manager::runCoroutines(const Util::Timespan& duration)
 void Manager::defineWord(const std::string& word)
 {
     mBuilder.DefineWord(word.c_str());
+}
+
+void Manager::notifyIncluded(const std::string& script, const std::string& from)
+{
+    mLoadedScripts[script].IncludedFrom.insert(from);
 }
 
 void Manager::notifyNewObject(asIScriptObject* obj)
@@ -442,4 +512,10 @@ void Manager::runMetadata(const std::string& meta, asIScriptContext* ctx)
 
         cur = next + 1;
     } while (true);
+}
+
+Manager::LoadedScriptData::LoadedScriptData() :
+    LastModified(), Loaded(false)
+{
+
 }

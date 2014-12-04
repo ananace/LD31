@@ -19,6 +19,8 @@ SET(LD31_HEADERS
 	Math/Vector.inl
 
 	Script/ScriptExtensions.hpp
+	Script/ScriptHooks.hpp
+	Script/ScriptHooks.inl
 	Script/ScriptManager.hpp
 	Script/ScriptObject.hpp
 
@@ -46,6 +48,7 @@ SET(LD31_SOURCES
 	Math/Vector.cpp
 
 	Script/ScriptExtensions.cpp
+	Script/ScriptHooks.cpp
 	Script/ScriptManager.cpp
 	Script/ScriptObject.cpp
 

@@ -36,6 +36,7 @@ public:
             Modifier_RAlt = 1 << 5, ///< Right alt must bbe pressed
             Modifier_Alt = Modifier_LAlt | Modifier_RAlt ///< Either alt must be pressed
         };
+
         /// The type of bind
         enum {
             Bind_None, ///< Unbound
@@ -61,7 +62,7 @@ public:
                 uint32_t ID, ///< The joystick ID
                          Button; ///< The Button of the joystick
             } JoystickButton; ///< A bind to a joystick button
-        } Data;
+        };
     };
 
     ///\brief What percentage should count as "pressed"
