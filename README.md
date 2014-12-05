@@ -3,7 +3,7 @@ LD31
 
 My Ludum Dare 31 entry
 
-This time I'm doing it as much in scripts as possible, the script interface documentation is available here: [Script Interface](https://gist.github.com/ace13/ae6db4b5c6fbcf41b7fd#file-script-interface-md)
+This time I'm doing it as much in scripts as possible, the script interface documentation is available here: [Script Interface](https://gist.github.com/ace13/ae6db4b5c6fbcf41b7fd#file-script-interface-md).
 Or you can dump a local copy by starting the application with the argument '-d'
 
 It will automatically load all scripts directly situated in the `Scripts/` folder, and will also autmatically hot-reload any scripts if they change.

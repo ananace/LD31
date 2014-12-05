@@ -40,7 +40,7 @@ void dumpType(std::ostream& ofs, asIObjectType* objType, uint8_t level = 0)
     
     if (objType->GetSubTypeCount() > 0)
     {
-        ofs << "<";
+        ofs << "\\<";
 
         for (uint32_t j = 0; j < objType->GetSubTypeCount(); ++j)
         {
@@ -52,7 +52,7 @@ void dumpType(std::ostream& ofs, asIObjectType* objType, uint8_t level = 0)
             ofs << std::string(type->GetName());
         }
 
-        ofs << ">";
+        ofs << "\\>";
     }
 
     ofs << " ####";
