@@ -110,9 +110,9 @@ protected:
 	int m_typeId;
 
 	// For non-primitives the typeId may change if the module is reloaded so 
-	// it is necessary to store the type name to determine the new type id
+	// it is necessary to store the type name and namespace to determine the new type id
 	std::string m_typeName;
-    std::string m_typeNamespace;
+	std::string m_typeNamespace;
 	
 	// Name of variable or property
 	std::string m_name;

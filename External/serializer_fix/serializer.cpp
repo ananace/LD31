@@ -500,23 +500,24 @@ void CSerializedValue::SetType(int typeId)
 
 	asIObjectType *type = m_serializer->m_engine->GetObjectTypeById(typeId);
 
-    if (type)
-    {
-        m_typeName = type->GetName();
-        m_typeNamespace = type->GetNamespace();
-    }
+	if( type )
+	{
+		m_typeName = type->GetName();
+		m_typeNamespace = type->GetNamespace();
+	}
 }
 
 asIObjectType *CSerializedValue::GetType()
 {
 	if( !m_typeName.empty() )
 	{
-        std::string oldNamespace = m_serializer->m_mod->GetDefaultNamespace();
-        m_serializer->m_mod->SetDefaultNamespace(m_typeNamespace.c_str());
+		// Step into the type namespace before trying to find it
+		std::string oldNamespace = m_serializer->m_mod->GetDefaultNamespace();
+		m_serializer->m_mod->SetDefaultNamespace(m_typeNamespace.c_str());
 
 		int newTypeId = m_serializer->m_mod->GetTypeIdByDecl(m_typeName.c_str());
 
-        m_serializer->m_mod->SetDefaultNamespace(oldNamespace.c_str());
+		m_serializer->m_mod->SetDefaultNamespace(oldNamespace.c_str());
 
 		return m_serializer->m_engine->GetObjectTypeById(newTypeId);
 	}	
