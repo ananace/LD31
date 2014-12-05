@@ -1,9 +1,9 @@
-#include "Page.as"
+#include "IState.as"
 
-namespace Menu
+namespace States
 {
 
-class MainMenuPage : IPage
+class MainMenu : IState
 {
 	void Update(float dt)
 	{
@@ -19,7 +19,17 @@ class MainMenuPage : IPage
 		}
 	}
 
-	void Draw(Renderer@ rend)
+	void Tick(float)
+	{
+
+	}
+
+	void Draw(Renderer@)
+	{
+
+	}
+
+	void DrawUi(Renderer@ rend)
 	{
 		Frames++;
 

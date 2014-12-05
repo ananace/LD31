@@ -37,7 +37,7 @@ Application::Application(asIScriptEngine* eng) : mEngine(eng)
 
 void Application::runGameLoop()
 {
-    Script::ScriptObject* menu = Script::ScriptObject::Create("Menu");
+    Script::ScriptObject* menu = Script::ScriptObject::Create("StateMachine");
 
     mWindow.create(sf::VideoMode(800, 600), "LD31");
 
