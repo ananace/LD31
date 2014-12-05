@@ -132,7 +132,9 @@ void Camera::notifyDisplayUpdate(const Math::Vector2& size)
     if (!mKeepRatio)
     {
         float zoom = getZoom();
+
         mBaseSize = realNewSize;
+
         setZoom(zoom);
     }
     else

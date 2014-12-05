@@ -77,6 +77,7 @@ void Application::runGameLoop()
 
                 mGameCamera.notifyDisplayUpdate(size);
                 mUICamera.notifyDisplayUpdate(size);
+                mUICamera.setCenter(size / 2);
             } break;
             }
         }
