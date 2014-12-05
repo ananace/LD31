@@ -33,6 +33,35 @@ DateTime::DateTime(const Util::Timestamp& ts)
     mCalendarTime = *std::localtime(&time);
 }
 
+bool DateTime::operator==(const DateTime& rhs) const
+{
+    std::tm tmL = mCalendarTime, tmR = rhs.mCalendarTime;
+
+    std::time_t lht = std::mktime(&tmL),
+        rht = std::mktime(&tmR);
+
+    return (lht >= 0 && lht == rht);
+}
+
+bool DateTime::operator<(const DateTime& rhs) const
+{
+    std::tm tmL = mCalendarTime, tmR = rhs.mCalendarTime;
+
+    std::time_t lht = std::mktime(&tmL),
+        rht = std::mktime(&tmR);
+
+    return (lht < rht);
+}
+bool DateTime::operator>(const DateTime& rhs) const
+{
+    std::tm tmL = mCalendarTime, tmR = rhs.mCalendarTime;
+
+    std::time_t lht = std::mktime(&tmL),
+        rht = std::mktime(&tmR);
+
+    return (lht > rht);
+}
+
 DateTime& DateTime::operator+=(const DateTime& rhs)
 {
     std::tm copy = mCalendarTime,
@@ -187,6 +216,11 @@ namespace
         return std::string(buf, len);
     }
 
+    int cmp_DateTime(const DateTime& rhs, const DateTime& lhs)
+    {
+        return (lhs < rhs ? -1 : (lhs == rhs ? 0 : 1));
+    }
+
 
     bool Reg()
     {
@@ -219,6 +253,9 @@ namespace
             r = eng->RegisterObjectBehaviour("DateTime", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destruct_DateTime), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("DateTime", "DateTime& opAssign(DateTime&in)", asMETHOD(DateTime, operator=), asCALL_THISCALL); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("DateTime", "bool opEquals(DateTime&in)", asMETHOD(DateTime, operator==), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("DateTime", "int opCmp(DateTime&in)", asFUNCTION(cmp_DateTime), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("DateTime", "DateTime& opAddAssign(DateTime&in)", asMETHODPR(DateTime, operator+=, (const DateTime&), DateTime&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("DateTime", "DateTime& opSubAssign(DateTime&in)", asMETHODPR(DateTime, operator-=, (const DateTime&), DateTime&), asCALL_THISCALL); assert(r >= 0);

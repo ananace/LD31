@@ -22,6 +22,14 @@ class StateMachine
 	[Hook::BindHook("Update")]
 	void Update(float dt)
 	{
+		FrameTime += dt;
+		if (FrameTime >= 1)
+		{
+			FrameTime -= 1;
+			FPS = Frames;
+			Frames = 0;
+		}
+
 		IState@ state = @CurState();
 		if (state is null)
 			return;
@@ -32,6 +40,8 @@ class StateMachine
 	[Hook::BindHook("Draw")]
 	void Draw(Renderer@ rend)
 	{
+		++Frames;
+
 		IState@ state = @CurState();
 		if (state is null)
 			return;
@@ -43,22 +53,29 @@ class StateMachine
 	void DrawUi(Renderer@ rend)
 	{
 		IState@ state = @CurState();
-		if (state is null)
-			return;
+		if (state !is null)
+			state.DrawUi(rend);
 
-		state.DrawUi(rend);
+		Text fpsCounter("FPS: " + FPS);
+		fpsCounter.CharacterSize = 16;
+		fpsCounter.Move(5, 2);
+		rend.Draw(fpsCounter);
 	}
 
-	void PushState(IState@ State)
+	void PushState(IState@ state)
 	{
-		StateArray.insertLast(State);
+		println("[StateMachine] Pushing " + state.Name + " state.");
+
+		StateArray.insertLast(state);
 	}
 
 	IState@ PopState()
 	{
-		IState@ State = @StateArray[StateArray.length - 1];
+		IState@ state = @StateArray[StateArray.length - 1];
 		StateArray.removeLast();
-		return State;
+
+		println("[StateMachine] Popped " + state.Name + " state.");
+		return state;
 	}
 
 	IState@ CurState()
@@ -70,4 +87,6 @@ class StateMachine
 	}
 
 	private array<IState@> StateArray;
+	private float FrameTime;
+	private int Frames, FPS;
 }

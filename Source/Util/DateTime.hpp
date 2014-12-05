@@ -27,6 +27,11 @@ public:
 
     DateTime& operator=(const DateTime&) = default;
 
+    bool operator==(const DateTime&) const;
+
+    bool operator<(const DateTime&) const;
+    bool operator>(const DateTime&) const;
+    
     DateTime& operator+=(const DateTime&);
     DateTime& operator+=(const Timespan&);
     DateTime& operator-=(const DateTime&);

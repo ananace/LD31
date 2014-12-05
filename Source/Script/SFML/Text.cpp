@@ -53,6 +53,15 @@ Math::Rect getLocalBounds(sf::Text& text)
     return text.getLocalBounds();
 }
 
+std::string getString(sf::Text& text)
+{
+    return text.getString();
+}
+void setString(const std::string& str, sf::Text& text)
+{
+    text.setString(str);
+}
+
 namespace
 {
 
@@ -88,8 +97,8 @@ namespace
             r = eng->RegisterObjectMethod("Text", "void set_Color(Color&in)", asMETHOD(sf::Text, setColor), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "Rect get_GlobalBounds()", asFUNCTION(getGlobalBounds), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "Rect get_LocalBounds()", asFUNCTION(getGlobalBounds), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Text", "string get_String()", asMETHOD(sf::Text, getString), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Text", "void set_String(string&in)", asMETHOD(sf::Text, setString), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Text", "string get_String()", asFUNCTION(getString), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Text", "void set_String(string&in)", asFUNCTION(setString), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "uint get_Style()", asMETHOD(sf::Text, getStyle), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "void set_Style(uint)", asMETHOD(sf::Text, setStyle), asCALL_THISCALL); assert(r >= 0);
             

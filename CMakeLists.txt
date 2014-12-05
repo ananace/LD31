@@ -65,7 +65,7 @@ IF (LD31_JIT)
 	FIND_PACKAGE(AngelscriptJIT REQUIRED)
 ENDIF()
 
-FIND_PACKAGE(Angelscript COMPONENTS scriptarray scriptbuilder scriptdictionary scriptfile scriptgrid scripthelper scriptmath scriptstdstring serializer REQUIRED)
+FIND_PACKAGE(Angelscript COMPONENTS scriptarray scriptbuilder scriptdictionary scriptfile scriptgrid scripthelper scriptmath scriptstdstring REQUIRED)
 IF (MSVC)
 	FIND_PACKAGE(SFML 2 COMPONENTS main system window graphics audio REQUIRED)
 ELSE()
@@ -88,6 +88,7 @@ ENDIF()
 
 INCLUDE_DIRECTORIES(
 	Source
+	External/
 	External/nowide_standalone
 
 	${Angelscript_INCLUDE_DIR}

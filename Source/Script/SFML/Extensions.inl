@@ -73,6 +73,11 @@ void setScale(const Math::Vector2& vec, T& trans)
 {
     trans.setScale(vec);
 }
+template<typename T>
+void setScaleFloat(float scale, T& trans)
+{
+    trans.setScale(scale, scale);
+}
 
 template<typename T>
 void move(const Math::Vector2& vec, T& trans)
@@ -168,6 +173,7 @@ void registerTransformable(const char* name, asIScriptEngine* eng)
     r = eng->RegisterObjectMethod(name, "void set_Rotation(float)", asMETHODPR(T, setRotation, (float), void), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "Vec2 get_Scale()", asFUNCTION(getScale<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void set_Scale(Vec2&in)", asFUNCTION(setScale<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+    r = eng->RegisterObjectMethod(name, "void SetScale(float)", asFUNCTION(setScaleFloat<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void SetScale(float,float)", asMETHODPR(T, setScale, (float, float), void), asCALL_THISCALL); assert(r >= 0);
 
     r = eng->RegisterObjectMethod(name, "void Move(float,float)", asMETHODPR(T, move, (float, float), void), asCALL_THISCALL); assert(r >= 0);

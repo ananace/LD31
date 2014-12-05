@@ -10,7 +10,7 @@
 
 #include <scriptarray/scriptarray.h>
 #include <scripthelper/scripthelper.h>
-#include <serializer/serializer.h>
+#include <serializer_fix/serializer.h>
 
 using namespace Script;
 
@@ -203,8 +203,12 @@ Manager::Manager() :
 {
     mBuilder.SetIncludeCallback(includeCallback, nullptr);
 
-    mSerializerTypes.push_back(std::make_tuple("string", []() -> CUserType* { return new CStringType(); }));
-    mSerializerTypes.push_back(std::make_tuple("array", []() -> CUserType* { return new CArrayType(); }));
+    mSerializerTypes.push_back(std::make_tuple("string", []() -> CUserType* {
+        return new CStringType();
+    }));
+    mSerializerTypes.push_back(std::make_tuple("array", []() -> CUserType* {
+        return new CArrayType();
+    }));
 }
 Manager::~Manager()
 {
@@ -259,6 +263,7 @@ bool Manager::loadScriptFromMemory(const std::string& file, const char* data, si
 
     if (reload)
     {
+        std::cout << "Reloading " << file << "..." << std::endl;
         auto module = mEngine->GetModule(file.c_str());
 
         for (auto& obj : mObjects)
@@ -268,6 +273,11 @@ bool Manager::loadScriptFromMemory(const std::string& file, const char* data, si
                 serial.AddExtraObjectToStore(obj);
                 stored.push_back(obj);
             }
+        }
+
+        for (auto& type : mSerializerTypes)
+        {
+            serial.AddUserType(std::get<1>(type)(), std::get<0>(type));
         }
 
         serial.Store(module);
@@ -296,11 +306,6 @@ bool Manager::loadScriptFromMemory(const std::string& file, const char* data, si
         ret = mBuilder.BuildModule();
         assert(ret >= 0);
         
-        for (auto& type : mSerializerTypes)
-        {
-            serial.AddUserType(std::get<1>(type)(), std::get<0>(type));
-        }
-
         module = mBuilder.GetModule();
 
         serial.Restore(module);

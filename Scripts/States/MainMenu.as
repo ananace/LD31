@@ -7,16 +7,7 @@ class MainMenu : IState
 {
 	void Update(float dt)
 	{
-		time += dt;
 		totalTime += dt;
-
-		if (time >= 1)
-		{
-			FPS = Frames;
-			Frames = 0;
-			
-			time -= 1;
-		}
 	}
 
 	void Tick(float)
@@ -40,23 +31,16 @@ class MainMenu : IState
 
 		DateTime diff(now.Year,now.Month,now.Day, 0,0, secDiff);
 
-		Frames++;
-
-		Text fpsCounter("FPS: " + FPS);
-		fpsCounter.CharacterSize = 16;
-		fpsCounter.Move(5, 2);
-		rend.Draw(fpsCounter);
-
 		Text title("Time until LD31 Theme:\n\t\t\t" + (diff.Hour < 10 ? "0" : "") + diff.Hour +
 			":" + (diff.Minute < 10 ? "0" : "") + diff.Minute +
 			":" + (diff.Second < 10 ? "0" : "") + diff.Second);
-		title.Position = Vec2(rend.View.Size.X / 2, 48);
+		title.Position = rend.View.Size / 2;
 		title.Origin = title.LocalBounds.Size / 2;
 
-		title.Move(sin(totalTime) * 6, cos(totalTime) * 6);
-		title.Rotation = sin(totalTime);
+		title.Move(sin(totalTime / 1.5) * 32, cos(totalTime / 1.5) * 32);
+		title.Rotation = sin(totalTime) * Math::PHI;
 
-		uint8 colorVal = uint8(232 + sin(totalTime * 4) * 16);
+		uint8 colorVal = uint8(232 + sin(totalTime * 6) * 12);
 		Color col = Colors::White;
 		col.A = colorVal;
 		title.Color = col;
@@ -69,8 +53,7 @@ class MainMenu : IState
 		get const { return "Main Menu"; }
 	}
 
-	private float totalTime, time;
-	private int Frames, FPS;
+	private float totalTime;
 }
 
 }
