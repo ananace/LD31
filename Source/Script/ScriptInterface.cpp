@@ -182,7 +182,61 @@ void Script::DumpScriptInterface(asIScriptEngine* eng)
     ofs << "LD31 Script interface documentation" << std::endl
         << "===================================" << std::endl << std::endl;
 
-    ofs << "Funcdefs" << std::endl
+    ofs << "Global properties" << std::endl
+        << "-----------------" << std::endl;
+
+    std::map<std::string, std::vector<std::string> > functions;
+    std::map<std::string, std::vector<std::string> > properties;
+
+    for (uint32_t i = 0; i < eng->GetGlobalFunctionCount(); ++i)
+    {
+        auto* func = eng->GetGlobalFunctionByIndex(i);
+        std::string name = func->GetName();
+
+        if (name.substr(0, 4) == "get_")
+        {
+            std::string setname = name;
+            setname.replace(0, 4, "set_");
+            name.erase(0, 4);
+            
+            int typeId = func->GetReturnTypeId();
+            auto* retType = eng->GetObjectTypeById(typeId);
+            const char* retName = eng->GetTypeDeclaration(typeId);
+
+            bool readOnly = eng->GetGlobalFunctionByDecl(("void " + setname + "(" + retName + ")").c_str()) == nullptr;
+
+            properties[func->GetNamespace()].push_back(std::string(retName) + " " + (func->GetNamespace() ? std::string(func->GetNamespace()) + "::" : "") + name + (readOnly ? " const" : ""));
+        }
+        else if (name.substr(0, 4) == "set_")
+            ;
+        else
+            functions[func->GetNamespace()].push_back(std::string(func->GetDeclaration(true, true, true)));
+    }
+
+    for (uint32_t i = 0; i < eng->GetGlobalPropertyCount(); ++i)
+    {
+        const char* name,
+                  * ns;
+        int typeId;
+        bool isConst;
+        eng->GetGlobalPropertyByIndex(i, &name, &ns, &typeId, &isConst);
+
+        auto* retType = eng->GetTypeDeclaration(typeId);
+
+        properties[ns].push_back(std::string(retType) + " " + (ns ? std::string(ns) + "::" : "") + name + (isConst ? " const" : ""));
+    }
+
+    for (auto& func : properties)
+    {
+        if (!func.first.empty())
+            ofs << std::endl << "#### " << func.first << ":" << " ####" << std::endl << std::endl;
+
+        for (auto& f : func.second)
+            ofs << "    " << f << std::endl;
+    }
+
+    ofs << std::endl
+        << "Funcdefs" << std::endl
         << "--------" << std::endl;
 
     for (uint32_t i = 0; i < eng->GetFuncdefCount(); ++i)
@@ -196,19 +250,10 @@ void Script::DumpScriptInterface(asIScriptEngine* eng)
         << "Global functions" << std::endl
         << "----------------" << std::endl;
 
-    std::map<std::string, std::vector<std::string> > functions;
-
-    for (uint32_t i = 0; i < eng->GetGlobalFunctionCount(); ++i)
-    {
-        auto* func = eng->GetGlobalFunctionByIndex(i);
-
-        functions[func->GetNamespace()].push_back(std::string(func->GetDeclaration(true, true, true)));
-    }
-
     for (auto& func : functions)
     {
         if (!func.first.empty())
-            ofs << std::endl << "### " << func.first << ":" << " ###" << std::endl << std::endl;
+            ofs << std::endl << "#### " << func.first << ":" << " ####" << std::endl << std::endl;
 
         for (auto& f : func.second)
             ofs << "    " << f << std::endl;
