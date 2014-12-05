@@ -1,6 +1,7 @@
 #include <Application.hpp>
 #include <Input/InputManager.hpp>
 #include <Script/ScriptExtensions.hpp>
+#include <Script/ScriptInterface.hpp>
 #include <Util/FileSystem.hpp>
 
 #include <angelscript.h>
@@ -92,6 +93,13 @@ int main(int argc, char** argv)
 
     // Register the extensions into the engine
     Script::ScriptExtensions::RegisterAll(engine);
+
+    // Dump script interface
+    if (argc > 1 && std::string(argv[1]) == "-d")
+    {
+        Script::DumpScriptInterface(engine);
+        return 0;
+    }
 
     Application app(engine);
 

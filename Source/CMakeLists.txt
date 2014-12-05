@@ -21,6 +21,7 @@ SET(LD31_HEADERS
 	Script/ScriptExtensions.hpp
 	Script/ScriptHooks.hpp
 	Script/ScriptHooks.inl
+	Script/ScriptInterface.hpp
 	Script/ScriptManager.hpp
 	Script/ScriptObject.hpp
 
@@ -49,6 +50,7 @@ SET(LD31_SOURCES
 
 	Script/ScriptExtensions.cpp
 	Script/ScriptHooks.cpp
+	Script/ScriptInterface.cpp
 	Script/ScriptManager.cpp
 	Script/ScriptObject.cpp
 

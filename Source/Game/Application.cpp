@@ -118,7 +118,7 @@ void Application::runGameLoop()
 
         oldFrame = now;
 
-        Util::sleep(Util::Timespan(std::chrono::milliseconds(5)));
+        //Util::sleep(Util::Timespan(std::chrono::milliseconds(5)));
     }
 
     delete menu;
