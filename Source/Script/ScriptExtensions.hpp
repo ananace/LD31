@@ -26,6 +26,7 @@ private:
     static bool Spinor;
     static bool Vector2;
 
+    static bool DateTimeExtensions;
     static bool InputExtensions;
     static bool ScriptHookExtensions;
     static bool ScriptManagerExtensions;

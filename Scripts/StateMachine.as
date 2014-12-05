@@ -6,7 +6,6 @@ class StateMachine
 {
 	StateMachine()
 	{
-
 	}
 
 	[Hook::BindHook("Tick")]

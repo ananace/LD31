@@ -47,7 +47,7 @@ void ScriptExtensions::RegisterAll(asIScriptEngine* eng)
 
 bool ScriptExtensions::RegisteredAllExtensions()
 {
-    return CommonExtensions && CommonMath && Rect && Spinor && Vector2 && InputExtensions && ScriptManagerExtensions && SFML::Extensions::RegisteredExtensions();
+    return CommonExtensions && CommonMath && Rect && Spinor && Vector2 && DateTimeExtensions && InputExtensions && ScriptManagerExtensions && SFML::Extensions::RegisteredExtensions();
 }
 
 namespace
@@ -62,7 +62,7 @@ namespace
     {
         asIScriptContext* ctx = asGetActiveContext();
         asIObjectType* objType = ctx->GetEngine()->GetObjectTypeById(type);
-        asIScriptFunction* func = objType->GetMethodByDecl("string ToString()");
+        asIScriptFunction* func = objType->GetMethodByDecl("string ToString() const");
         std::string output;
 
         if (func)

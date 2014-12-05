@@ -26,6 +26,10 @@ Application::Application(asIScriptEngine* eng) : mEngine(eng)
     Script::ScriptHooks::addHook("Tick", "void f(float)");
     Script::ScriptHooks::addHook("Update", "void f(float)");
 
+    // TODO: Add resources
+
+
+
     if (Util::FileSystem::isFolder("Scripts"))
     {
         for (auto& script : Util::FileSystem::findFiles(Util::FileSystem::fixPath("Scripts/*.as")))
@@ -118,7 +122,7 @@ void Application::runGameLoop()
 
         oldFrame = now;
 
-        //Util::sleep(Util::Timespan(std::chrono::milliseconds(5)));
+        Util::sleep(Util::Timespan(std::chrono::milliseconds(5)));
     }
 
     delete menu;

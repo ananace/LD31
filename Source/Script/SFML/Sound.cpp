@@ -24,7 +24,6 @@ namespace
     }
     void create_sound_buffer(SoundBuffer_t* buffer, void* memory)
     {
-        buffer->GCAddRef();
         new(memory)sf::Sound(**buffer);
 
         sounds[memory] = buffer;
@@ -33,18 +32,29 @@ namespace
     {
         sound->~Sound();
 
+        if (sounds.count(sound) == 0)
+            return;
+
         sounds[sound]->GCRelease();
         sounds.erase(sound);
     }
 
     SoundBuffer_t* getBuffer(sf::Sound& sound)
     {
+        if (sounds.count(&sound) == 0)
+            return nullptr;
+
+        sounds[&sound]->GCAddRef();
         return sounds[&sound];
     }
     void setBuffer(SoundBuffer_t* buffer, sf::Sound& sound)
     {
+        if (!buffer)
+            return;
+
         buffer->GCAddRef();
-        sounds[&sound]->GCRelease();
+        if (sounds.count(&sound) != 0)
+            sounds[&sound]->GCRelease();
 
         sound.setBuffer(**buffer);
 
@@ -79,7 +89,6 @@ namespace
             r = eng->RegisterObjectMethod("Sound", "bool get_Loops()", asMETHOD(sf::Sound, getLoop), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Sound", "void set_Loops(bool)", asMETHOD(sf::Sound, setLoop), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Sound", "Sound::Status get_Status()", asMETHOD(sf::Sound, getStatus), asCALL_THISCALL); assert(r >= 0);
-            ///\TODO: Time values, duration / playing offset
 
             r = eng->RegisterObjectMethod("Sound", "Sound::Buffer@ GetBuffer()", asFUNCTION(getBuffer), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Sound", "void SetBuffer(Sound::Buffer@)", asFUNCTION(setBuffer), asCALL_CDECL_OBJLAST); assert(r >= 0);

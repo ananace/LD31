@@ -7,7 +7,9 @@
 #include <angelscript.h>
 
 #include <iostream>
+
 #include <cassert>
+#include <clocale>
 
 void MessageCallback(const asSMessageInfo *msg, void* /*param*/)
 {
@@ -82,6 +84,7 @@ int main(int argc, char** argv)
 {
     // Run program from it's executable directory
     Util::FileSystem::setSaneWorkingDir(argv[0]);
+    std::setlocale(LC_ALL, "");
     
     asIScriptEngine* engine = asCreateScriptEngine(ANGELSCRIPT_VERSION);
 

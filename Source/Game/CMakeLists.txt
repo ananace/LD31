@@ -1,11 +1,13 @@
 SET(LD31_Game_HEADERS
 	Application.hpp
+	Resources.hpp
 
 	View/Camera.hpp
 )
 
 SET(LD31_Game_SOURCES
 	Application.cpp
+	Resources.cpp
 
 	View/Camera.cpp
 )

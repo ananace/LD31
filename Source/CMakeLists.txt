@@ -28,6 +28,7 @@ SET(LD31_HEADERS
 	Script/SFML/Extensions.hpp
 	Script/SFML/Extensions.inl
 
+	Util/DateTime.hpp
 	Util/FileSystem.hpp
 	Util/FontFinder.hpp
 	Util/INIFile.hpp
@@ -70,6 +71,7 @@ SET(LD31_SOURCES
 	Script/SFML/Texture.cpp
 	Script/SFML/View.cpp
 
+	Util/DateTime.cpp
 	Util/FileSystem.cpp
 	Util/INIFile.cpp
 	Util/FontFinder.cpp
