@@ -52,7 +52,7 @@ namespace
             r = eng->RegisterObjectBehaviour("Polygon", asBEHAVE_CONSTRUCT, "void f(uint)", asFUNCTION(create_ConvexShape_count), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Polygon", asBEHAVE_LIST_CONSTRUCT, "void f(int&in) {repeat Vec2}", asFUNCTION(create_ConvexShape_list), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Polygon", "void set_array(uint,Vec2&in)", asFUNCTION(setPoint), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Polygon", "void SetPoint(uint,Vec2&in)", asFUNCTION(setPoint), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Polygon", "void set_PointCount(uint)", asMETHOD(sf::ConvexShape, setPointCount), asCALL_THISCALL); assert(r >= 0);
 
             Script::SFML::registerShape<sf::ConvexShape>("Polygon", eng);

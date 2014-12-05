@@ -23,14 +23,12 @@ namespace
     }
     void create_Sprite_tex(Texture_t* texture, void* memory)
     {
-        texture->GCAddRef();
         new(memory)sf::Sprite(**texture);
 
         sprites[memory] = texture;
     }
     void create_Sprite_texRect(Texture_t* texture, const Math::Rect& rect, void* memory)
     {
-        texture->GCAddRef();
         new(memory)sf::Sprite(**texture, rect);
 
         sprites[memory] = texture;
@@ -63,20 +61,19 @@ namespace
 
     Texture_t* getSpriteTexture(sf::Sprite& sprite)
     {
+        if (sprites.count(&sprite) == 0)
+            return nullptr;
+
+        sprites[&sprite]->GCAddRef();
         return sprites[&sprite];
-    }
-    void setSpriteTexture(Texture_t* texture, sf::Sprite& sprite)
-    {
-        texture->GCAddRef();
-        sprites[&sprite]->GCRelease();
-
-        sprite.setTexture(**texture);
-
-        sprites[&sprite] = texture;
     }
     void setSpriteTextureReset(Texture_t* texture, bool resetRect, sf::Sprite& sprite)
     {
-        sprites[&sprite]->GCRelease();
+        if (!texture)
+            return;
+
+        if (sprites.count(&sprite) > 0)
+            sprites[&sprite]->GCRelease();
 
         sprite.setTexture(**texture, resetRect);
 
@@ -123,8 +120,7 @@ namespace
             r = eng->RegisterObjectMethod("Sprite", "void set_TextureRect(Rect&in)", asFUNCTION(setSpriteTextureRect), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Sprite", "Texture@ GetTexture()", asFUNCTION(getSpriteTexture), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            //r = eng->RegisterObjectMethod("Sprite", "void SetTexture(Texture@)", asFUNCTION(setTexture), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Sprite", "void SetTexture(Texture@,bool=false)", asFUNCTION(setSpriteTextureReset), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Sprite", "void SetTexture(Texture@,bool resetTextureRect=false)", asFUNCTION(setSpriteTextureReset), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             Script::SFML::registerTransformable<sf::Sprite>("Sprite", eng);
         }, 1);

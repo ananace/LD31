@@ -122,20 +122,11 @@ Texture_t* getTexture(T& shape)
     return shapes.at(&shape);
 }
 template<typename T>
-void setTexture(Texture_t* texture, T& shape)
-{
-    texture->GCAddRef();
-    if (shapes.count(&shape))
-        shapes[&shape]->GCRelease();
-
-    shape.setTexture(**texture);
-
-    shapes[&shape] = texture;
-}
-template<typename T>
 void setTextureReset(Texture_t* texture, bool resetRect, T& shape)
 {
-    texture->GCAddRef();
+    if (!texture)
+        return;
+
     if (shapes.count(&shape))
         shapes[&shape]->GCRelease();
 
@@ -195,7 +186,8 @@ void registerShape(const char* name, asIScriptEngine* eng)
 
     r = eng->RegisterObjectMethod(name, (std::string(name) + "& opAssign(" + name + "&in)").c_str(), asFUNCTION(assign_shape<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
     
-    r = eng->RegisterObjectMethod(name, "Vec2 get_array(uint)", asFUNCTION(getPoint<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+    r = eng->RegisterObjectMethod(name, "Vec2 opIndex(uint) const", asFUNCTION(getPoint<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
     r = eng->RegisterObjectMethod(name, "Color get_FillColor()", asMETHOD(T, getFillColor), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void set_FillColor(Color&in)", asMETHODPR(T, setFillColor, (const sf::Color&), void), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "Color get_OutlineColor()", asMETHOD(T, getOutlineColor), asCALL_THISCALL); assert(r >= 0);
@@ -204,8 +196,7 @@ void registerShape(const char* name, asIScriptEngine* eng)
     r = eng->RegisterObjectMethod(name, "void set_OutlineThickness(float)", asMETHODPR(T, setOutlineThickness, (float), void), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "uint get_PointCount()", asMETHODPR(T, getPointCount, () const, unsigned int), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "Texture@ GetTexture()", asFUNCTION(getTexture<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
-    //r = eng->RegisterObjectMethod("Sprite", "void SetTexture(Texture@)", asFUNCTION(setTexture<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
-    r = eng->RegisterObjectMethod(name, "void SetTexture(Texture@,bool=false)", asFUNCTION(setTextureReset<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+    r = eng->RegisterObjectMethod(name, "void SetTexture(Texture@,bool resetTextureRect=false)", asFUNCTION(setTextureReset<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "Rect get_TextureRect()", asFUNCTION(getTextureRect<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void set_TextureRect(Rect&in)", asFUNCTION(setTextureRect<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
