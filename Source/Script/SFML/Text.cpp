@@ -80,6 +80,8 @@ namespace
             r = eng->RegisterObjectBehaviour("Text", asBEHAVE_CONSTRUCT, "void f(string&in,Font@,uint)", asFUNCTION(create_text_stringFontSize), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Text", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destruct_text), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
+            r = eng->RegisterObjectMethod("Text", "Text& opAssign(Text&in)", asMETHOD(sf::Text, operator=), asCALL_THISCALL); assert(r >= 0);
+
             r = eng->RegisterObjectMethod("Text", "uint get_CharacterSize()", asMETHOD(sf::Text, getCharacterSize), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "void set_CharacterSize(uint)", asMETHOD(sf::Text, setCharacterSize), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "Color get_Color()", asMETHOD(sf::Text, getColor), asCALL_THISCALL); assert(r >= 0);

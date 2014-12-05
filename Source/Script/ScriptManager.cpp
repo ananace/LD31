@@ -1,5 +1,6 @@
 #include "ScriptManager.hpp"
 #include "ScriptExtensions.hpp"
+#include "ScriptHooks.hpp"
 #include "ScriptObject.hpp"
 #include <Util/FileSystem.hpp>
 
@@ -114,13 +115,13 @@ namespace
         return true;
     }
 
-    void skipWhitespace(std::string::iterator& it)
+    void skipWhitespace(std::string::iterator& it, std::string::iterator& end)
     {
         char c = *it;
         if (c != ' ' && c != '\t')
             return;
 
-        while ((c = *it++) != 0 && (c == ' ' || c == '\t'));
+        for (; it != end && (c = *it) != 0 && (c == ' ' || c == '\t'); ++it);
     }
 
     std::string stripMetadataLines(const std::string& data)
@@ -140,9 +141,9 @@ namespace
             }
 
             auto it = line.begin();
-            skipWhitespace(it);
+            skipWhitespace(it, line.end());
 
-            if (*it == '[')
+            if (it != line.end() && *it == '[')
             {
                 line.insert(it, { '/', '/', ' ' });
             }
@@ -271,13 +272,29 @@ bool Manager::loadScriptFromMemory(const std::string& file, const char* data, si
 
         serial.Store(module);
 
-
-        mBuilder.StartNewModule(mEngine, file.c_str());
+        // Have to build twice, a failed build breaks the script module
+        mBuilder.StartNewModule(mEngine, "!!ScratchSpace!!");
         mBuilder.AddSectionFromMemory(file.c_str(), data, length);
 
         int ret = mBuilder.BuildModule();
         if (ret < 0)
             return false;
+
+        mBuilder.GetModule()->Discard();
+
+        for (uint32_t i = 0; i < module->GetObjectTypeCount(); ++i)
+        {
+            auto* type = module->GetObjectTypeByIndex(i);
+            Script::ScriptHooks::cleanOldPossible(type);
+        }
+
+        // Perform the real build
+
+        mBuilder.StartNewModule(mEngine, file.c_str());
+        mBuilder.AddSectionFromMemory(file.c_str(), data, length);
+
+        ret = mBuilder.BuildModule();
+        assert(ret >= 0);
         
         for (auto& type : mSerializerTypes)
         {
@@ -381,7 +398,8 @@ void Manager::checkForModification()
         else if (file.second.LastModified != lastModified)
         {
             for (auto& loadedFrom : file.second.IncludedFrom)
-                loadScriptFromFile(loadedFrom);
+                if (mLoadedScripts[loadedFrom].Loaded)
+                    loadScriptFromFile(loadedFrom);
 
             if (file.second.Loaded)
                 loadScriptFromFile(file.first);

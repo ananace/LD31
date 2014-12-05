@@ -33,6 +33,11 @@ void ScriptHooks::storePossible(const std::string& name, asIObjectType* type, as
     mPossibleBinds[type].push_back(PossibleHook{name, priority, func});
 }
 
+void ScriptHooks::cleanOldPossible(asIObjectType* obj)
+{
+    mPossibleBinds.erase(obj);
+}
+
 void ScriptHooks::bindHook(const std::string& name, asIScriptObject* obj, asIScriptFunction* func, float priority)
 {
     auto& hooks = mBoundHooks[name];

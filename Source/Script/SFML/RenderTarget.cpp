@@ -17,9 +17,14 @@ namespace
 {
     typedef Util::Resource<sf::Shader, std::string> Shader_t;
 
-    void draw(const sf::Drawable& draw, Shader_t* shader, sf::RenderTarget& target)
+    void draw_shader(const sf::Drawable& draw, Shader_t* shader, sf::RenderTarget& target)
     {
         target.draw(draw, &(**shader));
+    }
+
+    void draw(const sf::Drawable& draw, sf::RenderTarget* target)
+    {
+        target->draw(draw);
     }
 
     Math::Vector2 getMouse(sf::RenderTarget* target)
@@ -72,11 +77,11 @@ namespace
 
             r = eng->RegisterObjectMethod("Renderer", "void Clear(Color&in)", asMETHOD(sf::RenderTarget, clear), asCALL_THISCALL); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Renderer", "void Draw(Sprite&in)", asMETHODPR(sf::RenderTarget, draw, (const sf::Drawable&, const sf::RenderStates&), void), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Renderer", "void Draw(Text&in)", asMETHODPR(sf::RenderTarget, draw, (const sf::Drawable&, const sf::RenderStates&), void), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "void Draw(Sprite&in)", asFUNCTION(draw), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "void Draw(Text&in)", asFUNCTION(draw), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Renderer", "void Draw(Sprite&in,Shader@)", asFUNCTION(draw), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Renderer", "void Draw(Text&in,Shader@)", asFUNCTION(draw), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "void Draw(Sprite&in,Shader@)", asFUNCTION(draw_shader), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "void Draw(Text&in,Shader@)", asFUNCTION(draw_shader), asCALL_CDECL_OBJLAST); assert(r >= 0);
         }, 5);
 
         return true;

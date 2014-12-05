@@ -5,6 +5,8 @@
 #include <Script/ScriptExtensions.hpp>
 #include <Util/ResourceManager.hpp>
 
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Transformable.hpp>
@@ -14,6 +16,7 @@
 #include <cassert>
 
 typedef Util::Resource<sf::Texture, std::string> Texture_t;
+typedef Util::Resource<sf::Shader, std::string> Shader_t;
 
 namespace Script
 {
@@ -27,6 +30,18 @@ namespace
 {
 
 using Script::SFML::shapes;
+
+template<typename T>
+void drawShape_shader(const T& draw, Shader_t* shader, sf::RenderTarget* target)
+{
+    target->draw(draw, &(**shader));
+}
+
+template<typename T>
+void drawShape(const T& draw, sf::RenderTarget* target)
+{
+    target->draw(draw);
+}
 
 template<typename T>
 Math::Vector2 getOrigin(T& trans)
@@ -193,6 +208,9 @@ void registerShape(const char* name, asIScriptEngine* eng)
     r = eng->RegisterObjectMethod(name, "void SetTexture(Texture@,bool=false)", asFUNCTION(setTextureReset<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "Rect get_TextureRect()", asFUNCTION(getTextureRect<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void set_TextureRect(Rect&in)", asFUNCTION(setTextureRect<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
+    r = eng->RegisterObjectMethod("::Renderer", ("void Draw(Shapes::" + std::string(name) + "&in)").c_str(), asFUNCTION(drawShape<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+    r = eng->RegisterObjectMethod("::Renderer", ("void Draw(Shapes::" + std::string(name) + "&in,Shader@)").c_str(), asFUNCTION(drawShape_shader<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
     registerTransformable<T>(name, eng);
 }

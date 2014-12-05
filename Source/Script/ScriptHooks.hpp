@@ -21,6 +21,8 @@ public:
     static void addHook(const std::string& name, const std::string& decl);
 
     static void storePossible(const std::string& name, asIObjectType* obj, asIScriptFunction* func, float priority = 0);
+    static void cleanOldPossible(asIObjectType* obj);
+
     /// Binds the named hook to the specified object function, with the given priority
     static void bindHook(const std::string& name, asIScriptObject* obj, asIScriptFunction* func, float priority = 0);
     /// Unbinds the named hook from the given object, (And all functions unless a specific one is given)

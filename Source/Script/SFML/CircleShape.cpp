@@ -40,7 +40,7 @@ namespace
             Script::SFML::registerShape<sf::CircleShape>("Circle", eng);
 
             r = eng->SetDefaultNamespace(""); assert(r >= 0);
-        }, 1);
+        }, 6);
 
         return true;
     }

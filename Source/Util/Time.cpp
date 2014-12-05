@@ -99,7 +99,7 @@ std::ostream& operator<<(std::ostream& os, const Timespan& out)
     return os;
 }
 
-void sleep(const Timestamp& ts)
+void Util::sleep(const Timestamp& ts)
 {
     auto now = ClockImpl::now();
     assert(ts > now);
@@ -112,7 +112,7 @@ void sleep(const Timestamp& ts)
 #endif
 }
 
-void sleep(const Timespan& ts)
+void Util::sleep(const Timespan& ts)
 {
 #ifdef LD31_WINDOWS
     Sleep((DWORD)std::chrono::duration_cast<std::chrono::milliseconds>(ts).count());

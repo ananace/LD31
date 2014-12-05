@@ -78,7 +78,7 @@ namespace
             r = eng->RegisterObjectMethod("Rectangle", "void set_Size(Vec2&in)", asFUNCTION(setRect), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->SetDefaultNamespace(""); assert(r >= 0);
-        }, 1);
+        }, 6);
 
         return true;
     }

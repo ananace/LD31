@@ -115,3 +115,15 @@ IF (LD31_TESTS)
 			 COMMAND TestSuite
 			 WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/Tests)
 ENDIF()
+
+# Copy scripts
+
+IF (WIN32 AND MSVC)
+	FOREACH(build Debug Release RelWithDebInfo)
+		IF (IS_DIRECTORY ${PROJECT_BINARY_DIR}/bin/${build})
+			FILE(COPY "Scripts" DESTINATION ${PROJECT_BINARY_DIR}/bin/${build})
+		ENDIF()
+	ENDFOREACH()
+ELSE()
+	FILE(COPY "Scripts" DESTINATION ${PROJECT_BINARY_DIR}/bin)
+ENDIF()
