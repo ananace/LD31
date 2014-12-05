@@ -15,3 +15,9 @@ This entry's built on top of the SFML git and Angelscript SVN, so you might want
 It also uses CMake for build system generation, so that's a plus too.
 
 And because of quite extensive use of C++11 I recommend a recent compiler, the CMake script should stop you from using one that won't be able to compile it anyway.
+
+NOTE
+====
+
+Currently doesn't work on 64-bit Linux because Angelscript doesn't support returning by value there.
+On the To-Do list to set up wrapping for this.

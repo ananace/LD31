@@ -55,6 +55,7 @@ IF (EXISTS ${PROJECT_SOURCE_DIR}/.git)
 			SET(LD31_HAS_TAG 1)
 		ELSE()
 			SET(LD31_HAS_TAG 0)
+			SET(LD31_GIT_DESCRIBE "")
 		ENDIF()
 	ENDIF()
 ENDIF()
@@ -81,8 +82,21 @@ ELSE()
 	FIND_PATH(FontConfig_INCLUDE_DIR fontconfig/fontconfig.h)
 	FIND_LIBRARY(FontConfig_LIBRARIES NAMES fontconfig)
 
+	FIND_PACKAGE(Threads)
+
 	INCLUDE_DIRECTORIES(${FontConfig_INCLUDE_DIR})
 ENDIF()
+
+# Fixed Angelscript CSerializer
+
+SET(Angelscript_HEADER 
+	${Angelscript_HEADER}
+	${PROJECT_SOURCE_DIR}/External/serializer_fix/serializer.h
+)
+SET(Angelscript_SOURCE
+	${Angelscript_SOURCE}
+	${PROJECT_SOURCE_DIR}/External/serializer_fix/serializer.cpp
+)
 
 # Include directories
 

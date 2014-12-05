@@ -1,0 +1,42 @@
+diff -u -r /b/Programming/Libraries/AngelScript/add_on/serializer/serializer.cpp serializer_fix/serializer.cpp
+--- /b/Programming/Libraries/AngelScript/add_on/serializer/serializer.cpp	Sat Dec  6 00:34:07 2014
++++ serializer_fix/serializer.cpp	Sat Dec  6 00:35:59 2014
+@@ -501,14 +501,24 @@
+ 	asIObjectType *type = m_serializer->m_engine->GetObjectTypeById(typeId);
+ 
+ 	if( type )
++	{
+ 		m_typeName = type->GetName();
++		m_typeNamespace = type->GetNamespace();
++	}
+ }
+ 
+ asIObjectType *CSerializedValue::GetType()
+ {
+ 	if( !m_typeName.empty() )
+ 	{
++		// Step into the type namespace before trying to find it
++		std::string oldNamespace = m_serializer->m_mod->GetDefaultNamespace();
++		m_serializer->m_mod->SetDefaultNamespace(m_typeNamespace.c_str());
++
+ 		int newTypeId = m_serializer->m_mod->GetTypeIdByDecl(m_typeName.c_str());
++
++		m_serializer->m_mod->SetDefaultNamespace(oldNamespace.c_str());
++
+ 		return m_serializer->m_engine->GetObjectTypeById(newTypeId);
+ 	}	
+ 
+diff -u -r /b/Programming/Libraries/AngelScript/add_on/serializer/serializer.h serializer_fix/serializer.h
+--- /b/Programming/Libraries/AngelScript/add_on/serializer/serializer.h	Sat Dec  6 00:34:07 2014
++++ serializer_fix/serializer.h	Sat Dec  6 00:36:17 2014
+@@ -110,8 +110,9 @@
+ 	int m_typeId;
+ 
+ 	// For non-primitives the typeId may change if the module is reloaded so 
+-	// it is necessary to store the type name to determine the new type id
++	// it is necessary to store the type name and namespace to determine the new type id
+ 	std::string m_typeName;
++	std::string m_typeNamespace;
+ 	
+ 	// Name of variable or property
+ 	std::string m_name;

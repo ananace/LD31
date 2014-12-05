@@ -75,10 +75,10 @@ namespace
 
 #ifdef LD31_WINDOWS
 const char FileSystem::SEPARATOR = '\\';
-char WRONG_SEPARATOR = '/';
+const char WRONG_SEPARATOR = '/';
 #else
 const char FileSystem::SEPARATOR = '/';
-char WRONG_SEPARATOR = '\';
+const char WRONG_SEPARATOR = '\\';
 #endif
 
 std::string FileSystem::fixPath(const std::string& path)
@@ -480,7 +480,7 @@ std::string FileSystem::getApplicationDir(const std::string& appname, const std:
         return BaseAppDir + "/" + (orgname.empty() ? appname : orgname + "/" + appname) + "/";
 
 #if LD31_MACOSX
-    std::string appDir = getUserDir() + "Library/Application Support"
+    std::string appDir = getUserDir() + "Library/Application Support";
 #else
     const char *envr = getenv("XDG_DATA_HOME");
     

@@ -81,11 +81,10 @@ SET(LD31_SOURCES
 
 SET(MISC_HEADERS
 	${Angelscript_HEADER}
-	${PROJECT_SOURCE_DIR}/External/serializer_fix/serializer.h
+	
 )
 SET(MISC_SOURCES
 	${Angelscript_SOURCE}
-	${PROJECT_SOURCE_DIR}/External/serializer_fix/serializer.cpp
 )
 
 # Source groups

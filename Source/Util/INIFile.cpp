@@ -159,7 +159,7 @@ bool INIFile::loadFromFile(const std::string& path)
             switch (valueName[0])
             {
             case 'i':
-                mValues[curSectionName][valueName] = atoll(valueValue.c_str());
+                mValues[curSectionName][valueName] = Value((int64_t)atoll(valueValue.c_str()));
                 break;
             case 'f':
                 mValues[curSectionName][valueName] = atof(valueValue.c_str());

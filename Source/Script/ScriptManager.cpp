@@ -115,7 +115,7 @@ namespace
         return true;
     }
 
-    void skipWhitespace(std::string::iterator& it, std::string::iterator& end)
+    void skipWhitespace(std::string::iterator& it, const std::string::iterator& end)
     {
         char c = *it;
         if (c != ' ' && c != '\t')
@@ -203,12 +203,12 @@ Manager::Manager() :
 {
     mBuilder.SetIncludeCallback(includeCallback, nullptr);
 
-    mSerializerTypes.push_back(std::make_tuple("string", []() -> CUserType* {
+    mSerializerTypes.push_back(std::make_tuple("string", SerializerCallback_t([]() -> CUserType* {
         return new CStringType();
-    }));
-    mSerializerTypes.push_back(std::make_tuple("array", []() -> CUserType* {
+    })));
+    mSerializerTypes.push_back(std::make_tuple("array", SerializerCallback_t([]() -> CUserType* {
         return new CArrayType();
-    }));
+    })));
 }
 Manager::~Manager()
 {

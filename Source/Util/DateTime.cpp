@@ -22,9 +22,11 @@ DateTime::DateTime(int year, int month, int day, int hour, int minute, int secon
 
     std::mktime(&mCalendarTime);
 }
-DateTime::DateTime(int64_t timeVal) :
-    mCalendarTime(*std::localtime(&timeVal))
+DateTime::DateTime(int64_t timeVal)
 {
+    std::time_t time = (std::time_t)timeVal;
+
+    mCalendarTime = *std::localtime(&time);
 }
 DateTime::DateTime(const Util::Timestamp& ts)
 {

@@ -34,8 +34,10 @@ namespace
 
             r = eng->SetDefaultNamespace(""); assert(r >= 0);
         });
+
         return true;
     }
 }
 
 bool Script::SFML::Extensions::Mouse = Reg();
+

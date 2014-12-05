@@ -179,9 +179,9 @@ namespace
             r = eng->RegisterObjectMethod("Rect", "void set_BottomRight(Vec2&in)", asFUNCTION(rect_setBottomRight), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Rect", "Vec2 get_Size()", asMETHOD(Rect, getSize), asCALL_THISCALL); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Rect", "bool contains(Vec2&in)", asMETHOD(Rect, contains), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Rect", "bool intersects(Rect&in)", asMETHODPR(Rect, intersects, (const Rect&), bool), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Rect", "bool intersects(Rect&in, Rect&out)", asMETHODPR(Rect, intersects, (const Rect&, Rect&), bool), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "bool Contains(Vec2&in)", asMETHOD(Rect, contains), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "bool Intersects(Rect&in)", asMETHODPR(Rect, intersects, (const Rect&), bool), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "bool Intersects(Rect&in, Rect&out)", asMETHODPR(Rect, intersects, (const Rect&, Rect&), bool), asCALL_THISCALL); assert(r >= 0);
         }, -500);
 
         return true;
