@@ -55,7 +55,7 @@ IF (EXISTS ${PROJECT_SOURCE_DIR}/.git)
 			SET(LD31_HAS_TAG 1)
 		ELSE()
 			SET(LD31_HAS_TAG 0)
-			set(LD31_GIT_DESCRIBE "")
+			SET(LD31_GIT_DESCRIBE "")
 		ENDIF()
 	ENDIF()
 ENDIF()
@@ -92,7 +92,7 @@ SET(Angelscript_HEADER
 	${PROJECT_SOURCE_DIR}/External/serializer_fix/serializer.h
 )
 SET(Angelscript_SOURCE
-	${Angelscript_HEADER}
+	${Angelscript_SOURCE}
 	${PROJECT_SOURCE_DIR}/External/serializer_fix/serializer.cpp
 )
 
