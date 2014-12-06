@@ -6,11 +6,17 @@ class StateMachine
 {
 	StateMachine()
 	{
+		DrawFPS = false;
 	}
 
 	[Hook::BindHook("Tick")]
 	void Tick(float dt)
 	{
+		bool pressed = Keyboard::IsPressed(Keyboard::Key::F3);
+		if (pressed && !LastPressed)
+			DrawFPS = !DrawFPS;
+		LastPressed = pressed;
+
 		if (CurState() is null)
 		{
 			PushState(States::MainMenu());
@@ -56,6 +62,9 @@ class StateMachine
 		if (state !is null)
 			state.DrawUi(rend);
 
+		if (!DrawFPS)
+			return;
+
 		Text fpsCounter("FPS: " + FPS);
 		fpsCounter.CharacterSize = 16;
 		fpsCounter.Origin = Vec2(fpsCounter.LocalBounds.Size.X, 0);
@@ -88,6 +97,8 @@ class StateMachine
 
 		return StateArray[StateArray.length - 1];
 	}
+
+	private bool DrawFPS, LastPressed;
 
 	private array<IState@> StateArray;
 	private float FrameTime;

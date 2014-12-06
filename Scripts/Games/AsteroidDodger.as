@@ -15,7 +15,7 @@ class AsteroidDodger : IGame
 	{
 		mGameShip = Asteroids::Ship();
 		mGameShip.ExhaustColor = Color(255, 196, 16);
-		
+
 		mFinished = false;
 		mLastCreate = 0;
 	}
@@ -23,7 +23,10 @@ class AsteroidDodger : IGame
 	void EndGame()
 	{
 		mFinished = true;
+	}
 
+	void Cleanup()
+	{
 		mAsteroids.length = 0;
 	}
 
@@ -113,6 +116,16 @@ class AsteroidDodger : IGame
 		Shapes::Rectangle background(area);
 
 		background.FillColor = Colors::Black;
+		rend.Draw(background);
+
+		Color temp = Colors::Transparent;		
+		if (mOwner !is null)
+		{
+			temp = mOwner.Color;
+			temp.A = 96;
+		}
+
+		background.FillColor = temp;
 		background.OutlineThickness = 3.5;
 		background.OutlineColor = Colors::White;
 
@@ -120,48 +133,53 @@ class AsteroidDodger : IGame
 
 		Asteroids::Ship exampleShip();
 
-		exampleShip.Accel = 1;
+		exampleShip.Accel = 0.9 + cos(mAnimTime * 4) / 10;
 		exampleShip.Anim = mAnimTime * 10;
 		exampleShip.ExhaustColor = Color(255, 196, 16);
-		exampleShip.Position = area.Center;
 		exampleShip.Rotation = mAnimTime * 90;
 
-		exampleShip.Draw(rend, 2);
-	}
+		exampleShip.Draw(rend, area, 2);
 
-	void DrawFull(Renderer@ rend)
-	{
-		Rect area(-256, -256, 512, 512);
-		Shapes::Rectangle background(area);
-
-		background.FillColor = Colors::Black;
-
-		// Game drawing goes here
-
-		mGameShip.Draw(rend);
-
-		for (uint i = 0; i < mAsteroids.length; ++i)
-		{
-			mAsteroids[i].Draw(rend);
-		}
-
-		// Game drawing goes here
-
-		background.FillColor = Colors::Transparent;
-		background.OutlineColor = Colors::White;
-		background.OutlineThickness = 2;
-
-		rend.Draw(background);
-
-		area.Left -= 2;
-		area.Top -= 2;
-		area.Width += 4;
-		area.Height += 4;
+		area.Left -= 3.5;
+		area.Top -= 3.5;
+		area.Width += 7;
+		area.Height += 7;
 
 		background.Rect = area;
 
 		background.FillColor = Colors::Transparent;
-		background.OutlineThickness = 128;
+		background.OutlineThickness = 16;
+		background.OutlineColor = Colors::Black;
+
+		rend.Draw(background);
+	}
+
+	void DrawFull(Renderer@ rend, Rect&in area)
+	{
+		Shapes::Rectangle background(area);
+
+		mGameShip.Draw(rend, area);
+
+		for (uint i = 0; i < mAsteroids.length; ++i)
+		{
+			mAsteroids[i].Draw(rend, area);
+		}
+
+		background.FillColor = Colors::Transparent;
+		background.OutlineColor = Colors::White;
+		background.OutlineThickness = 3.5;
+
+		rend.Draw(background);
+
+		area.Left -= 3.5;
+		area.Top -= 3.5;
+		area.Width += 7;
+		area.Height += 7;
+
+		background.Rect = area;
+
+		background.FillColor = Colors::Transparent;
+		background.OutlineThickness = 18;
 		background.OutlineColor = Colors::Black;
 
 		rend.Draw(background);
@@ -170,7 +188,9 @@ class AsteroidDodger : IGame
 	bool Finished { get const { return mFinished; } }
 	string Name { get const { return "Asteroid Dodger"; } }
 	int Score { get const { return TIME_AS_SCORE; } }
+	Player@ Owner { get const { return mOwner; } set { @mOwner = value; } }
 
+	private Player@ mOwner;
 	private Asteroids::Ship mGameShip;
 	private array<Asteroids::Asteroid@> mAsteroids;
 

@@ -28,12 +28,12 @@ namespace Asteroids
 
 			Shape.FillColor = Colors::Black;
 			Shape.OutlineColor = Colors::White;
-			Shape.OutlineThickness = 1;
+			Shape.OutlineThickness = 1.5;
 		}
 
-		void Draw(Renderer@ rend)
+		void Draw(Renderer@ rend, Rect&in area)
 		{
-			Shape.Position = Position;
+			Shape.Position = area.Center + Position;
 			Shape.Rotation = Rotation;
 
 			rend.Draw(Shape);
@@ -49,7 +49,7 @@ namespace Asteroids
 
 	class Bullet
 	{
-		void Draw(Renderer@ rend)
+		void Draw(Renderer@ rend, Rect&in area)
 		{
 			Shapes::Circle shape(Radius, 6);
 
@@ -58,7 +58,7 @@ namespace Asteroids
 			shape.OutlineThickness = 1;
 
 			shape.SetOrigin(Radius, Radius);
-			shape.Position = Position;
+			shape.Position = area.Center + Position;
 
 			rend.Draw(shape);
 		}
@@ -75,8 +75,10 @@ namespace Asteroids
 			ExhaustColor = Color(16, 196, 255);
 		}
 
-		void Draw(Renderer@ rend, float scale = 1)
+		void Draw(Renderer@ rend, Rect&in area, float scale = 1)
 		{
+			Vec2 cent = area.Center;
+
 			if (Accel > 0)
 			{
 				Shapes::Polygon exhaust = {
@@ -103,7 +105,7 @@ namespace Asteroids
 				exhaust.OutlineColor = ExhaustColor;
 				exhaust.OutlineThickness = 1.5;
 
-				exhaust.Position = Position;
+				exhaust.Position = cent + Position;
 				exhaust.Rotation = Rotation;
 
 				rend.Draw(exhaust);
@@ -116,7 +118,7 @@ namespace Asteroids
 				Vec2(-10, 10)
 			};
 
-			ship.Position = Position;
+			ship.Position = cent + Position;
 
 			ship.FillColor = Colors::Black;
 			ship.OutlineColor = Colors::White;

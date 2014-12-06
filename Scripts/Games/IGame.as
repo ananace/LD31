@@ -11,6 +11,8 @@ interface IGame
 	// Reset game to unfocused state
 	void EndGame();
 
+	void Cleanup();
+
 	// Update anything framerate dependant, runs aways
 	void Update(float dt);
 	// Fixed tick update loop
@@ -19,7 +21,7 @@ interface IGame
 	// Draw the game into a tile
 	void DrawQuick(Renderer@, Rect&in);
 	// Draw the game fully
-	void DrawFull(Renderer@);
+	void DrawFull(Renderer@, Rect& in);
 
 	// Is this round finished
 	bool get_Finished() const;
@@ -28,6 +30,9 @@ interface IGame
 	// The current player score
 	// Can also be the special value TIME_AS_SCORE
 	int get_Score() const;
+
+	Player@ get_Owner() const;
+	void set_Owner(Player@);
 }
 
 }
