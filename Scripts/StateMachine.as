@@ -64,8 +64,9 @@ class StateMachine
 
 	void PushState(IState@ state)
 	{
-		println("[StateMachine] Pushing " + state.Name + " state.");
+		println("[StateMachine] Pushing " + state.Name + " state...");
 
+		state.Init(this);
 		StateArray.insertLast(state);
 	}
 
@@ -74,7 +75,7 @@ class StateMachine
 		IState@ state = @StateArray[StateArray.length - 1];
 		StateArray.removeLast();
 
-		println("[StateMachine] Popped " + state.Name + " state.");
+		println("[StateMachine] Popped " + state.Name + " state...");
 		return state;
 	}
 
