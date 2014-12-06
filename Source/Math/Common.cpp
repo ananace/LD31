@@ -28,12 +28,14 @@ float Math::SlerpAngle(float start, float end, float delta)
 float Math::Random(float a, float b)
 {
     std::uniform_real_distribution<float> rand(a, b);
-    return rand(std::random_device());
+    std::random_device dev;
+    return rand(dev);
 }
 int Math::Random(int a, int b)
 {
     std::uniform_int_distribution<int> rand(a, b);
-    return rand(std::random_device());
+    std::random_device dev;
+    return rand(dev);
 }
 
 namespace
