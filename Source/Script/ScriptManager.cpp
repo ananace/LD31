@@ -254,7 +254,7 @@ bool Manager::loadScriptFromMemory(const std::string& file, const std::string& d
 }
 bool Manager::loadScriptFromMemory(const std::string& file, const char* data, size_t length)
 {
-    bool reload = mLoadedScripts.count(file) > 0;
+    bool reload = mLoadedScripts.count(file) > 0 && mLoadedScripts.at(file).Loaded;
 
     asIScriptModule* mod = nullptr;
 

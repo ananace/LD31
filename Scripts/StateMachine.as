@@ -1,5 +1,5 @@
-#include "States/IState.as"
-#include "States/MainMenu.as"
+#include "IState.as"
+#include "MainMenu.as"
 
 [ObjectType("StateMachine")]
 class StateMachine
