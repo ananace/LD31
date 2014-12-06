@@ -9,6 +9,7 @@
 #include <angelscript.h>
 
 #include <scriptarray/scriptarray.h>
+#include <scriptgrid/scriptgrid.h>
 #include <scripthelper/scripthelper.h>
 #include <serializer_fix/serializer.h>
 
@@ -51,6 +52,32 @@ namespace
             arr->Resize(val->m_children.size());
             for (size_t i = 0; i < val->m_children.size(); ++i)
                 val->m_children[i]->Restore(arr->At(i), arr->GetElementTypeId());
+        }
+    };
+    struct CGridType : public CUserType
+    {
+        void Store(CSerializedValue *val, void *ptr)
+        {
+            CScriptGrid *grid = (CScriptGrid*)ptr;
+            val->SetUserData(new unsigned int(grid->GetWidth()));
+
+            for (unsigned int x = 0; x < grid->GetWidth(); ++x)
+                for (unsigned int y = 0; y < grid->GetHeight(); ++y)
+                    val->m_children.push_back(new CSerializedValue(val, "", "", grid->At(x, y), grid->GetElementTypeId()));
+        }
+        void Restore(CSerializedValue *val, void *ptr)
+        {
+            CScriptGrid *grid = (CScriptGrid*)ptr;
+            unsigned int width = *(unsigned int*)val->GetUserData();
+            
+            grid->Resize(width, val->m_children.size() / width);
+            for (size_t i = 0; i < val->m_children.size(); ++i)
+                val->m_children[i]->Restore(grid->At(i % width, i / width), grid->GetElementTypeId());
+        }
+        void CleanupUserData(CSerializedValue *val)
+        {
+            unsigned int *buffer = (unsigned int*)val->GetUserData();
+            delete buffer;
         }
     };
 
@@ -208,6 +235,9 @@ Manager::Manager() :
     })));
     mSerializerTypes.push_back(std::make_tuple("array", SerializerCallback_t([]() -> CUserType* {
         return new CArrayType();
+    })));
+    mSerializerTypes.push_back(std::make_tuple("grid", SerializerCallback_t([]() -> CUserType* {
+        return new CGridType();
     })));
 }
 Manager::~Manager()
@@ -394,6 +424,20 @@ void Manager::checkForModification()
     if (now < mLastModificationCheck + std::chrono::seconds(1))
         return;
 
+    std::vector<std::string> checked;
+    std::function<void(const std::string& file)> recursiveLoad = [&](const std::string& file) {
+        if (std::find(checked.begin(), checked.end(), file) != checked.end())
+            return;
+
+        checked.push_back(file);
+
+        for (auto& loadedFrom : mLoadedScripts[file].IncludedFrom)
+            recursiveLoad(loadedFrom);
+
+        if (mLoadedScripts[file].Loaded)
+            loadScriptFromFile(file);
+    };
+
     for (auto& file : mLoadedScripts)
     {
         Util::Timestamp lastModified = Util::FileSystem::getLastModified(file.first);
@@ -402,12 +446,9 @@ void Manager::checkForModification()
             file.second.LastModified = lastModified;
         else if (file.second.LastModified != lastModified)
         {
-            for (auto& loadedFrom : file.second.IncludedFrom)
-                if (mLoadedScripts[loadedFrom].Loaded)
-                    loadScriptFromFile(loadedFrom);
-
-            if (file.second.Loaded)
-                loadScriptFromFile(file.first);
+            std::cout << "Script " << file.first << " changed!" << std::endl;
+            recursiveLoad(file.first);
+            std::cout << std::endl;
 
             file.second.LastModified = lastModified;
         }

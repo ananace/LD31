@@ -70,10 +70,10 @@ namespace
             r = eng->RegisterObjectMethod("Renderer", "void set_View(View&in)", asMETHOD(sf::RenderTarget, setView), asCALL_THISCALL); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Renderer", "Rect GetViewport(View&in)", asFUNCTION(getViewport), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Renderer", "Vec2 MapCoordsToPixel(Vec2&in)", asFUNCTION(mapCoordsToPixel), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Renderer", "Vec2 MapCoordsToPixel(Vec2&in,View&in)", asFUNCTION(mapCoordsToPixel_view), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Renderer", "Vec2 mapPixelToCoords(Vec2&in)", asFUNCTION(mapPixelToCoords), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Renderer", "Vec2 mapPixelToCoords(Vec2&in,View&in)", asFUNCTION(mapPixelToCoords_view), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "Vec2 CoordsToPixel(Vec2&in)", asFUNCTION(mapCoordsToPixel), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "Vec2 CoordsToPixel(Vec2&in,View&in)", asFUNCTION(mapCoordsToPixel_view), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "Vec2 PixelToCoords(Vec2&in)", asFUNCTION(mapPixelToCoords), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "Vec2 PixelToCoords(Vec2&in,View&in)", asFUNCTION(mapPixelToCoords_view), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Renderer", "void Clear(Color&in)", asMETHOD(sf::RenderTarget, clear), asCALL_THISCALL); assert(r >= 0);
 

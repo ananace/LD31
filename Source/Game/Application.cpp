@@ -28,8 +28,6 @@ Application::Application(asIScriptEngine* eng) : mEngine(eng)
 
     // TODO: Add resources
 
-
-
     if (Util::FileSystem::isFolder("Scripts"))
     {
         for (auto& script : Util::FileSystem::findFiles(Util::FileSystem::fixPath("Scripts/*.as")))

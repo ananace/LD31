@@ -44,14 +44,6 @@ void setFont(sf::Font* font, sf::Text& text)
 {
     text.setFont(*font);
 }
-Math::Rect getGlobalBounds(sf::Text& text)
-{
-    return text.getGlobalBounds();
-}
-Math::Rect getLocalBounds(sf::Text& text)
-{
-    return text.getLocalBounds();
-}
 
 std::string getString(sf::Text& text)
 {
@@ -95,8 +87,8 @@ namespace
             r = eng->RegisterObjectMethod("Text", "void set_CharacterSize(uint)", asMETHOD(sf::Text, setCharacterSize), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "Color get_Color()", asMETHOD(sf::Text, getColor), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "void set_Color(Color&in)", asMETHOD(sf::Text, setColor), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Text", "Rect get_GlobalBounds()", asFUNCTION(getGlobalBounds), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Text", "Rect get_LocalBounds()", asFUNCTION(getGlobalBounds), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Text", "Rect get_GlobalBounds()", asFUNCTION(getGlobalBounds<sf::Text>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Text", "Rect get_LocalBounds()", asFUNCTION(getGlobalBounds<sf::Text>), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "string get_String()", asFUNCTION(getString), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "void set_String(string&in)", asFUNCTION(setString), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "uint get_Style()", asMETHOD(sf::Text, getStyle), asCALL_THISCALL); assert(r >= 0);

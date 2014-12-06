@@ -164,7 +164,7 @@ namespace
             r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_CONSTRUCT, "void f(Vec2,Vec2)", asFUNCTION(create_rect_tlbr), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Rect", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destruct_rect), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Rect", "Rect& opAssign(Rect)", asMETHOD(Rect, operator=), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "Rect& opAssign(Rect&in)", asMETHOD(Rect, operator=), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Rect", "bool opEquals(Rect&in)", asMETHOD(Rect, operator==), asCALL_THISCALL); assert(r >= 0);
 
             r = eng->RegisterObjectProperty("Rect", "float Top", asOFFSET(Rect, Top)); assert(r >= 0);

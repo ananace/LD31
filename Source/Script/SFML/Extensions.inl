@@ -42,7 +42,16 @@ void drawShape(const T& draw, sf::RenderTarget* target)
 {
     target->draw(draw);
 }
-
+template<typename T>
+Math::Rect getGlobalBounds(T& text)
+{
+    return text.getGlobalBounds();
+}
+template<typename T>
+Math::Rect getLocalBounds(T& text)
+{
+    return text.getLocalBounds();
+}
 template<typename T>
 Math::Vector2 getOrigin(T& trans)
 {
@@ -196,6 +205,8 @@ void registerShape(const char* name, asIScriptEngine* eng)
 
     r = eng->RegisterObjectMethod(name, "Color get_FillColor()", asMETHOD(T, getFillColor), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void set_FillColor(Color&in)", asMETHODPR(T, setFillColor, (const sf::Color&), void), asCALL_THISCALL); assert(r >= 0);
+    r = eng->RegisterObjectMethod(name, "Rect get_GlobalBounds()", asFUNCTION(getGlobalBounds<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+    r = eng->RegisterObjectMethod(name, "Rect get_LocalBounds()", asFUNCTION(getGlobalBounds<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "Color get_OutlineColor()", asMETHOD(T, getOutlineColor), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void set_OutlineColor(Color&in)", asMETHODPR(T, setOutlineColor, (const sf::Color&), void), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "float get_OutlineThickness()", asMETHODPR(T, getOutlineThickness, () const, float), asCALL_THISCALL); assert(r >= 0);
