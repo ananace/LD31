@@ -317,6 +317,7 @@ class Asteroids : IGame
 	bool Finished { get const { return mFinished; } }
 	string Name { get const { return "Asteroids"; } }
 	int Score { get const { return mScore; } }
+	int ScoreOrder { get const { return SCORE_HIGHEST; } }
 	Player@ Owner { get const { return mOwner; } set { @mOwner = value; } }
 
 	private int mScore;

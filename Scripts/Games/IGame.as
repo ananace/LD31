@@ -2,7 +2,9 @@ namespace Games
 {
 
 const int TIME_AS_SCORE = -1;
-const int REVTIME_AS_SCORE = -2;
+
+const int SCORE_LOWEST = -1;
+const int SCORE_HIGHEST = 1;
 
 interface IGame
 {
@@ -30,6 +32,7 @@ interface IGame
 	// The current player score
 	// Can also be the special value TIME_AS_SCORE
 	int get_Score() const;
+	int get_ScoreOrder() const;
 
 	Player@ get_Owner() const;
 	void set_Owner(Player@);

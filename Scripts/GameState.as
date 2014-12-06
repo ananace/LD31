@@ -3,6 +3,7 @@
 
 #include "Games/Asteroids.as"
 #include "Games/AsteroidDodger.as"
+#include "Games/LightCycle.as"
 
 #include "IState.as"
 
@@ -14,12 +15,14 @@ namespace States
 
 Games::IGame@ CreateGame()
 {
-	switch(Math::Random(0, 1))
+	switch(Math::Random(0, 2))
 	{
 	case 0:
 		return Games::Asteroids();
 	case 1:
 		return Games::AsteroidDodger();
+	case 2:
+		return Games::LightCycle();
 	}
 
 	return null;
@@ -38,7 +41,7 @@ class GameState : IState
 		mPlayers = players;
 		@mCurPlayer = mPlayers[0];
 
-		mMiniGames.resize(5, 5);
+		mMiniGames.resize(6, 6);
 
 		for (uint x = 0; x < mMiniGames.width(); ++x)
 			for (uint y = 0; y < mMiniGames.height(); ++y)
@@ -130,7 +133,7 @@ class GameState : IState
 				 mFY * (gameRect.Height + margin) + gameRect.Height / 2), mLerpPoint);
 
 		rend.View.Size = rend.View.Size * 1.5 *
-			(mMiniGames.width() - mLerpPoint * (mMiniGames.width() - 1));
+			(mMiniGames.width() - mLerpPoint * (mMiniGames.width() - 1 * 0.75));
 
 		if (mFocusedGame !is null && mLerpPoint >= 1)
 		{
@@ -311,13 +314,20 @@ class GameState : IState
 			else
 				score.String = "Current score: " + mFocusedGame.Score;
 
-			score.CharacterSize = 18;
+			score.CharacterSize = 20;
 
 			score.Origin = Vec2(score.LocalBounds.Size.X / 2, 0);
 			score.Position = Vec2(rend.View.Size.X / 2, 15);
 
-			rend.Draw(score);
+			score.Color = Colors::Black;
 
+			score.Move(2, 2);
+			rend.Draw(score);
+			score.Move(-2, -2);
+			score.Color = Colors::White;
+			rend.Draw(score);
+			score.Move(-0.1, -0.1);
+			rend.Draw(score);
 
 			Text back("<< Back");
 			back.CharacterSize = 18;
@@ -354,3 +364,4 @@ class GameState : IState
 }
 
 }
+

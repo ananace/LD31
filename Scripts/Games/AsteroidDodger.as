@@ -188,6 +188,7 @@ class AsteroidDodger : IGame
 	bool Finished { get const { return mFinished; } }
 	string Name { get const { return "Asteroid Dodger"; } }
 	int Score { get const { return TIME_AS_SCORE; } }
+	int ScoreOrder { get const { return SCORE_HIGHEST; } }
 	Player@ Owner { get const { return mOwner; } set { @mOwner = value; } }
 
 	private Player@ mOwner;
