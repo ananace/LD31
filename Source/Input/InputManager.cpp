@@ -38,10 +38,50 @@ namespace
         return &in->getLinked();
     }
 
+    bool isBindKeyboard(const Input::Input::Bind& in)
+    {
+        return in.Type == Input::Input::Bind::Bind_Keyboard;    
+    }
+    sf::Keyboard::Key getBindKeyboard(const Input::Input::Bind& in)
+    {
+        return in.Keyboard.Key;
+    }
+    bool isBindJoyAxis(const Input::Input::Bind& in)
+    {
+        return in.Type == Input::Input::Bind::Bind_Joystick_Axis;
+    }
+    sf::Joystick::Axis getBindJoystickAxis(const Input::Input::Bind& in)
+    {
+        return in.JoystickAxis.Axis;
+    }
+    bool getBindJoystickAxisPositive(const Input::Input::Bind& in)
+    {
+        return in.JoystickAxis.Positive;
+    }
+    bool isBindJoyButton(const Input::Input::Bind& in)
+    {
+        return in.Type == Input::Input::Bind::Bind_Joystick_Button;
+    }
+
     bool Reg()
     {
         Script::ScriptExtensions::AddExtension([](asIScriptEngine* eng) {
             int r = 0;
+
+            r = eng->SetDefaultNamespace("Input"); assert(r >= 0);
+
+            r = eng->RegisterObjectType("Bind", sizeof(Input::Input::Bind), asOBJ_VALUE | asOBJ_POD | asGetTypeTraits<Input::Input::Bind>()); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Bind", "bool get_Keyboard() const", asFUNCTION(isBindKeyboard), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Bind", "bool get_JoystickAxis() const", asFUNCTION(isBindKeyboard), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Bind", "bool get_JoystickButton() const", asFUNCTION(isBindKeyboard), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Bind", "Keyboard::Key KeyboardKey() const", asFUNCTION(getBindKeyboard), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Bind", "Joystick::Axis JoystickAxis() const", asFUNCTION(getBindJoystickAxis), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Bind", "bool JoystickAxisPositive() const", asFUNCTION(getBindKeyboard), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Bind", "uint JoystickButton() const", asFUNCTION(getBindKeyboard), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
+            r = eng->SetDefaultNamespace(""); assert(r >= 0);
 
             r = eng->RegisterObjectType("Input", 0, asOBJ_REF | asOBJ_NOCOUNT); assert(r >= 0);
 
@@ -62,13 +102,15 @@ namespace
             r = eng->RegisterGlobalFunction("void set_Disabled(bool)", asMETHOD(Input::InputMan, disable), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
 
             r = eng->RegisterGlobalFunction("Input@ GetBinding()", asFUNCTION(getBinding), asCALL_CDECL); assert(r >= 0);
-            r = eng->RegisterGlobalFunction("bool get_Binding()", asMETHOD(Input::InputMan, getBinding), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("bool get_Binding()", asMETHOD(Input::InputMan, isBinding), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("bool get_BindingLinked()", asMETHOD(Input::InputMan, isBindingLinked), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
+
             r = eng->RegisterGlobalFunction("void StartBind(uint8,bool = true)", asMETHODPR(Input::InputMan, bindInput, (uint8_t, bool), void), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
 
             r = eng->RegisterGlobalFunction("Input@ GetInput(uint8)", asFUNCTION(getInput), asCALL_CDECL); assert(r >= 0);
 
             r = eng->SetDefaultNamespace(""); assert(r >= 0);
-        });
+        }, 6);
         return true;
     }
 }
@@ -138,6 +180,11 @@ const Input::Input* InputMan::getBinding() const
 bool InputMan::isBinding() const
 {
     return mCurrentlyBinding != nullptr;
+}
+
+bool InputMan::isBindingLinked() const
+{
+    return mCurrentlyBinding != nullptr && mBindLinked;
 }
 
 void InputMan::linkInputs(uint8_t inputA, uint8_t inputB)

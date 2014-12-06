@@ -16,6 +16,7 @@ public:
     Application& operator=(const Application&) = delete;
 
     void runGameLoop();
+    void quitGame();
 
     static const uint8_t TICKRATE = 33;
 

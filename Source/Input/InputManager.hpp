@@ -38,6 +38,7 @@ public:
     const Input* getBinding() const;
     /// Check if the manager is currently binding an input
     bool isBinding() const;
+    bool isBindingLinked() const;
 
     /** \brief Link two inputs together
      *

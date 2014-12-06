@@ -60,6 +60,8 @@ SET(LD31_SOURCES
 	Script/SFML/Color.cpp
 	Script/SFML/ConvexShape.cpp
 	Script/SFML/Font.cpp
+	Script/SFML/Joystick.cpp
+	Script/SFML/Keyboard.cpp
 	Script/SFML/Mouse.cpp
 	Script/SFML/Music.cpp
 	Script/SFML/RectangleShape.cpp

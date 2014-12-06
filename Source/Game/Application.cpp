@@ -49,6 +49,7 @@ Application::Application(asIScriptEngine* eng) : mEngine(eng)
     Script::ScriptHooks::addHook("Tick", "void f(float)");
     Script::ScriptHooks::addHook("Update", "void f(float)");
 
+    mEngine->RegisterGlobalFunction("void QuitGame()", asMETHOD(Application, quitGame), asCALL_THISCALL_ASGLOBAL, this);
 
     // TODO: Add resources
 
@@ -148,4 +149,9 @@ void Application::runGameLoop()
     }
 
     delete menu;
+}
+
+void Application::quitGame()
+{
+    mWindow.close();
 }
