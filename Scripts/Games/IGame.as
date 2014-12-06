@@ -2,6 +2,7 @@ namespace Games
 {
 
 const int TIME_AS_SCORE = -1;
+const int REVTIME_AS_SCORE = -2;
 
 interface IGame
 {

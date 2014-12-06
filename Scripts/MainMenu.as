@@ -1,5 +1,6 @@
 #include "IState.as"
 #include "GameState.as"
+#include "Options.as"
 
 namespace States
 {
@@ -19,7 +20,7 @@ class MainMenu : IState
 	void Update(float dt)
 	{
 		mWasPressed = mIsPressed;
-		mIsPressed = Mouse::IsPressed(Mouse::Button::Left);
+		mIsPressed = Mouse::IsPressed(Mouse::Button::Left) && !Inputs::Disabled;
 	}
 
 	void Tick(float)
@@ -81,6 +82,16 @@ class MainMenu : IState
 						States::GameState@ game = GameState();
 						mStateMan.PushState(game);
 						return;
+					}
+					else if (name == "Options")
+					{
+						States::Options@ options = Options();
+						mStateMan.PushState(options);
+						return;
+					}
+					else if (name == "End Game")
+					{
+						QuitGame();
 					}
 				}
 			}

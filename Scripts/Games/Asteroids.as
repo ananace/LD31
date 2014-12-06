@@ -1,71 +1,8 @@
 #include "IGame.as"
+#include "Asteroid/Common.as"
 
 namespace Games
 {
-
-namespace Asteroids
-{
-	class Ship
-	{
-		void Draw(Renderer@ rend)
-		{
-			Shapes::Polygon ship = {
-				Vec2(0, -20),
-				Vec2(10, 10),
-				Vec2(0, 5),
-				Vec2(-10, 10)
-			};
-
-			ship.Position = Position;
-
-			ship.FillColor = Colors::Transparent;
-			ship.OutlineColor = Colors::White;
-			ship.OutlineThickness = 2;
-
-			ship.Rotation = Rotation;
-
-			rend.Draw(ship);
-
-			if (Accel)
-			{
-				Shapes::Polygon exhaust = {
-					Vec2(10, 0),
-					Vec2(10, 10),
-					Vec2(3, 2),
-					Vec2(0, 12),
-					Vec2(-3, 1),
-					Vec2(-10, 10),
-					Vec2(-10, 0),
-					Vec2(0, -5)
-				};
-
-				exhaust.SetPoint(1, Vec2(10 + sin(Anim * 2.15), 10));
-				exhaust.SetPoint(2, Vec2(3, 2 + sin(Anim * 1.25)));
-				exhaust.SetPoint(3, Vec2(sin(Anim * 1.75), 12));
-				exhaust.SetPoint(4, Vec2(-3, 2 + cos(Anim)));
-				exhaust.SetPoint(5, Vec2(-10 + cos(Anim * 2.25), 10));
-
-				exhaust.SetOrigin(0, -15);
-
-				exhaust.FillColor = Colors::Transparent;
-				exhaust.OutlineColor = Color(16, 196, 255);
-				exhaust.OutlineThickness = 1.5;
-
-				exhaust.Position = Position;
-				exhaust.Rotation = Rotation;
-
-				rend.Draw(exhaust);
-			}
-		}
-
-		bool Accel;
-		float Anim;
-
-		float Rotation;
-		Vec2 Position;
-		Vec2 Inertia;
-	}
-}
 
 class Asteroids : IGame
 {
@@ -73,12 +10,17 @@ class Asteroids : IGame
 	void StartNewGame()
 	{
 		mFinished = false;
+		mLastCreate = 0;
+		mScore = 0;
 	}
 
 	void EndGame()
 	{
 		mFinished = true;
-		mGameShip = Games::Asteroids::Ship();
+		mGameShip = Asteroids::Ship();
+
+		mAsteroids.length = 0;
+		mBullets.length = 0;
 	}
 
 	void Update(float dt)
@@ -90,8 +32,127 @@ class Asteroids : IGame
 
 	void Tick(float dt)
 	{
+		mLastCreate += dt;
+		mLastFire = max(-5, mLastFire - dt);
+
+		Rect area(-256, -256, 512, 512);
+		
+		if (mLastCreate > 2)
+		{
+			mLastCreate -= 2;
+
+			mAsteroids.insertLast(Asteroids::Asteroid(area));
+		}
+
+		array<Asteroids::Asteroid@> toRemove;
+		for (uint i = 0; i < mAsteroids.length; ++i)
+		{
+			Asteroids::Asteroid@ asteroid = @mAsteroids[i];
+
+			bool destroy = false;
+
+			for (uint j = 0; j < mBullets.length; ++j)
+			{
+				Asteroids::Bullet@ bullet = mBullets[j];
+				if (bullet.Position.Distance(asteroid.Position) < asteroid.Radius + bullet.Radius)
+				{
+					destroy = true;
+					mBullets.removeAt(j);
+
+					mScore++;
+
+					float radius = asteroid.Radius / 1.5;
+					if (radius < bullet.Radius * 2)
+						break;
+
+					for (int k = 0; k < Math::Random(2, 6); ++k)
+					{
+						auto@ fragment = Asteroids::Asteroid(area, radius);
+						fragment.Position = asteroid.Position + fragment.Inertia;
+						mAsteroids.insertLast(fragment);
+					}
+					break;
+				}
+			}
+
+			if (!destroy)
+			{
+				if (mGameShip.Position.Distance(asteroid.Position) < asteroid.Radius)
+				{
+					EndGame();
+					return;
+				}
+
+				asteroid.Position += asteroid.Inertia * dt;
+				asteroid.Rotation += asteroid.RotationMult * dt;
+
+				if (asteroid.Position.X < area.Left - asteroid.Radius)
+					destroy = true;
+				else if (asteroid.Position.X > area.Left + area.Width + asteroid.Radius)
+					destroy = true;
+
+				if (asteroid.Position.Y < area.Top - asteroid.Radius)
+					destroy = true;
+				else if (asteroid.Position.Y > area.Top + area.Height + asteroid.Radius)
+					destroy = true;
+			}
+
+			if (destroy)
+				toRemove.insertLast(asteroid);
+		}
+
+		array<Asteroids::Bullet@> toRemoveBullet;
+		for (uint i = 0; i < mBullets.length; ++i)
+		{
+			Asteroids::Bullet@ bullet = mBullets[i];
+
+			bullet.Position += bullet.Inertia * dt;
+
+			bool destroy = false;
+			if (bullet.Position.X < area.Left - bullet.Radius)
+				destroy = true;
+			else if (bullet.Position.X > area.Left + area.Width + bullet.Radius)
+				destroy = true;
+
+			if (bullet.Position.Y < area.Top - bullet.Radius)
+				destroy = true;
+			else if (bullet.Position.Y > area.Top + area.Height + bullet.Radius)
+				destroy = true;
+
+			if (destroy)
+				toRemoveBullet.insertLast(bullet);
+		}
+
+		for (uint i = 0; i < toRemove.length; ++i)
+		{
+			mAsteroids.removeAt(mAsteroids.findByRef(toRemove[i]));
+		}
+		for (uint i = 0; i < toRemoveBullet.length; ++i)
+		{
+			mBullets.removeAt(mBullets.findByRef(toRemoveBullet[i]));
+		}
+
 		Input@ acc = Inputs::GetInput(0);
 		Input@ turn = Inputs::GetInput(1);
+		Input@ fire = Inputs::GetInput(2);
+
+		if (fire.Pressed && !mLastFirePressed && mLastFire <= 0)
+		{
+			const float BulletSpeed = 85;
+
+			mLastFire += 1;
+
+			auto@ bullet = Asteroids::Bullet();
+
+			Vec2 bulletDir = Vec2(cos(mGameShip.Rotation * Math::D2R - Math::HALF_PI),
+									  sin(mGameShip.Rotation * Math::D2R - Math::HALF_PI));
+			bullet.Position = mGameShip.Position + bulletDir * 25;
+			bullet.Inertia = mGameShip.Inertia + bulletDir * BulletSpeed;
+
+			mBullets.insertLast(bullet);
+		}
+
+		mLastFirePressed = fire.Pressed;
 
 		mGameShip.Accel = acc.Pressed;
 		if (mGameShip.Accel)
@@ -101,7 +162,6 @@ class Asteroids : IGame
 		mGameShip.Position += mGameShip.Inertia * dt;
 		mGameShip.Rotation += turn.CombinedValue * dt * 90;
 
-		Rect area(-256, -256, 512, 512);
 		const float radius = 20;
 
 		if (mGameShip.Position.X < area.Left - radius)
@@ -125,15 +185,7 @@ class Asteroids : IGame
 
 		rend.Draw(background);
 
-/*
-		Text gameTitle("Asteroids");
-		gameTitle.CharacterSize = 18;
-		gameTitle.Origin = Vec2(gameTitle.LocalBounds.Size.X / 2, 0);
-		gameTitle.Position = area.TopLeft + Vec2(area.Size.X / 2, 0);
-		rend.Draw(gameTitle);
-*/
-
-		Games::Asteroids::Ship exampleShip();
+		Asteroids::Ship exampleShip();
 
 		exampleShip.Accel = true;
 		exampleShip.Anim = mAnimTime * 10;
@@ -150,7 +202,17 @@ class Asteroids : IGame
 
 		background.FillColor = Colors::Black;
 
+		for (uint i = 0; i < mBullets.length; ++i)
+		{
+			mBullets[i].Draw(rend);
+		}
+
 		mGameShip.Draw(rend);
+
+		for (uint i = 0; i < mAsteroids.length; ++i)
+		{
+			mAsteroids[i].Draw(rend);
+		}
 
 		background.FillColor = Colors::Transparent;
 		background.OutlineColor = Colors::White;
@@ -166,7 +228,7 @@ class Asteroids : IGame
 		background.Rect = area;
 
 		background.FillColor = Colors::Transparent;
-		background.OutlineThickness = 64;
+		background.OutlineThickness = 128;
 		background.OutlineColor = Colors::Black;
 
 		rend.Draw(background);
@@ -174,11 +236,16 @@ class Asteroids : IGame
 
 	bool Finished { get const { return mFinished; } }
 	string Name { get const { return "Asteroids"; } }
-	int Score { get const { return TIME_AS_SCORE; } }
+	int Score { get const { return mScore; } }
 
-	private Games::Asteroids::Ship mGameShip;
-	private bool mFinished;
-	private float mAnimTime;
+	private int mScore;
+
+	private Asteroids::Ship mGameShip;
+	private array<Asteroids::Asteroid@> mAsteroids;
+	private array<Asteroids::Bullet@> mBullets;
+
+	private bool mFinished, mLastFirePressed;
+	private float mAnimTime, mLastCreate, mLastFire;
 }
 
 }
