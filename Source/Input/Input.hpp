@@ -134,6 +134,7 @@ public:
      *\note If the input is not linked, then this function is identical to \a getValue()
      */
     float getCombinedValue() const;
+    int getCombinedPress() const;
 
     /// Returns if the input has a linked counterpart
     bool isLinked() const;

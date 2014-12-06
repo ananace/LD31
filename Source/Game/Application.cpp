@@ -106,6 +106,10 @@ void Application::runGameLoop()
                 mUICamera.notifyDisplayUpdate(size);
                 mUICamera.setCenter(size / 2);
             } break;
+
+            default:
+                Input::InputManager.handleEvent(ev);
+                break;
             }
         }
 

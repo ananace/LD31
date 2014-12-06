@@ -83,6 +83,7 @@ namespace
 
             r = eng->SetDefaultNamespace(""); assert(r >= 0);
 
+
             r = eng->RegisterObjectType("Input", 0, asOBJ_REF | asOBJ_NOCOUNT); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Input", "bool opImplConv()", asMETHOD(Input::Input, operator bool), asCALL_THISCALL); assert(r >= 0);
@@ -90,8 +91,11 @@ namespace
 
             r = eng->RegisterObjectMethod("Input", "float get_Value()", asMETHOD(Input::Input, getValue), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Input", "float get_CombinedValue()", asMETHOD(Input::Input, getCombinedValue), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Input", "int get_CombinedPress()", asMETHOD(Input::Input, getCombinedPress), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Input", "bool get_Pressed()", asMETHOD(Input::Input, isPressed), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Input", "bool get_Linked()", asMETHOD(Input::Input, isLinked), asCALL_THISCALL); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Input", "Input::Bind get_Bind() const", asMETHOD(Input::Input, getBind), asCALL_THISCALL); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Input", "Input@ GetLinked()", asFUNCTION(getLinked), asCALL_CDECL_OBJLAST); assert(r >= 0);
 

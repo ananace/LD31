@@ -26,6 +26,13 @@ float Input::Input::getCombinedValue() const
 
     return mLinkedInput->mValue - mValue;
 }
+int Input::Input::getCombinedPress() const
+{
+    if (!mLinkedInput)
+        return mValue >= PRESS_PERCENTAGE;
+
+    return (mLinkedInput->mValue >= PRESS_PERCENTAGE) - (mValue >= PRESS_PERCENTAGE);
+}
 
 bool Input::Input::isLinked() const
 {
