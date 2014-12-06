@@ -6,6 +6,8 @@
 
 #include <angelscript.h>
 
+#include <random>
+
 #include <cassert>
 #include <cmath>
 
@@ -23,6 +25,17 @@ float Math::SlerpAngle(float start, float end, float delta)
     return Spinor(cos(start / 2), sin(start / 2)).slerp(Spinor(cos(end / 2), sin(end / 2)), delta).getAngle();
 }
 
+float Math::Random(float a, float b)
+{
+    std::uniform_real_distribution<float> rand(a, b);
+    return rand(std::random_device());
+}
+int Math::Random(int a, int b)
+{
+    std::uniform_int_distribution<int> rand(a, b);
+    return rand(std::random_device());
+}
+
 namespace
 {
     bool Reg()
@@ -38,6 +51,9 @@ namespace
 
             r = eng->RegisterGlobalProperty("const float R2D", (void*)&Math::Rad2Deg);
             r = eng->RegisterGlobalProperty("const float D2R", (void*)&Math::Deg2Rad);
+
+            r = eng->RegisterGlobalFunction("float Random(float,float)", asFUNCTIONPR(Math::Random, (float, float), float), asCALL_CDECL); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("int Random(int,int)", asFUNCTIONPR(Math::Random, (int, int), int), asCALL_CDECL); assert(r >= 0);
 
             r = eng->RegisterGlobalFunction("bool FloatCompare(float,float,float)", asFUNCTION(Math::FloatCompare), asCALL_CDECL); assert(r >= 0);
             

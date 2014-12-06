@@ -19,7 +19,8 @@ public:
         November, December
     };
 
-    DateTime(int year = 0, int month = 0, int day = 0, int hour = 0, int minute = 0, int second = 0);
+    DateTime();
+    DateTime(int year, int month, int day, int hour, int minute, int second);
     DateTime(int64_t timeVal);
     DateTime(const Timestamp& ts);
     DateTime(const DateTime&) = default;
@@ -42,19 +43,21 @@ public:
     DateTime operator-(const DateTime&) const;
     DateTime operator-(const Timespan&) const;
 
-    uint16_t getYear() const;
-    void setYear(uint16_t);
-    Month getMonth() const;
-    void setMonth(Month);
-    uint8_t getDay() const;
-    void setDay(uint8_t);
+    void justify();
 
-    uint8_t getHour() const;
-    void setHour(uint8_t);
-    uint8_t getMinute() const;
-    void setMinute(uint8_t);
-    uint8_t getSecond() const;
-    void setSecond(uint8_t);
+    int getYear() const;
+    void setYear(int);
+    int getMonth() const;
+    void setMonth(int);
+    int getDay() const;
+    void setDay(int);
+
+    int getHour() const;
+    void setHour(int);
+    int getMinute() const;
+    void setMinute(int);
+    int getSecond() const;
+    void setSecond(int);
 
     std::tm getCalendarTime() const;
 

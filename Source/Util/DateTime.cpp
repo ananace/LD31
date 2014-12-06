@@ -9,18 +9,20 @@
 
 using Util::DateTime;
 
+DateTime::DateTime()
+{
+    mCalendarTime.tm_sec = mCalendarTime.tm_min = mCalendarTime.tm_hour = mCalendarTime.tm_mday = mCalendarTime.tm_mon = mCalendarTime.tm_year = 0;
+}
 DateTime::DateTime(int year, int month, int day, int hour, int minute, int second)
 {
-    mCalendarTime.tm_year = (year <= 1900 ? year : year - 1900);
+    mCalendarTime.tm_year = year;
     mCalendarTime.tm_mon = month;
-    mCalendarTime.tm_mday = day + 1;
+    mCalendarTime.tm_mday = day;
     mCalendarTime.tm_hour = hour;
     mCalendarTime.tm_min = minute;
     mCalendarTime.tm_sec = second;
     
     mCalendarTime.tm_isdst = -1;
-
-    std::mktime(&mCalendarTime);
 }
 DateTime::DateTime(int64_t timeVal)
 {
@@ -69,6 +71,16 @@ DateTime& DateTime::operator+=(const DateTime& rhs)
     std::tm copy = mCalendarTime,
             rhst = rhs.mCalendarTime;
 
+    time_t time = std::mktime(&copy),
+         rtime = std::mktime(&rhst);
+
+    if (time >= 0 && rtime >= 0)
+    {
+        time_t combined = time + rtime;
+        mCalendarTime = *std::localtime(&combined);
+        return *this;
+    }
+
     copy.tm_year += rhst.tm_year;
     copy.tm_mon += rhst.tm_mon;
     copy.tm_mday += rhst.tm_mday;
@@ -78,8 +90,6 @@ DateTime& DateTime::operator+=(const DateTime& rhs)
 
     if (copy.tm_isdst < 0)
         copy.tm_isdst = rhst.tm_isdst;
-
-    std::mktime(&copy);
 
     mCalendarTime = copy;
     return *this;
@@ -102,6 +112,16 @@ DateTime& DateTime::operator-=(const DateTime& rhs)
     std::tm copy = mCalendarTime,
         rhst = rhs.mCalendarTime;
 
+    time_t time = std::mktime(&copy),
+        rtime = std::mktime(&rhst);
+
+    if (time >= 0 && rtime >= 0)
+    {
+        time_t combined = time - rtime;
+        mCalendarTime = *std::localtime(&combined);
+        return *this;
+    }
+
     copy.tm_year -= rhst.tm_year;
     copy.tm_mon -= rhst.tm_mon;
     copy.tm_mday -= rhst.tm_mday;
@@ -111,8 +131,6 @@ DateTime& DateTime::operator-=(const DateTime& rhs)
 
     if (copy.tm_isdst < 0)
         copy.tm_isdst = rhst.tm_isdst;
-
-    std::mktime(&copy);
 
     mCalendarTime = copy;
     return *this;
@@ -156,28 +174,33 @@ DateTime DateTime::operator-(const Util::Timespan& rhs) const
     return copy;
 }
 
-uint16_t DateTime::getYear() const
+void DateTime::justify()
+{
+    std::mktime(&mCalendarTime);
+}
+
+int DateTime::getYear() const
 {
     return mCalendarTime.tm_year + 1900;
 }
-DateTime::Month DateTime::getMonth() const
+int DateTime::getMonth() const
 {
-    return DateTime::Month(mCalendarTime.tm_mon);
+    return mCalendarTime.tm_mon;
 }
-uint8_t DateTime::getDay() const
+int DateTime::getDay() const
 {
-    return mCalendarTime.tm_mday - 1;
+    return mCalendarTime.tm_mday;
 }
 
-uint8_t DateTime::getHour() const
+int DateTime::getHour() const
 {
     return mCalendarTime.tm_hour;
 }
-uint8_t DateTime::getMinute() const
+int DateTime::getMinute() const
 {
     return mCalendarTime.tm_min;
 }
-uint8_t DateTime::getSecond() const
+int DateTime::getSecond() const
 {
     return mCalendarTime.tm_sec;
 }
@@ -189,7 +212,7 @@ std::tm DateTime::getCalendarTime() const
 
 DateTime DateTime::now()
 {
-    return DateTime(Util::ClockImpl::now());
+    return DateTime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()));
 }
 
 namespace
@@ -251,7 +274,7 @@ namespace
             r = eng->RegisterObjectType("DateTime", sizeof(DateTime), asOBJ_VALUE | asGetTypeTraits<DateTime>()); assert(r >= 0);
 
             r = eng->RegisterObjectBehaviour("DateTime", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(create_DateTime_clean), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectBehaviour("DateTime", asBEHAVE_CONSTRUCT, "void f(int year=0,int month=0,int day=0, int hour=0, int minute=0, int second=0)", asFUNCTION(create_DateTime), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectBehaviour("DateTime", asBEHAVE_CONSTRUCT, "void f(int year,int month,int day, int hour, int minute, int second)", asFUNCTION(create_DateTime), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("DateTime", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(destruct_DateTime), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("DateTime", "DateTime& opAssign(DateTime&in)", asMETHOD(DateTime, operator=), asCALL_THISCALL); assert(r >= 0);
@@ -264,12 +287,14 @@ namespace
             r = eng->RegisterObjectMethod("DateTime", "DateTime opAdd(DateTime&in) const", asMETHODPR(DateTime, operator+, (const DateTime&) const, DateTime), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("DateTime", "DateTime opSub(DateTime&in) const", asMETHODPR(DateTime, operator-, (const DateTime&) const, DateTime), asCALL_THISCALL); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("DateTime", "uint16 get_Year() const", asMETHOD(DateTime, getYear), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("DateTime", "DateTime::Month get_Month() const", asMETHOD(DateTime, getMonth), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("DateTime", "uint8 get_Day() const", asMETHOD(DateTime, getDay), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("DateTime", "uint8 get_Hour() const", asMETHOD(DateTime, getHour), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("DateTime", "uint8 get_Minute() const", asMETHOD(DateTime, getMinute), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("DateTime", "uint8 get_Second() const", asMETHOD(DateTime, getSecond), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("DateTime", "void Justify()", asMETHOD(DateTime, justify), asCALL_THISCALL); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("DateTime", "int get_Year() const", asMETHOD(DateTime, getYear), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("DateTime", "int get_Month() const", asMETHOD(DateTime, getMonth), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("DateTime", "int get_Day() const", asMETHOD(DateTime, getDay), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("DateTime", "int get_Hour() const", asMETHOD(DateTime, getHour), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("DateTime", "int get_Minute() const", asMETHOD(DateTime, getMinute), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("DateTime", "int get_Second() const", asMETHOD(DateTime, getSecond), asCALL_THISCALL); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("DateTime", "string ToString() const", asFUNCTION(tostring_DateTime), asCALL_CDECL_OBJLAST); assert(r >= 0);
 

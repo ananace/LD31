@@ -17,7 +17,7 @@ namespace
     { \
         ctx->SetArg ## SetType (id, arg); \
         setCTXArg(ctx, id + 1, args...); \
-    }
+    } //
 
     PRIMITIVE_ARG(uint8_t, Byte);
     PRIMITIVE_ARG(uint16_t, Word);

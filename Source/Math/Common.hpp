@@ -23,6 +23,9 @@ namespace Math
     /// Floating point comparison using an epsilon value
     bool FloatCompare(const float a, const float b, const float EPSILON);
 
+    float Random(float a, float b);
+    int Random(int a, int b);
+
     ///\brief Linear interpolation
     ///\note Same as `start * (1 - delta) + end * delta` 
     template<typename T>

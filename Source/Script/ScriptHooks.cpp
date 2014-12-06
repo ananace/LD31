@@ -96,7 +96,7 @@ void ScriptHooks::setHookPriority(const std::string& name, asIScriptObject* obj,
 
 bool ScriptHooks::ObjectHook::operator==(const ObjectHook& rhs) const
 {
-    return Function == Function && Object == Object && Priority == rhs.Priority;
+    return Function == rhs.Function && Object == rhs.Object && Priority == rhs.Priority;
 }
 bool ScriptHooks::ObjectHook::operator<(const ObjectHook& rhs) const
 {

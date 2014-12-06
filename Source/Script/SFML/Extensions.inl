@@ -3,6 +3,7 @@
 #include <Math/Rect.hpp>
 #include <Math/Vector.hpp>
 #include <Script/ScriptExtensions.hpp>
+#include <Script/ScriptManager.hpp>
 #include <Util/ResourceManager.hpp>
 
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -12,6 +13,8 @@
 #include <SFML/Graphics/Transformable.hpp>
 
 #include <angelscript.h>
+
+#include <serializer_fix/serializer.h>
 
 #include <cassert>
 
@@ -28,6 +31,25 @@ namespace Script
 
 namespace
 {
+
+template<typename T>
+struct CSFMLType : public CUserType
+{
+    void Store(CSerializedValue *val, void *ptr)
+    {
+        val->SetUserData(new T(*(T*)ptr));
+    }
+    void Restore(CSerializedValue *val, void *ptr)
+    {
+        T *buffer = (T*)val->GetUserData();
+        *(T*)ptr = *buffer;
+    }
+    void CleanupUserData(CSerializedValue *val)
+    {
+        T *buffer = (T*)val->GetUserData();
+        delete buffer;
+    }
+};
 
 using Script::SFML::shapes;
 
@@ -190,6 +212,10 @@ void registerTransformable(const char* name, asIScriptEngine* eng)
     r = eng->RegisterObjectMethod(name, "void Rotate(float)", asMETHODPR(T, rotate, (float), void), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void Scale(float,float)", asMETHODPR(T, scale, (float, float), void), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void Scale(Vec2&in)", asFUNCTION(scale<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
+    Script::ScriptManager.registerType(name, []() {
+        return new CSFMLType<T>();
+    });
 }
 
 template<typename T>
