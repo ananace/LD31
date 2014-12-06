@@ -154,10 +154,10 @@ class Asteroids : IGame
 
 		mLastFirePressed = fire.Pressed;
 
-		mGameShip.Accel = acc.Pressed;
-		if (mGameShip.Accel)
-			mGameShip.Inertia += Vec2(cos(mGameShip.Rotation * Math::D2R - Math::HALF_PI),
-									  sin(mGameShip.Rotation * Math::D2R - Math::HALF_PI));
+		mGameShip.Accel = acc.Value;
+		if (mGameShip.Accel > 0)
+			mGameShip.Inertia += Vec2(cos(mGameShip.Rotation * Math::D2R - Math::HALF_PI) * acc.Value,
+									  sin(mGameShip.Rotation * Math::D2R - Math::HALF_PI) * acc.Value);
 
 		mGameShip.Position += mGameShip.Inertia * dt;
 		mGameShip.Rotation += turn.CombinedValue * dt * 90;
@@ -187,7 +187,7 @@ class Asteroids : IGame
 
 		Asteroids::Ship exampleShip();
 
-		exampleShip.Accel = true;
+		exampleShip.Accel = 1;
 		exampleShip.Anim = mAnimTime * 10;
 		exampleShip.Position = area.Center;
 		exampleShip.Rotation = mAnimTime * 90;

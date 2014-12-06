@@ -72,24 +72,7 @@ namespace Asteroids
 	{
 		void Draw(Renderer@ rend)
 		{
-			Shapes::Polygon ship = {
-				Vec2(0, -20),
-				Vec2(10, 10),
-				Vec2(0, 5),
-				Vec2(-10, 10)
-			};
-
-			ship.Position = Position;
-
-			ship.FillColor = Colors::Black;
-			ship.OutlineColor = Colors::White;
-			ship.OutlineThickness = 2;
-
-			ship.Rotation = Rotation;
-
-			rend.Draw(ship);
-
-			if (Accel)
+			if (Accel > 0)
 			{
 				Shapes::Polygon exhaust = {
 					Vec2(10, 0),
@@ -109,6 +92,7 @@ namespace Asteroids
 				exhaust.SetPoint(5, Vec2(-10 + cos(Anim * 2.25), 10));
 
 				exhaust.SetOrigin(0, -15);
+				exhaust.SetScale(Accel);
 
 				exhaust.FillColor = Colors::Transparent;
 				exhaust.OutlineColor = Color(16, 196, 255);
@@ -119,9 +103,26 @@ namespace Asteroids
 
 				rend.Draw(exhaust);
 			}
+
+			Shapes::Polygon ship = {
+				Vec2(0, -20),
+				Vec2(10, 10),
+				Vec2(0, 5),
+				Vec2(-10, 10)
+			};
+
+			ship.Position = Position;
+
+			ship.FillColor = Colors::Black;
+			ship.OutlineColor = Colors::White;
+			ship.OutlineThickness = 2;
+
+			ship.Rotation = Rotation;
+
+			rend.Draw(ship);
 		}
 
-		bool Accel;
+		float Accel;
 		float Anim;
 
 		float Rotation;

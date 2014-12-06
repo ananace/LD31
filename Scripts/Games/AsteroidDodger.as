@@ -80,8 +80,8 @@ class AsteroidDodger : IGame
 		Input@ acc = Inputs::GetInput(0);
 		Input@ turn = Inputs::GetInput(1);
 
-		mGameShip.Accel = acc.Pressed;
-		if (mGameShip.Accel)
+		mGameShip.Accel = acc.Value;
+		if (mGameShip.Accel > 0)
 			mGameShip.Inertia += Vec2(cos(mGameShip.Rotation * Math::D2R - Math::HALF_PI),
 									  sin(mGameShip.Rotation * Math::D2R - Math::HALF_PI));
 
@@ -113,7 +113,7 @@ class AsteroidDodger : IGame
 
 		Asteroids::Ship exampleShip();
 
-		exampleShip.Accel = true;
+		exampleShip.Accel = 1;
 		exampleShip.Anim = mAnimTime * 10;
 		exampleShip.Position = area.Center;
 		exampleShip.Rotation = mAnimTime * 90;
