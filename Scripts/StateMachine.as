@@ -58,7 +58,9 @@ class StateMachine
 
 		Text fpsCounter("FPS: " + FPS);
 		fpsCounter.CharacterSize = 16;
-		fpsCounter.Move(5, 2);
+		fpsCounter.Origin = Vec2(fpsCounter.LocalBounds.Size.X, 0);
+		fpsCounter.Position = Vec2(rend.View.Size.X, 0);
+		fpsCounter.Move(-5, -2);
 		rend.Draw(fpsCounter);
 	}
 
