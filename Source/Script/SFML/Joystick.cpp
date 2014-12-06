@@ -27,11 +27,11 @@ namespace
 
             r = eng->RegisterEnum("Axis"); assert(r >= 0);
             r = eng->RegisterEnumValue("Axis", "X", sf::Joystick::X); assert(r >= 0);
-            r = eng->RegisterEnumValue("Axis", "Y", sf::Joystick::X); assert(r >= 0);
-            r = eng->RegisterEnumValue("Axis", "Z", sf::Joystick::X); assert(r >= 0);
-            r = eng->RegisterEnumValue("Axis", "R", sf::Joystick::X); assert(r >= 0);
-            r = eng->RegisterEnumValue("Axis", "U", sf::Joystick::X); assert(r >= 0);
-            r = eng->RegisterEnumValue("Axis", "V", sf::Joystick::X); assert(r >= 0);
+            r = eng->RegisterEnumValue("Axis", "Y", sf::Joystick::Y); assert(r >= 0);
+            r = eng->RegisterEnumValue("Axis", "Z", sf::Joystick::Z); assert(r >= 0);
+            r = eng->RegisterEnumValue("Axis", "R", sf::Joystick::R); assert(r >= 0);
+            r = eng->RegisterEnumValue("Axis", "U", sf::Joystick::U); assert(r >= 0);
+            r = eng->RegisterEnumValue("Axis", "V", sf::Joystick::V); assert(r >= 0);
             r = eng->RegisterEnumValue("Axis", "PovX", sf::Joystick::PovX); assert(r >= 0);
             r = eng->RegisterEnumValue("Axis", "PovY", sf::Joystick::PovY); assert(r >= 0);
 

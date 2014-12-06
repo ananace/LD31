@@ -75,19 +75,15 @@ class MainMenu : IState
 				else if (mWasPressed)
 				{
 					string name = entries[i];
-					println("Entry pressed: " + entries[i]);
-
 					if (name == "New Game")
 					{
 						States::GameState@ game = GameState();
 						mStateMan.PushState(game);
-						return;
 					}
 					else if (name == "Options")
 					{
 						States::Options@ options = Options();
 						mStateMan.PushState(options);
-						return;
 					}
 					else if (name == "End Game")
 					{

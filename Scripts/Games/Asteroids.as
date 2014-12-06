@@ -217,8 +217,6 @@ class Asteroids : IGame
 		exampleShip.Anim = mAnimTime * 10;
 		exampleShip.Rotation = mAnimTime * 90;
 
-		exampleShip.Draw(rend, area, 2.f);
-
 		if (mLastQuickFire <= 0)
 		{
 			mLastQuickFire += 1 + Math::Random(-0.25, 0.35);
@@ -237,6 +235,8 @@ class Asteroids : IGame
 		{
 			mQuickBullets[i].Draw(rend, area);
 		}
+
+		exampleShip.Draw(rend, area, 2.f);
 
 		array<Asteroids::Bullet@> toRemoveBullet;
 		for (uint i = 0; i < mQuickBullets.length; ++i)

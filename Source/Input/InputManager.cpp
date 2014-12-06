@@ -63,6 +63,17 @@ namespace
         return in.Type == Input::Input::Bind::Bind_Joystick_Button;
     }
 
+    float getSensitivity(sf::Joystick::Axis axis)
+    {
+        return Input::InputManager.getSensitivity(axis) / 255.f;
+    }
+    
+    void setSensitivity(sf::Joystick::Axis axis, float sens)
+    {
+        Input::InputManager.setSensitivity(axis, (uint8_t)(sens * 255));
+    }
+
+
     bool Reg()
     {
         Script::ScriptExtensions::AddExtension([](asIScriptEngine* eng) {
@@ -73,8 +84,8 @@ namespace
             r = eng->RegisterObjectType("Bind", sizeof(Input::Input::Bind), asOBJ_VALUE | asOBJ_POD | asGetTypeTraits<Input::Input::Bind>()); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Bind", "bool get_Keyboard() const", asFUNCTION(isBindKeyboard), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Bind", "bool get_JoystickAxis() const", asFUNCTION(isBindKeyboard), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Bind", "bool get_JoystickButton() const", asFUNCTION(isBindKeyboard), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Bind", "bool get_JoystickAxis() const", asFUNCTION(isBindJoyAxis), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Bind", "bool get_JoystickButton() const", asFUNCTION(isBindJoyButton), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Bind", "Keyboard::Key KeyboardKey() const", asFUNCTION(getBindKeyboard), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Bind", "Joystick::Axis JoystickAxis() const", asFUNCTION(getBindJoystickAxis), asCALL_CDECL_OBJLAST); assert(r >= 0);
@@ -112,6 +123,11 @@ namespace
             r = eng->RegisterGlobalFunction("void StartBind(uint8,bool = true)", asMETHODPR(Input::InputMan, bindInput, (uint8_t, bool), void), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
 
             r = eng->RegisterGlobalFunction("Input@ GetInput(uint8)", asFUNCTION(getInput), asCALL_CDECL); assert(r >= 0);
+
+            r = eng->RegisterGlobalFunction("float GetDeadzone(Joystick::Axis)", asMETHOD(Input::InputMan, getDeadzone), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("void SetDeadzone(Joystick::Axis,float)", asMETHOD(Input::InputMan, setDeadzone), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("float GetSensitivity(Joystick::Axis)", asFUNCTION(getSensitivity), asCALL_CDECL); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("void SetSensitivity(Joystick::Axis,float)", asFUNCTION(setSensitivity), asCALL_CDECL); assert(r >= 0);
 
             r = eng->SetDefaultNamespace(""); assert(r >= 0);
         }, 6);

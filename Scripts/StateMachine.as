@@ -19,6 +19,7 @@ class StateMachine
 
 		if (CurState() is null)
 		{
+			StateArray.length = 0;
 			PushState(States::MainMenu());
 		}
 

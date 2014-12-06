@@ -77,9 +77,6 @@ class GameState : IState
 			for (int x = -1; x <= 1; ++x)
 				for (int y = -1; y <= 1; ++y)
 				{
-					if (x == 0 && y == 0)
-						continue;
-
 					if ((int(mFX) + x >= 0 && uint(int(mFX) + x) < mMiniGames.width()) &&
 						(int(mFY) + y >= 0 && uint(int(mFY) + y) < mMiniGames.height()))
 					{
@@ -144,18 +141,29 @@ class GameState : IState
 			for (int x = -1; x <= 1; ++x)
 				for (int y = -1; y <= 1; ++y)
 				{
-					if (x == 0 && y == 0)
-						continue;
-
-					gameRect.Left = uint(mFX + x) * (gameRect.Width + margin);
-					gameRect.Top = uint(mFY + y) * (gameRect.Height + margin);
-
 					if ((int(mFX) + x >= 0 && uint(int(mFX) + x) < mMiniGames.width()) &&
 						(int(mFY) + y >= 0 && uint(int(mFY) + y) < mMiniGames.height()))
 					{
+						gameRect.Left = uint(mFX + x) * (gameRect.Width + margin);
+						gameRect.Top = uint(mFY + y) * (gameRect.Height + margin);
+
+						if (x == 0 && y == 0)
+							continue;
+
 						mMiniGames[uint(mFX + x), uint(mFY + y)].DrawQuick(rend, gameRect);
 					}
 				}
+
+			gameRect = Rect(Vec2(-4, -4), gameRect.BottomRight);
+			gameRect.Width += 8;
+			gameRect.Height += 8;
+
+			Shapes::Rectangle rect(gameRect);
+			rect.FillColor = Colors::Transparent;
+			rect.OutlineColor = Colors::Black;
+			rect.OutlineThickness = 128;
+
+			rend.Draw(rect);
 		}
 		else
 		{
@@ -186,6 +194,10 @@ class GameState : IState
 						if (Mouse::IsPressed(Mouse::Button::XButton1))
 						{
 							@game.Owner = mCurPlayer;
+						}
+						if (Mouse::IsPressed(Mouse::Button::XButton2))
+						{
+							@game.Owner = mPlayers[1];
 						}
 					}
 

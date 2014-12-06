@@ -8,29 +8,14 @@ class Options : IState
 	void Init(StateMachine@ man)
 	{
 		@mStateMan = man;
-		mSelected = -1;
+
+		Inputs::SetDeadzone(Joystick::Axis::X, 0.25);
+		Inputs::SetDeadzone(Joystick::Axis::Y, 0.25);
 	}
 
 	void Tick(float)
 	{
-		Input@ upDown = Inputs::GetInput(0);
-		Input@ action = Inputs::GetInput(2);
 
-		int delta = upDown.CombinedPress;
-		if (delta != mOldDelta)
-		{
-			mSelected += delta;
-
-			mOldDelta = delta;
-		}
-
-		if (action.Pressed && !mLastPressed)
-		{
-			println("Rebind input " + mSelected);
-			Inputs::StartBind(mSelected);
-		}
-
-		mLastPressed = action.Pressed;
 	}
 	void Update(float)
 	{
@@ -46,7 +31,7 @@ class Options : IState
 			"Up/Down", "Left/Right", "Action"
 		};
 
-		Text bind("Binds:");
+		Text bind("<< Binds:");
 		bind.Move(15, 15);
 
 		if (bind.GlobalBounds.Contains(rend.MousePos))
@@ -63,25 +48,82 @@ class Options : IState
 
 		bind.Color = Colors::White;
 
-		bind.CharacterSize = 18;
-		bind.Move(32, 32);
+		bind.CharacterSize = 20;
+		bind.Move(32, 36);
 
 		for (uint8 i = 0; i < uint8(binds.length); ++i)
 		{
 			Input@ inp = Inputs::GetInput(i);
 
-			bind.String = (uint8(mSelected) == i ? "> " : "   ") + binds[i] + " - " + inp.CombinedValue;
+			if (bind.GlobalBounds.Contains(rend.MousePos))
+			{
+				if (Mouse::IsPressed(Mouse::Button::Left) && !Inputs::Disabled && !Inputs::Binding)
+				{
+					Inputs::StartBind(i);
+					println("Binding " + binds[i] + "...");
+				}
+				bind.Color = Colors::Yellow;
+			}
+
+			bind.String = binds[i];
 			rend.Draw(bind);
 
-			bind.Move(0, bind.LocalBounds.Height);
+			bind.Color = Colors::White;
+
+			float dist = bind.LocalBounds.Width * 1.2;
+			bind.Move(dist, 0);
+			auto bindData = inp.Bind;
+			if (bindData.Keyboard)
+			{
+				bind.String = "- Bound to Key " + bindData.KeyboardKey();
+
+				rend.Draw(bind);
+			}
+			else
+			{
+				bind.String = "- Bound to Joystick " + (bindData.JoystickAxis ?
+					"Axis " + axisToString(bindData.JoystickAxis()) :
+					"Button " + bindData.JoystickButton());
+
+				rend.Draw(bind);
+
+				if (bindData.JoystickAxis)
+				{
+					float extraDist = bind.LocalBounds.Width;
+					bind.Move(extraDist, 0);
+
+					bind.String = ", Deadzone: " + Inputs::GetDeadzone(bindData.JoystickAxis()) + ", Sensitivity: " + Inputs::GetSensitivity(bindData.JoystickAxis());
+
+					rend.Draw(bind);
+
+					dist += extraDist;
+				}
+			}
+			bind.Move(-dist, 0);
+
+			bind.Move(0, bind.LocalBounds.Height + 4);
 		}
+	}
+
+	private string axisToString(Joystick::Axis a)
+	{
+		switch(a)
+		{
+			case Joystick::Axis::X: return "X";
+			case Joystick::Axis::Y: return "Y";
+			case Joystick::Axis::Z: return "Z";
+			case Joystick::Axis::R: return "RY";
+			case Joystick::Axis::U: return "RX";
+			case Joystick::Axis::V: return "X";
+			case Joystick::Axis::PovX: return "Pov X";
+			case Joystick::Axis::PovY: return "Pov Y";
+		}
+		return "<Unknown>";
 	}
 
 	string Name { get const { return "Options"; } }
 
 	private StateMachine@ mStateMan;
-	private int mSelected, mOldDelta;
-	private bool mLastPressed;
 }
 
 }
