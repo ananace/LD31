@@ -16,15 +16,39 @@ namespace
         const float OneTickFloat = std::chrono::duration<float>(Tick::OneTick).count();
     }
     const Util::Timespan MaxFrameTime(500 * (std::nano::den / std::milli::den));
+
+    enum Binds
+    {
+        Bind_Up,
+        Bind_Left,
+
+        Bind_Action,
+
+        Bind_Down,
+        Bind_Right,
+
+        Bind_Count
+    };
 }
 
 Application::Application(asIScriptEngine* eng) : mEngine(eng)
 {
+    Input::InputManager.setBindCount(Bind_Count);
+    Input::InputManager.linkInputs(Bind_Up, Bind_Down);
+    Input::InputManager.linkInputs(Bind_Left, Bind_Right);
+
+
+    Input::InputManager.bindInput(Bind_Up, Input::Input::Bind{ Input::Input::Bind::Bind_Keyboard, { { sf::Keyboard::W, (uint8_t)0 } } });
+    Input::InputManager.bindInput(Bind_Left, Input::Input::Bind{ Input::Input::Bind::Bind_Keyboard, { { sf::Keyboard::A, (uint8_t)0 } } });
+    Input::InputManager.bindInput(Bind_Action, Input::Input::Bind{ Input::Input::Bind::Bind_Keyboard, { { sf::Keyboard::Space, (uint8_t)0 } } });
+
+
     Script::ScriptHooks::addHook("Draw", "void f(Renderer@)");
     Script::ScriptHooks::addHook("DrawUi", "void f(Renderer@)");
 
     Script::ScriptHooks::addHook("Tick", "void f(float)");
     Script::ScriptHooks::addHook("Update", "void f(float)");
+
 
     // TODO: Add resources
 

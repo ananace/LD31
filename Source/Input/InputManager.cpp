@@ -49,6 +49,7 @@ namespace
             r = eng->RegisterObjectMethod("Input", "float opConv()", asMETHOD(Input::Input, operator float), asCALL_THISCALL); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Input", "float get_Value()", asMETHOD(Input::Input, getValue), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Input", "float get_CombinedValue()", asMETHOD(Input::Input, getCombinedValue), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Input", "bool get_Pressed()", asMETHOD(Input::Input, isPressed), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Input", "bool get_Linked()", asMETHOD(Input::Input, isLinked), asCALL_THISCALL); assert(r >= 0);
 
