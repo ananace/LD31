@@ -69,6 +69,10 @@ namespace
             r = eng->RegisterGlobalProperty("const Color Yellow", const_cast<sf::Color*>(&sf::Color::Yellow));
 
             r = eng->SetDefaultNamespace(""); assert(r >= 0);
+
+            Script::ScriptManager.registerType("Color", []() {
+                return new CSFMLType<sf::Color>();
+            });
         });
 
         return true;

@@ -6,9 +6,16 @@ namespace Games
 
 class AsteroidDodger : IGame
 {
+	AsteroidDodger()
+	{
+		mAnimTime = Math::Random(0.f, Math::DOUBLE_PI);
+	}
 
 	void StartNewGame()
 	{
+		mGameShip = Asteroids::Ship();
+		mGameShip.ExhaustColor = Color(255, 196, 16);
+		
 		mFinished = false;
 		mLastCreate = 0;
 	}
@@ -16,7 +23,7 @@ class AsteroidDodger : IGame
 	void EndGame()
 	{
 		mFinished = true;
-		mGameShip = Asteroids::Ship();
+
 		mAsteroids.length = 0;
 	}
 
@@ -115,10 +122,11 @@ class AsteroidDodger : IGame
 
 		exampleShip.Accel = 1;
 		exampleShip.Anim = mAnimTime * 10;
+		exampleShip.ExhaustColor = Color(255, 196, 16);
 		exampleShip.Position = area.Center;
 		exampleShip.Rotation = mAnimTime * 90;
 
-		exampleShip.Draw(rend);
+		exampleShip.Draw(rend, 2);
 	}
 
 	void DrawFull(Renderer@ rend)

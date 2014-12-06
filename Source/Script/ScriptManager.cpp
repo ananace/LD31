@@ -72,7 +72,7 @@ namespace
             
             grid->Resize(width, val->m_children.size() / width);
             for (size_t i = 0; i < val->m_children.size(); ++i)
-                val->m_children[i]->Restore(grid->At(i % width, i / width), grid->GetElementTypeId());
+                val->m_children[i]->Restore(grid->At(i / width, i % width), grid->GetElementTypeId());
         }
         void CleanupUserData(CSerializedValue *val)
         {

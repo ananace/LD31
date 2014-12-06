@@ -70,7 +70,12 @@ namespace Asteroids
 
 	class Ship
 	{
-		void Draw(Renderer@ rend)
+		Ship()
+		{
+			ExhaustColor = Color(16, 196, 255);
+		}
+
+		void Draw(Renderer@ rend, float scale = 1)
 		{
 			if (Accel > 0)
 			{
@@ -92,10 +97,10 @@ namespace Asteroids
 				exhaust.SetPoint(5, Vec2(-10 + cos(Anim * 2.25), 10));
 
 				exhaust.SetOrigin(0, -15);
-				exhaust.SetScale(Accel);
+				exhaust.SetScale(Accel * scale);
 
 				exhaust.FillColor = Colors::Transparent;
-				exhaust.OutlineColor = Color(16, 196, 255);
+				exhaust.OutlineColor = ExhaustColor;
 				exhaust.OutlineThickness = 1.5;
 
 				exhaust.Position = Position;
@@ -117,10 +122,13 @@ namespace Asteroids
 			ship.OutlineColor = Colors::White;
 			ship.OutlineThickness = 2;
 
+			ship.SetScale(scale);
 			ship.Rotation = Rotation;
 
 			rend.Draw(ship);
 		}
+
+		Color ExhaustColor;
 
 		float Accel;
 		float Anim;

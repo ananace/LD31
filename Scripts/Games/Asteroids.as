@@ -6,6 +6,10 @@ namespace Games
 
 class Asteroids : IGame
 {
+	Asteroids()
+	{
+		mAnimTime = Math::Random(0.f, Math::DOUBLE_PI);
+	}
 
 	void StartNewGame()
 	{
@@ -26,8 +30,16 @@ class Asteroids : IGame
 	void Update(float dt)
 	{
 		mAnimTime += dt;
+		mLastQuickFire = max(0, mLastQuickFire - dt);
 
 		mGameShip.Anim = mAnimTime * 25;
+
+		for (uint i = 0; i < mQuickBullets.length; ++i)
+		{
+			auto@ bullet = mQuickBullets[i];
+
+			bullet.Position += bullet.Inertia * dt;
+		}
 	}
 
 	void Tick(float dt)
@@ -192,7 +204,51 @@ class Asteroids : IGame
 		exampleShip.Position = area.Center;
 		exampleShip.Rotation = mAnimTime * 90;
 
-		exampleShip.Draw(rend);
+		exampleShip.Draw(rend, 2.f);
+
+		if (mLastQuickFire <= 0)
+		{
+			mLastQuickFire += 1;
+
+			auto@ bullet = Asteroids::Bullet();
+
+			Vec2 bulletDir = Vec2(cos(exampleShip.Rotation * Math::D2R - Math::HALF_PI),
+									  sin(exampleShip.Rotation * Math::D2R - Math::HALF_PI));
+			bullet.Position = exampleShip.Position + bulletDir * 25;
+			bullet.Inertia = exampleShip.Inertia + bulletDir * 85;
+
+			mQuickBullets.insertLast(bullet);
+		}
+
+		for (uint i = 0; i < mQuickBullets.length; ++i)
+		{
+			mQuickBullets[i].Draw(rend);
+		}
+
+		array<Asteroids::Bullet@> toRemoveBullet;
+		for (uint i = 0; i < mQuickBullets.length; ++i)
+		{
+			Asteroids::Bullet@ bullet = mQuickBullets[i];
+
+			bool destroy = false;
+			if (bullet.Position.X < area.Left - bullet.Radius)
+				destroy = true;
+			else if (bullet.Position.X > area.Left + area.Width + bullet.Radius)
+				destroy = true;
+
+			if (bullet.Position.Y < area.Top - bullet.Radius)
+				destroy = true;
+			else if (bullet.Position.Y > area.Top + area.Height + bullet.Radius)
+				destroy = true;
+
+			if (destroy)
+				toRemoveBullet.insertLast(bullet);
+		}
+
+		for (uint i = 0; i < toRemoveBullet.length; ++i)
+		{
+			mQuickBullets.removeAt(mQuickBullets.findByRef(toRemoveBullet[i]));
+		}
 	}
 
 	void DrawFull(Renderer@ rend)
@@ -242,10 +298,10 @@ class Asteroids : IGame
 
 	private Asteroids::Ship mGameShip;
 	private array<Asteroids::Asteroid@> mAsteroids;
-	private array<Asteroids::Bullet@> mBullets;
+	private array<Asteroids::Bullet@> mBullets, mQuickBullets;
 
 	private bool mFinished, mLastFirePressed;
-	private float mAnimTime, mLastCreate, mLastFire;
+	private float mAnimTime, mLastCreate, mLastFire, mLastQuickFire;
 }
 
 }
