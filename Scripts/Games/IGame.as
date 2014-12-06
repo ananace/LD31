@@ -1,3 +1,5 @@
+#include "Common/Highscore.as"
+
 namespace Games
 {
 
@@ -36,6 +38,8 @@ interface IGame
 
 	Player@ get_Owner() const;
 	void set_Owner(Player@);
+
+	Highscore@ get_Highscore() const;
 }
 
 }

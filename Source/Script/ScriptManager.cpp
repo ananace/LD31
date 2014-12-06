@@ -2,6 +2,9 @@
 #include "ScriptExtensions.hpp"
 #include "ScriptHooks.hpp"
 #include "ScriptObject.hpp"
+#include <Math/Rect.hpp>
+#include <Math/Spinor.hpp>
+#include <Math/Vector.hpp>
 #include <Util/FileSystem.hpp>
 
 #include <nowide/fstream.hpp>
@@ -20,20 +23,21 @@ Manager Script::ScriptManager;
 namespace
 {
     // This serializes the std::string type
-    struct CStringType : public CUserType
+    template<typename T>
+    struct CDataType : public CUserType
     {
         void Store(CSerializedValue *val, void *ptr)
         {
-            val->SetUserData(new std::string(*(std::string*)ptr));
+            val->SetUserData(new T(*(T*)ptr));
         }
         void Restore(CSerializedValue *val, void *ptr)
         {
-            std::string *buffer = (std::string*)val->GetUserData();
-            *(std::string*)ptr = *buffer;
+            T *buffer = (T*)val->GetUserData();
+            *(T*)ptr = *buffer;
         }
         void CleanupUserData(CSerializedValue *val)
         {
-            std::string *buffer = (std::string*)val->GetUserData();
+            T *buffer = (T*)val->GetUserData();
             delete buffer;
         }
     };
@@ -231,7 +235,16 @@ Manager::Manager() :
     mBuilder.SetIncludeCallback(includeCallback, nullptr);
 
     mSerializerTypes.push_back(std::make_tuple("string", SerializerCallback_t([]() -> CUserType* {
-        return new CStringType();
+        return new CDataType<std::string>();
+    })));
+    mSerializerTypes.push_back(std::make_tuple("Vec2", SerializerCallback_t([]() -> CUserType* {
+        return new CDataType<Math::Vector2>();
+    })));
+    mSerializerTypes.push_back(std::make_tuple("Spinor", SerializerCallback_t([]() -> CUserType* {
+        return new CDataType<Math::Spinor>();
+    })));
+    mSerializerTypes.push_back(std::make_tuple("Rect", SerializerCallback_t([]() -> CUserType* {
+        return new CDataType<Math::Rect>();
     })));
     mSerializerTypes.push_back(std::make_tuple("array", SerializerCallback_t([]() -> CUserType* {
         return new CArrayType();

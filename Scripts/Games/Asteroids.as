@@ -9,6 +9,7 @@ class Asteroids : IGame
 	Asteroids()
 	{
 		mAnimTime = Math::Random(0.f, Math::DOUBLE_PI);
+		@mHighscore = Highscore();
 	}
 
 	void StartNewGame()
@@ -319,10 +320,12 @@ class Asteroids : IGame
 	int Score { get const { return mScore; } }
 	int ScoreOrder { get const { return SCORE_HIGHEST; } }
 	Player@ Owner { get const { return mOwner; } set { @mOwner = value; } }
+	Highscore@ Highscore { get const { return mHighscore; } }
 
 	private int mScore;
 
 	private Player@ mOwner;
+	private Highscore@ mHighscore;
 
 	private Asteroids::Ship mGameShip;
 	private array<Asteroids::Asteroid@> mAsteroids;

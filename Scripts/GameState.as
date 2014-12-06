@@ -15,7 +15,7 @@ namespace States
 
 Games::IGame@ CreateGame()
 {
-	switch(Math::Random(0, 2))
+	switch(Math::Random(0, 1))
 	{
 	case 0:
 		return Games::Asteroids();
@@ -41,7 +41,7 @@ class GameState : IState
 		mPlayers = players;
 		@mCurPlayer = mPlayers[0];
 
-		mMiniGames.resize(6, 6);
+		mMiniGames.resize(3, 3);
 
 		for (uint x = 0; x < mMiniGames.width(); ++x)
 			for (uint y = 0; y < mMiniGames.height(); ++y)
@@ -98,14 +98,31 @@ class GameState : IState
 				{
 					println("Game ended");
 
+					int score = 0;
 					if (mFocusedGame.Score < 0)
 					{
 						auto diff = DateTime::Now - mStart;
+						score = ((diff.Minute*60) + diff.Second);
 
-						println("After " + ((diff.Minute*60) + diff.Second) + " seconds");
+						println("After " + score + " seconds");
 					}
 					else
-						println("With " + mFocusedGame.Score + " points");
+					{
+						score = mFocusedGame.Score;
+						println("With " + score + " points");
+					}
+
+					auto@ highscore = mFocusedGame.Highscore;
+					highscore.PushScore(mCurPlayer, score);
+					highscore.Sort(mFocusedGame.ScoreOrder);
+
+					@mFocusedGame.Owner = highscore.Leader;
+
+					int cur = mPlayers.findByRef(mCurPlayer);
+					cur = (cur + 1) % mPlayers.length;
+
+					@mCurPlayer = mPlayers[cur];
+					winCheck();
 				}
 			}
 		}
@@ -208,11 +225,11 @@ class GameState : IState
 						for (int ix = -1; ix < 1; ++ix)
 							for (int iy = -1; iy < 1; ++iy)
 							{
-								if (ix == 0 && iy == 0)
-									continue;
-
 								gameRect.Left = uint(x + ix) * (gameRect.Width + margin);
 								gameRect.Top = uint(y + iy) * (gameRect.Height + margin);
+
+								if (ix == 0 && iy == 0)
+									continue;
 
 								if ((int(x) + ix >= 0 && uint(int(x) + ix) < mMiniGames.width()) &&
 									(int(y) + iy >= 0 && uint(int(y) + iy) < mMiniGames.height()))
@@ -239,6 +256,18 @@ class GameState : IState
 				}
 
 			gameRect = Rect(Vec2(0, 0), gameRect.BottomRight);
+
+			Rect copy = gameRect;
+			copy.Top -= 4;
+			copy.Left -= 4;
+			copy.Width += 8;
+			copy.Height += 8;
+
+			Shapes::Rectangle rect(copy);
+			rect.FillColor = Colors::Transparent;
+			rect.OutlineColor = Colors::Black;
+			rect.OutlineThickness = 128;
+			rend.Draw(rect);
 
 			Shapes::Circle point;
 			point.Radius = 64;
@@ -356,6 +385,60 @@ class GameState : IState
 
 			rend.Draw(back);
 		}
+	}
+
+	private void winCheck()
+	{
+		for (uint x = 0; x < mMiniGames.width(); ++x)
+			for (uint y = 0; y < mMiniGames.height(); ++y)
+			{
+				if ((x > 0 && x < mMiniGames.width() - 1) &&
+					(y > 0 && y < mMiniGames.height() - 1))
+					continue;
+
+				uint checkX = x, checkY = y;
+				Player@ checkPlayer = mMiniGames[checkX, checkY].Owner;
+
+				if (checkPlayer is null)
+					continue;
+
+				for (uint8 dir = 0; dir < 8; ++dir)
+				{
+					uint length = 0;
+					checkX = x; checkY = y;
+
+					while (true)
+					{
+						switch(dir)
+						{
+						case 0: checkY--; break;
+						case 1: checkY--; checkX--; break;
+						case 2: checkX--; break;
+						case 3: checkX--; checkY++; break;
+						case 4: checkY++; break;
+						case 5: checkY++; checkX++; break;
+						case 6: checkX++; break;
+						case 7: checkX++; checkY--; break;
+						}
+
+						if (checkX < 0 || checkY < 0 || checkX >= mMiniGames.width() || checkY >= mMiniGames.height())
+							break;
+
+						Player@ owner = mMiniGames[checkX, checkY].Owner;
+						if (owner is null || @owner != @checkPlayer)
+							break;
+
+						length++;
+
+						if (length == mMiniGames.width() - 1)
+						{
+							println(checkPlayer.Name + " just won the game");
+							mStateMan.PopState();
+							return;
+						}
+					}
+				}
+			}
 	}
 
 	string Name
