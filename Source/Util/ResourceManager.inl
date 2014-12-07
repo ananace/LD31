@@ -40,7 +40,7 @@ namespace
     {
         FileLoadingStrategy(const std::string& file, Args... args) : mFile(file)
         {
-            mLoader = [&](T* obj) {
+            mLoader = [=](T* obj) {
                 return LoadObj(obj, mFile, args...);
             };
         }

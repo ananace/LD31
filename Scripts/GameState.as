@@ -273,8 +273,10 @@ class GameState : IState
 
 			Shapes::Circle point;
 			point.FillColor = Colors::Transparent;
-			point.Radius = 96;
-			point.Origin = Vec2(96, 96);
+			point.Radius = 64;
+			point.Origin = Vec2(64, 64);
+
+			float testScale = (rend.View.Size / rend.Size).Length;
 
 			Color temp = mCurPlayer.Color;
 
@@ -287,7 +289,7 @@ class GameState : IState
 				//point.FillColor = temp;
 
 				Vec2 tempPos = rend.CoordsToPixel(Vec2(point.Position.X, point.Position.Y));
-				mPointShader.SetParameter("center", tempPos.X, rend.Size.Y - tempPos.Y, 0, 96 / scale);
+				mPointShader.SetParameter("center", tempPos.X, rend.Size.Y - tempPos.Y, 0, 96 / testScale);
 				mPointShader.SetParameter("color", temp);
 
 				rend.Draw(point, mPointShader);
