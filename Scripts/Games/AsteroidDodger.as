@@ -14,9 +14,6 @@ class AsteroidDodger : IGame
 
 	void StartNewGame()
 	{
-		mGameShip = Asteroids::Ship();
-		mGameShip.ExhaustColor = Color(255, 196, 16);
-
 		mFinished = false;
 		mLastCreate = 0;
 	}
@@ -28,6 +25,9 @@ class AsteroidDodger : IGame
 
 	void Cleanup()
 	{
+		mGameShip = Asteroids::Ship();
+		mGameShip.ExhaustColor = Color(255, 196, 16);
+
 		mAsteroids.length = 0;
 	}
 

@@ -19,6 +19,7 @@ public:
     void runGameLoop();
     void quitGame();
 
+    void disconnect();
     bool connect();
     bool connected();
 

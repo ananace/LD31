@@ -59,6 +59,7 @@ Application::Application(asIScriptEngine* eng) : mEngine(eng)
 
     mEngine->SetDefaultNamespace("Network");
     mEngine->RegisterGlobalFunction("bool SendPacket(Packet&in)", asMETHOD(Application, sendPacket), asCALL_THISCALL_ASGLOBAL, this);
+    mEngine->RegisterGlobalFunction("void Disconnect()", asMETHOD(Application, disconnect), asCALL_THISCALL_ASGLOBAL, this);
     mEngine->RegisterGlobalFunction("bool Connect()", asMETHOD(Application, connect), asCALL_THISCALL_ASGLOBAL, this);
     mEngine->RegisterGlobalFunction("bool get_Connected()", asMETHOD(Application, connected), asCALL_THISCALL_ASGLOBAL, this);
     mEngine->SetDefaultNamespace("");
@@ -129,7 +130,8 @@ void Application::runGameLoop()
         while (totalTime > Tick::OneTick)
         {
             Script::ScriptManager.checkForModification();
-            if (mSocket.receive(p) == sf::Socket::Done)
+            auto status = mSocket.receive(p);
+            if (status == sf::Socket::Done)
                 Script::ScriptHooks::execute<const sf::Packet&>("Packet", mEngine, p);
 
             Input::InputManager.update();
@@ -180,12 +182,21 @@ bool Application::connected()
     return mSocket.getRemoteAddress() != sf::IpAddress::None;
 }
 
+void Application::disconnect()
+{
+//    sf::Packet disc;
+//    disc << (uint8_t)0 << (uint16_t)0xDEAD;
+//    mSocket.send(disc);
+
+    mSocket.disconnect();
+}
+
 bool Application::connect()
 {
     if (connected())
         return true;
 
-    auto status = mSocket.connect(sf::IpAddress(130, 236, 254, 211), 23971, sf::milliseconds(500));
+    auto status = mSocket.connect(sf::IpAddress(130, 236, 254, 211), 23971, sf::milliseconds(1500));
     if (status == sf::Socket::Done)
         mSocket.setBlocking(false);
 

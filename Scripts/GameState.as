@@ -1,9 +1,8 @@
 #include "Games/IGame.as"
 #include "Games/Common/Player.as"
+#include "Games/Common/Lobby.as"
 
-#include "Games/Asteroids.as"
-#include "Games/AsteroidDodger.as"
-#include "Games/LightCycle.as"
+#include "Games/Randomizer.as"
 
 #include "IState.as"
 
@@ -13,40 +12,34 @@ float max(float a, float b) { return (a > b ? a : b); }
 namespace States
 {
 
-Games::IGame@ CreateGame()
-{
-	switch(Math::Random(0, 1))
-	{
-	case 0:
-		return Games::Asteroids();
-	case 1:
-		return Games::AsteroidDodger();
-	case 2:
-		return Games::LightCycle();
-	}
-
-	return null;
-}
-
 class GameState : IState
 {
-	GameState()
+	GameState(Lobby@ lobby = null)
 	{
-		array<Player@> players = {
-			Player("Dick Dastardly", Colors::Red),
-			Player("Bruce", Colors::Yellow),
-			Player("Rob D. Robot", Colors::Blue)
-		};
+		if (lobby is null)
+		{
+			array<Player@> players = {
+				Player("Dick Dastardly", Colors::Red),
+				Player("Bruce", Colors::Yellow),
+				Player("Rob D. Robot", Colors::Blue)
+			};
 
-		mPlayers = players;
-		@mCurPlayer = mPlayers[0];
+			@lobby = Lobby("Hot Seat");
+
+			lobby.GridSize = 4;
+			lobby.Players = players;
+
+			Games::RandomizeGames(mMiniGames, lobby.GridSize);
+		}
+		else
+		{
+			Games::FromNames(mMiniGames, lobby.GameNames);
+		}
+
+		@mLobby = lobby;
+		@mCurPlayer = mLobby.Players[0];
+
 		@mPointShader = Resources::GetShader("Well");
-
-		mMiniGames.resize(3, 3);
-
-		for (uint x = 0; x < mMiniGames.width(); ++x)
-			for (uint y = 0; y < mMiniGames.height(); ++y)
-				@mMiniGames[x, y] = CreateGame();
 	}
 
 	void Init(StateMachine@ man)
@@ -120,17 +113,8 @@ class GameState : IState
 						println("With " + score + " points");
 					}
 
-					auto@ highscore = mFocusedGame.Highscore;
-					highscore.PushScore(mCurPlayer, score);
-					highscore.Sort(mFocusedGame.ScoreOrder);
-
-					@mFocusedGame.Owner = highscore.Leader;
-
-					int cur = mPlayers.findByRef(mCurPlayer);
-					cur = (cur + 1) % mPlayers.length;
-
-					@mCurPlayer = mPlayers[cur];
-					winCheck();
+					StoreScore(mFocusedGame, score);
+					NextPlayer();
 				}
 			}
 		}
@@ -243,11 +227,11 @@ class GameState : IState
 			rekt.OutlineColor = Colors::White;
 			rekt.OutlineThickness = 1;
 
-			for (uint i = 0; i < mPlayers.length; ++i)
+			for (uint i = 0; i < mLobby.Players.length; ++i)
 			{
 				rekt.Move(0, 26);
 				playList.Move(0, 26);
-				Player@ p = mPlayers[i];
+				Player@ p = mLobby.Players[i];
 
 				rekt.FillColor = p.Color;
 				rend.Draw(rekt);
@@ -257,7 +241,7 @@ class GameState : IState
 				rend.Draw(playList);
 			}
 
-			Text choose(mCurPlayer.Name + "'s turn, choose your game:");
+			Text choose(mCurPlayer.Name + "'s turn" + (mLocalPlayer !is null && mCurPlayer == mLocalPlayer ? ", choose your game:" : ""));
 
 			choose.Origin = Vec2(choose.LocalBounds.Size.X / 2, 0);
 			choose.Position = Vec2(rend.View.Size.X / 2, 15);
@@ -468,20 +452,26 @@ class GameState : IState
 						title.Move(0, 34);
 					}
 
-					title.String = "[ PLAY ]";
-					title.CharacterSize = 36;
-					title.Origin = Vec2(title.LocalBounds.Size.X / 2, title.LocalBounds.Size.Y * 1.5);
-					title.Position = gameRect.TopLeft + Vec2(gameRect.Width / 2, gameRect.Height);
-
-					if (title.GlobalBounds.Contains(rend.PixelToCoords(rend.MousePos)))
+					if (mLocalPlayer is null || mLocalPlayer == mCurPlayer)
 					{
-						title.Color = Colors::Yellow;
+						title.String = "[ PLAY ]";
+						title.CharacterSize = 36;
+						title.Origin = Vec2(title.LocalBounds.Size.X / 2, title.LocalBounds.Size.Y * 1.5);
+						title.Position = gameRect.TopLeft + Vec2(gameRect.Width / 2, gameRect.Height);
 
-						if (Mouse::IsPressed(Mouse::Button::Left))
-							mFocusedRunning = true;
+						if (title.GlobalBounds.Contains(rend.PixelToCoords(rend.MousePos)))
+						{
+							title.Color = Colors::Yellow;
+
+							if (Mouse::IsPressed(Mouse::Button::Left))
+							{
+								GameStarted(mFX, mFY);
+								mFocusedRunning = true;
+							}
+						}
+
+						rend.Draw(title);
 					}
-
-					rend.Draw(title);
 				}
 			}
 			else
@@ -523,9 +513,97 @@ class GameState : IState
 		return gameRect;
 	}
 
+	private void NextPlayer(bool packet = true)
+	{
+		if (mLocalPlayer is null || !packet)
+		{
+			int cur = mLobby.Players.findByRef(mCurPlayer);
+			cur = (cur + 1) % mLobby.Players.length;
+
+			@mCurPlayer = mLobby.Players[cur];
+		}
+		else
+		{
+			Packet temp;
+			temp << uint8(2) << uint8(0x1A);
+
+			Network::SendPacket(temp);
+		}
+	}
+
+	private void GameStarted(uint x, uint y)
+	{
+		if (mLocalPlayer is null)
+			return;
+
+		Packet temp;
+		temp << uint8(2) << uint8(0x57) << uint8(x) << uint8(y);
+
+		Network::SendPacket(temp);
+	}
+
+	private void StoreScore(Games::IGame@ game, int score, bool packet = true)
+	{
+		if (mLocalPlayer is null || !packet)
+		{
+			auto@ highscore = game.Highscore;
+			highscore.PushScore(mCurPlayer, score);
+			highscore.Sort(game.ScoreOrder);
+
+			@game.Owner = highscore.Leader;
+
+			winCheck();
+		}
+		else
+		{
+			Packet temp;
+			temp << uint8(2) << uint8(0x50) << uint8(mFX) << uint8(mFY) << score;
+
+			Network::SendPacket(temp);
+		}
+	}
+
 	void Packet(Packet&in p)
 	{
+		uint8 chan = 0;
 
+		p >> chan;
+
+		if (chan != 2)
+			return;
+
+		uint8 cmd = 0;
+		p >> cmd;
+
+		switch(cmd)
+		{
+		case 0x1A:
+			NextPlayer(false);
+			break;
+
+		case 0x50: {
+				uint8 x = 0, y = 0;
+				int score = 0;
+
+				p >> x >> y >> score;
+
+				StoreScore(mMiniGames[x, y], score, false);
+			} break;
+
+		case 0x57: {
+				uint8 x = 0, y = 0;
+				p >> x >> y;
+
+				println(mCurPlayer.Name + " just started playing [" + x + "," + y + "]");
+			} break;
+
+		case 0xAD: {
+				string name;
+				p >> name;
+
+				println("Player " + name + " disconnected.");
+			} break;
+		}
 	}
 
 	string Name
@@ -533,17 +611,22 @@ class GameState : IState
 		get const { return "Game"; }
 	}
 
+	Player@ LocalPlayer { get const { return mLocalPlayer; } set { @mLocalPlayer = value; } }
+
 	private float GAME_MARGIN = 25;
 
 	private StateMachine@ mStateMan;
 
 	private DateTime mStart;
 
-	private Shader@ mPointShader;
-	private Player@ mCurPlayer;
-	private array<Player@> mPlayers;
+	private Player@ mCurPlayer, mLocalPlayer;
+	private Lobby@ mLobby;
+
 	private grid<Games::IGame@> mMiniGames;
 	private float mLerpPoint, mPointAng;
+
+	private Shader@ mPointShader;
+
 	private Games::IGame@ mFocusedGame;
 	private bool mFocusedRunning;
 	private uint mFX, mFY;

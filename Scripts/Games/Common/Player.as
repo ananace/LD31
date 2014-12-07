@@ -6,6 +6,8 @@ class Player
 		Color = color;
 	}
 
+	int opCmp(Player@ r) { return Name.opCmp(r.Name); }
+
 	string Name;
 	Color Color;
 }

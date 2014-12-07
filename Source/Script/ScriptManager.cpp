@@ -73,7 +73,9 @@ namespace
         {
             CScriptGrid *grid = (CScriptGrid*)ptr;
             unsigned int width = *(unsigned int*)val->GetUserData();
-            
+            if (width == 0)
+                return;
+
             grid->Resize(width, val->m_children.size() / width);
             for (size_t i = 0; i < val->m_children.size(); ++i)
                 val->m_children[i]->Restore(grid->At(i / width, i % width), grid->GetElementTypeId());

@@ -13,6 +13,8 @@ class LightCycle : IGame
 	void StartNewGame()
 	{
 		mFinished = false;
+
+		
 	}
 	void EndGame()
 	{
@@ -20,7 +22,7 @@ class LightCycle : IGame
 	}
 	void Cleanup()
 	{
-
+		mPoints.length = 0;
 	}
 
 	void Update(float dt)
@@ -50,6 +52,8 @@ class LightCycle : IGame
 
 	private Highscore@ mHighscore;
 	private float mAnimTimer;
+
+	private array<Vec2> mPoints;
 
 	private bool mFinished;
 	private Player@ mOwner;
