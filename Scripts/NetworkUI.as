@@ -12,7 +12,7 @@ class NetworkUI : IState
 	{
 		@mStateMan = @stateman;
 
-		mTempColor = Colors::Black;
+		mTempColor = random();
 	}
 
 	void Update(float dt)
@@ -22,14 +22,36 @@ class NetworkUI : IState
 
 	void Tick(float)
 	{
-		if (Inputs::ReadingText)
+		if (mLocalPlayer is null)
 		{
-			mTempName = Inputs::Text;
+			if (Inputs::ReadingText)
+			{
+				mTempName = Inputs::Text;
+
+				if (Keyboard::IsPressed(Keyboard::Key::Return))
+					Inputs::StopText();
+			}
+			else if (mNameInput)
+			{
+				mNameInput = false;
+			}
 		}
-		else if (mNameInput)
+		else if (mCurLobby !is null)
 		{
-			mNameInput = false;
+			if (Keyboard::IsPressed(Keyboard::Key::Return) && !Inputs::Disabled && !Inputs::ReadingText && !mWasReading)
+			{
+				println("Starting read");
+				Inputs::StartText();
+			}
+			else if (Keyboard::IsPressed(Keyboard::Key::Return) && Inputs::ReadingText && !mWasReading)
+			{
+				println("Sending message " + Inputs::Text);
+				chatMessage(Inputs::Text);
+				Inputs::StopText();
+			}
 		}
+
+		mWasReading = Keyboard::IsPressed(Keyboard::Key::Return);
 	}
 
 	void Draw(Renderer@)
@@ -67,13 +89,15 @@ class NetworkUI : IState
 				Inputs::StopText();
 			}
 
-			if (mNameInput)
+			if (Inputs::ReadingText)
 				inputBox.OutlineColor = Colors::Green;
+			else if (mTempName.isEmpty())
+				inputBox.OutlineColor = Colors::Red;
 
 			rend.Draw(inputBox);
 
 			Text boxText(mTempName);
-			if (mNameInput)
+			if (Inputs::ReadingText)
 				boxText.String = mTempName + (int(mAnim * 2) % 2 == 0 ? "|" : "");
 
 			boxText.CharacterSize = 18;
@@ -113,7 +137,7 @@ class NetworkUI : IState
 			{
 				title.Color = Colors::Yellow;
 
-				if (Mouse::IsPressed(Mouse::Button::Left) && !mLastClick)
+				if (Mouse::IsPressed(Mouse::Button::Left) && !mLastClick && !mTempName.isEmpty())
 				{
 					@mLocalPlayer = Player(mTempName, mTempColor);
 
@@ -209,10 +233,10 @@ class NetworkUI : IState
 
 			if (@mCurLobby.Players[0] == @mLocalPlayer)
 			{
-				Text launch("Launch the game");
+				Text launch("<Launch the game>");
 
-				launch.Origin = Vec2(-6, launch.LocalBounds.Height * 1.5);
-				launch.Position = Vec2(0, rend.View.Size.Y);
+				launch.Origin = Vec2(launch.LocalBounds.Width / 2, 0);
+				launch.Position = Vec2(rend.View.Size.X / 2, 0);
 
 				if (launch.GlobalBounds.Contains(rend.MousePos))
 				{
@@ -225,6 +249,27 @@ class NetworkUI : IState
 				}
 
 				rend.Draw(launch);
+			}
+
+			Text chat;
+			chat.CharacterSize = 16;
+			chat.Position = Vec2(0, rend.View.Size.Y);
+			chat.Origin = Vec2(0, 22);
+
+			if (Inputs::ReadingText)
+			{
+				chat.String = "> " + Inputs::Text + (int(mAnim) % 2 == 0 ? "|" : "");
+				rend.Draw(chat);
+				chat.Move(0, -26);
+			}
+
+			for (uint i = 0; i < mCurLobby.ChatMsgs.length; ++i)
+			{
+				chat.String = mCurLobby.ChatMsgs[mCurLobby.ChatMsgs.length-i-1];
+				
+				rend.Draw(chat);
+
+				chat.Move(0, -22);
 			}
 		}
 
@@ -250,7 +295,7 @@ class NetworkUI : IState
 	void createLobby(string name)
 	{
 		Packet create;
-		create << uint8(1) << uint8(0xBA) << "Test";
+		create << uint8(1) << uint8(0xBA) << name;
 
 		Network::SendPacket(create);
 	}
@@ -295,12 +340,22 @@ class NetworkUI : IState
 		mLobbyList.length = 0;
 	}
 
+	void chatMessage(string msg)
+	{
+		if (msg.isEmpty())
+			return;
+
+		Packet message;
+		message << uint8(1) << uint8(0xCE) << msg;
+
+		Network::SendPacket(message);
+	}
+
 	void Packet(Packet&in p)
 	{
 		uint8 chan = 0;
 
 		p >> chan;
-		println(chan);
 
 		switch(chan)
 		{
@@ -372,7 +427,6 @@ class NetworkUI : IState
 		case 1: { // In-Lobby
 				uint8 act = 0;
 				p >> act;
-				println("Msg: " + act);
 
 				switch (act)
 				{
@@ -402,6 +456,7 @@ class NetworkUI : IState
 						p >> msg;
 
 						println(msg);
+						mCurLobby.Message(msg);
 					} break;
 
 				case 0x6A: {
@@ -450,7 +505,7 @@ class NetworkUI : IState
 		get const { return "NetworkUI"; }
 	}
 
-	private bool mNameInput, mLastClick;
+	private bool mNameInput, mLastClick, mWasReading;
 
 	private string mTempName;
 	private Color mTempColor;

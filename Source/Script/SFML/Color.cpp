@@ -29,6 +29,11 @@ namespace
         return lhs == rhs;
     }
 
+    sf::Color color_mul(float v, const sf::Color& in)
+    {
+        return sf::Color(in.r * v, in.g * v, in.b * v, in.a * v);
+    }
+
     bool Reg()
     {
         Script::ScriptExtensions::AddExtension([](asIScriptEngine* eng){
@@ -48,6 +53,7 @@ namespace
             r = eng->RegisterObjectMethod("Color", "Color opAdd(Color&in)", asFUNCTIONPR(sf::operator+, (const sf::Color&, const sf::Color&), sf::Color), asCALL_CDECL_OBJFIRST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Color", "Color opSub(Color&in)", asFUNCTIONPR(sf::operator-, (const sf::Color&, const sf::Color&), sf::Color), asCALL_CDECL_OBJFIRST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Color", "Color opMul(Color&in)", asFUNCTIONPR(sf::operator*, (const sf::Color&, const sf::Color&), sf::Color), asCALL_CDECL_OBJFIRST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Color", "Color opMul(float)", asFUNCTION(color_mul), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Color", "bool opEquals(Color&in)", asFUNCTIONPR(sf::operator==, (const sf::Color&, const sf::Color&), bool), asCALL_CDECL_OBJFIRST); assert(r >= 0);
 

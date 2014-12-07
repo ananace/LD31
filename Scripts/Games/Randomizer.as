@@ -2,6 +2,7 @@
 
 #include "Asteroids.as"
 #include "AsteroidDodger.as"
+#include "DodgeBall.as"
 #include "LightCycle.as"
 
 namespace Games
@@ -14,6 +15,8 @@ namespace Games
 			return Games::AsteroidDodger();
 		else if (name == "Light Cycles")
 			return Games::LightCycle();
+		else if (name == "Dodge 'em")
+			return Games::DodgeBall();
 
 		return null;
 	}
@@ -27,7 +30,9 @@ namespace Games
 		case 1:
 			return Games::AsteroidDodger();
 		case 2:
-			return Games::LightCycle();
+//			return Games::LightCycle();
+//		case 3:
+			return Games::DodgeBall();
 		}
 
 		return null;

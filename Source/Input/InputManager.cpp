@@ -298,12 +298,6 @@ void InputMan::handleEvent(const sf::Event& ev)
             return;
         }
 
-        if (ev.text.unicode == '\n' || ev.text.unicode == '\r')
-        {
-            stopTextRead();
-            return;
-        }
-
         if (ev.text.unicode < 32)
             return;
         

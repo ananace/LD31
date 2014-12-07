@@ -118,6 +118,18 @@ class GameState : IState
 				}
 			}
 		}
+		
+		if (Keyboard::IsPressed(Keyboard::Key::Return) && !Inputs::Disabled && !Inputs::ReadingText && !mWasPressed)
+		{
+			Inputs::StartText();
+		}
+		else if (Keyboard::IsPressed(Keyboard::Key::Return) && Inputs::ReadingText && !mWasPressed)
+		{
+			ChatMessage(Inputs::Text);
+			Inputs::StopText();
+		}
+
+		mWasPressed = Keyboard::IsPressed(Keyboard::Key::Return);
 
 		if (mLerpPoint == 0 && mFocusedGame !is null)
 		{
@@ -290,11 +302,35 @@ class GameState : IState
 				if (mFocusedGame is null)
 					mStateMan.PopState();
 				else
+				{
 					mFocusedGame.EndGame();
+					NextPlayer();
+				}
 			}
 		}
 
 		rend.Draw(back);
+
+		Text chat;
+		chat.CharacterSize = 16;
+		chat.Position = Vec2(0, rend.View.Size.Y);
+		chat.Origin = Vec2(0, 22);
+
+		if (Inputs::ReadingText)
+		{
+			chat.String = "> " + Inputs::Text + (int(mPointAng) % 2 == 0 ? "|" : "");
+			rend.Draw(chat);
+			chat.Move(0, -26);
+		}
+
+		for (uint i = 0; i < mLobby.ChatMsgs.length; ++i)
+		{
+			chat.String = mLobby.ChatMsgs[mLobby.ChatMsgs.length-i-1];
+
+			rend.Draw(chat);
+
+			chat.Move(0, -22);
+		}
 	}
 
 	private void winCheck()
@@ -376,11 +412,25 @@ class GameState : IState
 		background.FillColor = Colors::Black;
 		rend.Draw(background);
 
-		Color temp = Colors::Transparent;		
+		Color temp = Colors::Black;		
 		if (game.Owner !is null && (@game != @mFocusedGame || !mFocusedRunning))
-		{
 			temp = game.Owner.Color;
-			temp.A = 96;
+
+		temp.A = 96;
+
+		if ((int(x) == mOpX && int(y) == mOpY) && mLocalPlayer !is null && mCurPlayer != mLocalPlayer)
+		{
+			Color c1 = temp,
+				  c2 = mCurPlayer.Color;
+
+			float t = 0.5 + sin(mPointAng * 2) / 2;
+
+			temp = Color(
+					uint8(c1.R * (1 - t) + c2.R * t),
+					uint8(c1.G * (1 - t) + c2.G * t),
+					uint8(c1.B * (1 - t) + c2.B * t),
+					c1.A
+				);
 		}
 
 		background.FillColor = temp;
@@ -515,6 +565,8 @@ class GameState : IState
 
 	private void NextPlayer(bool packet = true)
 	{
+		mOpX = mOpY = -1;
+
 		if (mLocalPlayer is null || !packet)
 		{
 			int cur = mLobby.Players.findByRef(mCurPlayer);
@@ -563,6 +615,17 @@ class GameState : IState
 		}
 	}
 
+	void ChatMessage(string msg)
+	{
+		if (msg.isEmpty())
+			return;
+
+		Packet message;
+		message << uint8(2) << uint8(0xCE) << msg;
+
+		Network::SendPacket(message);
+	}
+
 	void Packet(Packet&in p)
 	{
 		uint8 chan = 0;
@@ -595,6 +658,7 @@ class GameState : IState
 				p >> x >> y;
 
 				println(mCurPlayer.Name + " just started playing [" + x + "," + y + "]");
+				mOpX = x; mOpY = y;
 			} break;
 
 		case 0xAD: {
@@ -602,6 +666,22 @@ class GameState : IState
 				p >> name;
 
 				println("Player " + name + " disconnected.");
+
+				if (mCurPlayer.Name == name)
+					NextPlayer(false);
+
+				int i = mLobby.Players.find(Player(name, Colors::Transparent));
+				if (i >= 0)
+					mLobby.Players.removeAt(i);
+			} break;
+
+		case 0xCE: {
+				string message;
+				p >> message;
+
+				println(message);
+
+				mLobby.Message(message);
 			} break;
 		}
 	}
@@ -628,8 +708,9 @@ class GameState : IState
 	private Shader@ mPointShader;
 
 	private Games::IGame@ mFocusedGame;
-	private bool mFocusedRunning;
+	private bool mFocusedRunning, mWasPressed;
 	private uint mFX, mFY;
+	private int mOpX = -1, mOpY = -1;
 }
 
 }
