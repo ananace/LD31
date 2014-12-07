@@ -194,24 +194,6 @@ class Asteroids : IGame
 
 	void DrawQuick(Renderer@ rend, Rect&in area)
 	{
-		Shapes::Rectangle background(area);
-
-		background.FillColor = Colors::Black;
-		rend.Draw(background);
-
-		Color temp = Colors::Transparent;
-		if (mOwner !is null)
-		{
-			temp = mOwner.Color;
-			temp.A = 96;
-		}
-
-		background.FillColor = temp;
-		background.OutlineThickness = 3.5;
-		background.OutlineColor = Colors::White;
-
-		rend.Draw(background);
-
 		Asteroids::Ship exampleShip();
 
 		exampleShip.Accel = 1;
@@ -264,25 +246,10 @@ class Asteroids : IGame
 		{
 			mQuickBullets.removeAt(mQuickBullets.findByRef(toRemoveBullet[i]));
 		}
-
-		area.Left -= 3.5;
-		area.Top -= 3.5;
-		area.Width += 7;
-		area.Height += 7;
-
-		background.Rect = area;
-
-		background.FillColor = Colors::Transparent;
-		background.OutlineThickness = 16;
-		background.OutlineColor = Colors::Black;
-
-		rend.Draw(background);
 	}
 
 	void DrawFull(Renderer@ rend, Rect&in area)
 	{
-		Shapes::Rectangle background(area);
-
 		for (uint i = 0; i < mBullets.length; ++i)
 		{
 			mBullets[i].Draw(rend, area);
@@ -294,25 +261,6 @@ class Asteroids : IGame
 		{
 			mAsteroids[i].Draw(rend, area);
 		}
-
-		background.FillColor = Colors::Transparent;
-		background.OutlineColor = Colors::White;
-		background.OutlineThickness = 3.5;
-
-		rend.Draw(background);
-
-		area.Left -= 3.5;
-		area.Top -= 3.5;
-		area.Width += 7;
-		area.Height += 7;
-
-		background.Rect = area;
-
-		background.FillColor = Colors::Transparent;
-		background.OutlineThickness = 18;
-		background.OutlineColor = Colors::Black;
-
-		rend.Draw(background);
 	}
 
 	bool Finished { get const { return mFinished; } }

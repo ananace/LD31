@@ -70,10 +70,17 @@ class GameState : IState
 		}
 		else
 		{
+			float oldLerp = mLerpPoint;
 			if (mFocusedGame.Finished)
 				mLerpPoint = max(mLerpPoint - dt * 2, 0);
 			else
 				mLerpPoint = min(mLerpPoint + dt * 2, 1);
+
+			if (mLerpPoint == 1 && oldLerp != 1)
+				mStart = DateTime::Now;
+
+			if (mLerpPoint != 1 && oldLerp == 1)
+				mFocusedRunning = false;
 
 			for (int x = -1; x <= 1; ++x)
 				for (int y = -1; y <= 1; ++y)
@@ -89,7 +96,7 @@ class GameState : IState
 
 	void Tick(float dt)
 	{
-		if (mFocusedGame !is null && mLerpPoint >= 1)
+		if (mFocusedGame !is null && mFocusedRunning)
 		{
 			if (!mFocusedGame.Finished)
 			{
@@ -130,22 +137,18 @@ class GameState : IState
 
 		if (mLerpPoint == 0 && mFocusedGame !is null)
 		{
-			mFocusedGame.Cleanup();
-
-			@mFocusedGame = null;
-			mFX = mFY = 0;
+			FocusGame(null,0,0);
 		}
 	}
 
 	void Draw(Renderer@ rend)
 	{
 		Rect gameRect(0, 0, 512, 512);
-		const float margin = 25;
 
 		rend.View.Rotation = Math::Lerp(-45.0, 0.0, mLerpPoint);
 		rend.View.Center = Math::Lerp(Vec2(mMiniGames.width() * 256, mMiniGames.height() * 256),
-			Vec2(mFX * (gameRect.Width + margin) + gameRect.Width / 2,
-				 mFY * (gameRect.Height + margin) + gameRect.Height / 2), mLerpPoint);
+			Vec2(mFX * (gameRect.Width + GAME_MARGIN) + gameRect.Width / 2,
+				 mFY * (gameRect.Height + GAME_MARGIN) + gameRect.Height / 2), mLerpPoint);
 
 		float scale = 1.5 * (mMiniGames.width() - mLerpPoint * (mMiniGames.width() - 1 * 0.75));
 
@@ -153,36 +156,10 @@ class GameState : IState
 
 		if (mFocusedGame !is null && mLerpPoint >= 1)
 		{
-			gameRect.Left = mFX * (gameRect.Width + margin);
-			gameRect.Top = mFY * (gameRect.Height + margin);
-			mFocusedGame.DrawFull(rend, gameRect);
-
-			for (int x = -1; x <= 1; ++x)
-				for (int y = -1; y <= 1; ++y)
-				{
-					if ((int(mFX) + x >= 0 && uint(int(mFX) + x) < mMiniGames.width()) &&
-						(int(mFY) + y >= 0 && uint(int(mFY) + y) < mMiniGames.height()))
-					{
-						gameRect.Left = uint(mFX + x) * (gameRect.Width + margin);
-						gameRect.Top = uint(mFY + y) * (gameRect.Height + margin);
-
-						if (x == 0 && y == 0)
-							continue;
-
-						mMiniGames[uint(mFX + x), uint(mFY + y)].DrawQuick(rend, gameRect);
-					}
-				}
-
-			gameRect = Rect(Vec2(-4, -4), gameRect.BottomRight);
-			gameRect.Width += 8;
-			gameRect.Height += 8;
-
-			Shapes::Rectangle rect(gameRect);
-			rect.FillColor = Colors::Transparent;
-			rect.OutlineColor = Colors::Black;
-			rect.OutlineThickness = 128;
-
-			rend.Draw(rect);
+			gameRect.Left = mFX * (gameRect.Width + GAME_MARGIN);
+			gameRect.Top = mFY * (gameRect.Height + GAME_MARGIN);
+			
+			gameRect = DrawGame(rend, mFocusedGame, mFX, mFY, gameRect);
 		}
 		else
 		{
@@ -193,100 +170,45 @@ class GameState : IState
 					if (game is null)
 						continue;
 
-					gameRect.Left = x * (gameRect.Width + margin);
-					gameRect.Top = y * (gameRect.Height + margin);
+					gameRect.Left = x * (gameRect.Width + GAME_MARGIN);
+					gameRect.Top = y * (gameRect.Height + GAME_MARGIN);
 
 					Vec2 mousePos = rend.PixelToCoords(rend.MousePos);
-					bool hover = (@game == @mFocusedGame || gameRect.Contains(mousePos));
-					if (hover)
+					bool hover = (gameRect.Contains(mousePos));
+					if (hover && Mouse::IsPressed(Mouse::Button::Left) && mLerpPoint == 0 && !Inputs::Disabled)
 					{
-						if (Mouse::IsPressed(Mouse::Button::Left) && mLerpPoint == 0 && !Inputs::Disabled)
-						{
-							@mFocusedGame = @game;
-
-							mFX = x;
-							mFY = y;
-
-							mFocusedGame.StartNewGame();
-							mStart = DateTime::Now;
-						}
-						if (Mouse::IsPressed(Mouse::Button::XButton1))
-						{
-							@game.Owner = mCurPlayer;
-						}
-						if (Mouse::IsPressed(Mouse::Button::XButton2))
-						{
-							@game.Owner = mPlayers[1];
-						}
+						FocusGame(game, x, y);
 					}
 
-					if (@game == @mFocusedGame)
-					{
-						game.DrawFull(rend, gameRect);
-
-						for (int ix = -1; ix < 1; ++ix)
-							for (int iy = -1; iy < 1; ++iy)
-							{
-								gameRect.Left = uint(x + ix) * (gameRect.Width + margin);
-								gameRect.Top = uint(y + iy) * (gameRect.Height + margin);
-
-								if (ix == 0 && iy == 0)
-									continue;
-
-								if ((int(x) + ix >= 0 && uint(int(x) + ix) < mMiniGames.width()) &&
-									(int(y) + iy >= 0 && uint(int(y) + iy) < mMiniGames.height()))
-								{
-									mMiniGames[uint(x + ix), uint(y + iy)].DrawQuick(rend, gameRect);
-								}
-							}
-					}
-					else
-						game.DrawQuick(rend, gameRect);
-
-					if (hover)
-					{
-						if (mLerpPoint == 0)
-						{
-							Text title(game.Name);
-							title.CharacterSize = 30 + (mMiniGames.width() * 10);
-							title.Rotation = -45;
-							title.Origin = title.LocalBounds.Size / 2;
-							title.Position = mousePos;
-							rend.Draw(title);
-						}
-					}
+					gameRect = DrawGame(rend, @game, x, y, gameRect);
 				}
+		}
 
-			gameRect = Rect(Vec2(0, 0), gameRect.BottomRight);
+		gameRect = Rect(Vec2(-4, -4), gameRect.BottomRight + Vec2(8, 8));
+		Shapes::Rectangle rect(gameRect);
 
-			Rect copy = gameRect;
-			copy.Top -= 4;
-			copy.Left -= 4;
-			copy.Width += 8;
-			copy.Height += 8;
+		rect.FillColor = Colors::Transparent;
+		rect.OutlineColor = Colors::Black;
+		rect.OutlineThickness = 128;
+		rend.Draw(rect);
 
-			Shapes::Rectangle rect(copy);
-			rect.FillColor = Colors::Transparent;
-			rect.OutlineColor = Colors::Black;
-			rect.OutlineThickness = 128;
-			rend.Draw(rect);
+		Shapes::Circle point;
+		point.FillColor = Colors::Transparent;
+		point.Radius = 64;
+		point.Origin = Vec2(64, 64);
 
-			Shapes::Circle point;
-			point.FillColor = Colors::Transparent;
-			point.Radius = 64;
-			point.Origin = Vec2(64, 64);
+		Color temp = mCurPlayer.Color;
 
-			float testScale = (rend.View.Size / rend.Size).Length;
+		for (int i = 5; i > 0; --i)
+		{
+			Vec2 direction(cos(mPointAng - (5-i) * 0.019), sin(mPointAng - (5-i) * 0.019));
+			point.Position = gameRect.Constrain(Vec2(mMiniGames.width(), mMiniGames.height()) * 256 + direction * mMiniGames.width() * 512) + direction * (point.Radius + 16);
+			
+			temp.A = uint8(255 * (i / 6.f));
 
-			Color temp = mCurPlayer.Color;
-
-			for (int i = 5; i > 0; --i)
+			if (Shaders::Available)
 			{
-				Vec2 direction(cos(mPointAng - (5-i) * 0.02), sin(mPointAng - (5-i) * 0.02));
-				point.Position = gameRect.Constrain(Vec2(mMiniGames.width(), mMiniGames.height()) * 256 + direction * mMiniGames.width() * 512) + direction * (point.Radius + 16);
-				
-				temp.A = uint8(255 * (i / 6.f));
-				//point.FillColor = temp;
+				float testScale = (rend.View.Size / rend.Size).Length;
 
 				Vec2 tempPos = rend.CoordsToPixel(Vec2(point.Position.X, point.Position.Y));
 				mPointShader.SetParameter("center", tempPos.X, rend.Size.Y - tempPos.Y, 0, 96 / testScale);
@@ -294,7 +216,13 @@ class GameState : IState
 
 				rend.Draw(point, mPointShader);
 			}
-		}	
+			else
+			{
+				point.SetScale(0.5);
+				point.FillColor = temp;
+				rend.Draw(point);
+			}
+		}
 	}
 
 	void DrawUi(Renderer@ rend)
@@ -335,23 +263,8 @@ class GameState : IState
 			choose.Position = Vec2(rend.View.Size.X / 2, 15);
 
 			rend.Draw(choose);
-
-			Text back("<< Back");
-			back.CharacterSize = 18;
-
-			if (back.GlobalBounds.Contains(rend.MousePos))
-			{
-				back.Color = Colors::Yellow;
-
-				if (Mouse::IsPressed(Mouse::Button::Left) && !Inputs::Disabled)
-				{
-					mStateMan.PopState();
-				}
-			}
-
-			rend.Draw(back);
 		}
-		else
+		else if (mFocusedRunning)
 		{
 			Text score;
 			if (mFocusedGame.Score < 0)
@@ -379,21 +292,25 @@ class GameState : IState
 			score.Move(-0.1, -0.1);
 			rend.Draw(score);
 
-			Text back("<< Back");
-			back.CharacterSize = 18;
-
-			if (back.GlobalBounds.Contains(rend.MousePos))
-			{
-				back.Color = Colors::Yellow;
-
-				if (Mouse::IsPressed(Mouse::Button::Left) && !Inputs::Disabled)
-				{
-					mFocusedGame.EndGame();
-				}
-			}
-
-			rend.Draw(back);
 		}
+
+		Text back("<< Back");
+		back.CharacterSize = 18;
+
+		if (back.GlobalBounds.Contains(rend.MousePos))
+		{
+			back.Color = Colors::Yellow;
+
+			if (Mouse::IsPressed(Mouse::Button::Left) && !Inputs::Disabled)
+			{
+				if (mFocusedGame is null)
+					mStateMan.PopState();
+				else
+					mFocusedGame.EndGame();
+			}
+		}
+
+		rend.Draw(back);
 	}
 
 	private void winCheck()
@@ -450,10 +367,131 @@ class GameState : IState
 			}
 	}
 
+	private void FocusGame(Games::IGame@ game, uint x, uint y)
+	{
+		if (mFocusedGame !is null)
+		{
+			mFocusedGame.EndGame();
+			mFocusedGame.Cleanup();
+		}
+
+		@mFocusedGame = @game;
+
+		mFX = x;
+		mFY = y;
+
+		if (mFocusedGame !is null)
+			mFocusedGame.StartNewGame();
+	}
+
+	private Rect DrawGame(Renderer@ rend, Games::IGame@ game, uint x, uint y, Rect&in gameRect)
+	{
+		Rect area = gameRect;
+		Shapes::Rectangle background(area);
+
+		background.FillColor = Colors::Black;
+		rend.Draw(background);
+
+		Color temp = Colors::Transparent;		
+		if (game.Owner !is null && @game != @mFocusedGame)
+		{
+			temp = game.Owner.Color;
+			temp.A = 96;
+		}
+
+		background.FillColor = temp;
+		background.OutlineThickness = 3.5;
+		background.OutlineColor = Colors::White;
+
+		rend.Draw(background);
+
+		if (@game == @mFocusedGame)
+		{
+			if (!mFocusedRunning)
+			{
+				game.DrawQuick(rend, gameRect);
+
+				Shapes::Rectangle toner(gameRect);
+				Color tone = Colors::Black;
+				tone.A = 128;
+				toner.FillColor = tone;
+
+				rend.Draw(toner);
+
+				Text title(game.Name);
+				title.Origin = Vec2(title.LocalBounds.Size.X / 2, 0);
+				title.Position = gameRect.TopLeft + Vec2(gameRect.Width / 2, 0);
+
+				rend.Draw(title);
+
+				if (game.Score == Games::TIME_AS_SCORE)
+					title.String = "Times:";
+				else
+					title.String = "Scores:";
+				title.Origin = Vec2(0, 0);
+				title.Position = gameRect.TopLeft + Vec2(8, 64);
+
+				rend.Draw(title);
+
+				title.String = "<PLAY>";
+				title.Origin = Vec2(title.LocalBounds.Size.X / 2, title.LocalBounds.Size.Y);
+				title.Position = gameRect.TopLeft + Vec2(gameRect.Width / 2, gameRect.Height - 32);
+
+				if (title.GlobalBounds.Contains(rend.PixelToCoords(rend.MousePos)))
+				{
+					title.Color = Colors::Yellow;
+
+					if (Mouse::IsPressed(Mouse::Button::Left))
+						mFocusedRunning = true;
+				}
+
+				rend.Draw(title);
+			}
+			else
+				game.DrawFull(rend, gameRect);
+
+			for (int ix = -1; ix <= 1; ++ix)
+				for (int iy = -1; iy <= 1; ++iy)
+				{
+					int rX = x + ix, rY = y + iy;
+
+					if (!(ix == 0 && iy == 0) &&
+					   (rX >= 0 && uint(rX) < mMiniGames.width()) &&
+					   (rY >= 0 && uint(rY) < mMiniGames.height()))
+					{
+						gameRect.Left = rX * (gameRect.Width + GAME_MARGIN);
+						gameRect.Top = rY * (gameRect.Height + GAME_MARGIN);
+
+						gameRect = DrawGame(rend, mMiniGames[uint(x + ix), uint(y + iy)], x + ix, y + iy, gameRect);
+					}
+				}
+		}
+		else
+			game.DrawQuick(rend, gameRect);
+
+		background.FillColor = Colors::Transparent;
+		rend.Draw(background);
+
+		area.Left -= 3.5;
+		area.Top -= 3.5;
+		area.Width += 7;
+		area.Height += 7;
+
+		background.Rect = area;
+		background.OutlineThickness = 16;
+		background.OutlineColor = Colors::Black;
+
+		rend.Draw(background);
+
+		return gameRect;
+	}
+
 	string Name
 	{
 		get const { return "Game"; }
 	}
+
+	private float GAME_MARGIN = 25;
 
 	private StateMachine@ mStateMan;
 
@@ -465,6 +503,7 @@ class GameState : IState
 	private grid<Games::IGame@> mMiniGames;
 	private float mLerpPoint, mPointAng;
 	private Games::IGame@ mFocusedGame;
+	private bool mFocusedRunning;
 	private uint mFX, mFY;
 }
 

@@ -34,38 +34,7 @@ class LightCycle : IGame
 
 	void DrawQuick(Renderer@ rend, Rect&in area)
 	{
-		Shapes::Rectangle background(area);
-
-		background.FillColor = Colors::Black;
-		rend.Draw(background);
-
-		Color temp = Colors::Transparent;		
-		if (mOwner !is null)
-		{
-			temp = mOwner.Color;
-			temp.A = 96;
-		}
-
-		background.FillColor = temp;
-		background.OutlineThickness = 3.5;
-		background.OutlineColor = Colors::White;
-
-		rend.Draw(background);
-
-		// Draw example
-
-		area.Left -= 3.5;
-		area.Top -= 3.5;
-		area.Width += 7;
-		area.Height += 7;
-
-		background.Rect = area;
-
-		background.FillColor = Colors::Transparent;
-		background.OutlineThickness = 16;
-		background.OutlineColor = Colors::Black;
-
-		rend.Draw(background);
+		
 	}
 	void DrawFull(Renderer@ rend, Rect&in area)
 	{
