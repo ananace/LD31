@@ -21,9 +21,8 @@ class Options : IState
 	{
 
 	}
-	void Draw(Renderer@)
+	void Draw(Renderer@ rend)
 	{
-
 	}
 	void DrawUi(Renderer@ rend)
 	{

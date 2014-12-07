@@ -7,6 +7,7 @@
 #include <cassert>
 
 Util::ResourceManager<sf::Music, std::string> Resources::Musics;
+Util::ResourceManager<sf::Shader, std::string> Resources::Shaders;
 Util::ResourceManager<sf::SoundBuffer, std::string> Resources::Sounds;
 Util::ResourceManager<sf::Texture, std::string> Resources::Textures;
 
@@ -22,6 +23,14 @@ namespace
             return nullptr;
 
         return Resources::Musics.get(id);
+    }
+    template<>
+    Resource<sf::Shader, std::string>* getResource(const std::string& id)
+    {
+        if (!Resources::Shaders.has(id))
+            return nullptr;
+
+        return Resources::Shaders.get(id);
     }
     template<>
     Resource<sf::SoundBuffer, std::string>* getResource(const std::string& id)
@@ -47,9 +56,10 @@ namespace
 
             r = eng->SetDefaultNamespace("Resources"); assert(r >= 0);
 
-            r = eng->RegisterGlobalFunction("Music@ GetMusic(string&in)", asFUNCTION(getResource<sf::SoundBuffer>), asCALL_CDECL); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("Music@ GetMusic(string&in)", asFUNCTION(getResource<sf::Music>), asCALL_CDECL); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("Shader@ GetShader(string&in)", asFUNCTION(getResource<sf::Shader>), asCALL_CDECL); assert(r >= 0);
             r = eng->RegisterGlobalFunction("Sound::Buffer@ GetSound(string&in)", asFUNCTION(getResource<sf::SoundBuffer>), asCALL_CDECL); assert(r >= 0);
-            r = eng->RegisterGlobalFunction("Texture@ GetTexture(string&in)", asFUNCTION(getResource<sf::SoundBuffer>), asCALL_CDECL); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("Texture@ GetTexture(string&in)", asFUNCTION(getResource<sf::Texture>), asCALL_CDECL); assert(r >= 0);
 
             r = eng->SetDefaultNamespace(""); assert(r >= 0);
         }, 10);

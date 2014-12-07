@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <cassert>
 
 namespace
@@ -22,26 +23,32 @@ namespace
         static const bool value = (sizeof(f<T>(0)) == sizeof(char));
     };
 
-    template<typename T>
+    template<typename T, typename... Args>
     struct FileLoader
     {
-        static bool LoadObj(T* obj, const std::string& file) { return obj->loadFromFile(file); }
+        static bool LoadObj(T* obj, const std::string& file, Args... args) { return obj->loadFromFile(file, args...); }
     };
 
-    template<typename T>
+    template<typename T, typename... Args>
     struct FileOpener
     {
-        static bool LoadObj(T* obj, const std::string& file) { return obj->openFromFile(file); }
+        static bool LoadObj(T* obj, const std::string& file, Args... args) { return obj->openFromFile(file, args...); }
     };
 
-
-    template<typename T>
-    struct FileLoadingStrategy : public LoadingStrategy<T>, public std::conditional<has_openFromFile<T>::value, FileOpener<T>, FileLoader<T>>::type
+    template<typename T, typename... Args>
+    struct FileLoadingStrategy : public LoadingStrategy<T>, public std::conditional<has_openFromFile<T>::value, FileOpener<T, Args...>, FileLoader<T, Args...>>::type
     {
-        FileLoadingStrategy(const std::string& file) : mFile(file) { }
-        bool Load(T* obj) { return LoadObj(obj, mFile); }
+        FileLoadingStrategy(const std::string& file, Args... args) : mFile(file)
+        {
+            mLoader = [&](T* obj) {
+                return LoadObj(obj, mFile, args...);
+            };
+        }
+
+        bool Load(T* obj) { return mLoader(obj); }
 
         std::string mFile;
+        std::function<bool(T*)> mLoader;
     };
 }
 
@@ -131,7 +138,10 @@ template<typename ResourceType, typename Identifier>
 template<typename... Args>
 void Util::ResourceManager<ResourceType, Identifier>::add(const Identifier& id, const std::string& file, Args... args)
 {
+    Resource<ResourceType, Identifier>* res = new Resource<ResourceType, Identifier>(id, *this);
+    res->mStrategy = new FileLoadingStrategy<ResourceType, Args...>(file, args...);
 
+    mResources[id] = res;
 }
 template<typename ResourceType, typename Identifier>
 void Util::ResourceManager<ResourceType, Identifier>::remove(const Identifier& id)

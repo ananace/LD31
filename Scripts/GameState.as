@@ -40,6 +40,7 @@ class GameState : IState
 
 		mPlayers = players;
 		@mCurPlayer = mPlayers[0];
+		@mPointShader = Resources::GetShader("Well");
 
 		mMiniGames.resize(3, 3);
 
@@ -146,8 +147,9 @@ class GameState : IState
 			Vec2(mFX * (gameRect.Width + margin) + gameRect.Width / 2,
 				 mFY * (gameRect.Height + margin) + gameRect.Height / 2), mLerpPoint);
 
-		rend.View.Size = rend.View.Size * 1.5 *
-			(mMiniGames.width() - mLerpPoint * (mMiniGames.width() - 1 * 0.75));
+		float scale = 1.5 * (mMiniGames.width() - mLerpPoint * (mMiniGames.width() - 1 * 0.75));
+
+		rend.View.Size = rend.View.Size * scale;
 
 		if (mFocusedGame !is null && mLerpPoint >= 1)
 		{
@@ -270,10 +272,11 @@ class GameState : IState
 			rend.Draw(rect);
 
 			Shapes::Circle point;
-			point.Radius = 64;
-			point.Origin = Vec2(64,64);
+			point.FillColor = Colors::Transparent;
+			point.Radius = 96;
+			point.Origin = Vec2(96, 96);
 
-			Color temp = Colors::White;
+			Color temp = mCurPlayer.Color;
 
 			for (int i = 5; i > 0; --i)
 			{
@@ -281,9 +284,13 @@ class GameState : IState
 				point.Position = gameRect.Constrain(Vec2(mMiniGames.width(), mMiniGames.height()) * 256 + direction * mMiniGames.width() * 512) + direction * (point.Radius + 16);
 				
 				temp.A = uint8(255 * (i / 6.f));
-				point.FillColor = temp;
+				//point.FillColor = temp;
 
-				rend.Draw(point);
+				Vec2 tempPos = rend.CoordsToPixel(Vec2(point.Position.X, point.Position.Y));
+				mPointShader.SetParameter("center", tempPos.X, rend.Size.Y - tempPos.Y, 0, 96 / scale);
+				mPointShader.SetParameter("color", temp);
+
+				rend.Draw(point, mPointShader);
 			}
 		}	
 	}
@@ -450,6 +457,7 @@ class GameState : IState
 
 	private DateTime mStart;
 
+	private Shader@ mPointShader;
 	private Player@ mCurPlayer;
 	private array<Player@> mPlayers;
 	private grid<Games::IGame@> mMiniGames;

@@ -1,4 +1,5 @@
 #include "Application.hpp"
+#include "Resources.hpp"
 
 #include <Input/InputManager.hpp>
 #include <Script/ScriptHooks.hpp>
@@ -51,7 +52,7 @@ Application::Application(asIScriptEngine* eng) : mEngine(eng)
 
     mEngine->RegisterGlobalFunction("void QuitGame()", asMETHOD(Application, quitGame), asCALL_THISCALL_ASGLOBAL, this);
 
-    // TODO: Add resources
+    Resources::Shaders.add("Well", "well.frag", sf::Shader::Fragment);
 
     if (Util::FileSystem::isFolder("Scripts"))
     {
