@@ -41,7 +41,7 @@ namespace
         FileLoadingStrategy(const std::string& file, Args... args) : mFile(file)
         {
             mLoader = [=](T* obj) {
-                return LoadObj(obj, mFile, args...);
+                return this->LoadObj(obj, mFile, args...);
             };
         }
 
