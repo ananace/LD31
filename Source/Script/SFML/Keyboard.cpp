@@ -20,7 +20,7 @@ namespace
             r = eng->SetDefaultNamespace("Keyboard"); assert(r >= 0);
 
             r = eng->RegisterEnum("Key"); assert(r >= 0);
-#define K(Val) r = eng->RegisterEnumValue("Key", #Val, sf::Keyboard::##Val); assert(r >= 0);
+#define K(Val) r = eng->RegisterEnumValue("Key", #Val, sf::Keyboard::Val); assert(r >= 0);
             K(A); K(B); K(C); K(D); K(E); K(F); K(G); K(H); K(I); K(J); K(K); K(L); K(M); K(N);
             K(O); K(P); K(Q); K(R); K(S); K(T); K(U); K(V); K(W); K(X); K(Y); K(Z); K(Num0);
             K(Num1); K(Num2); K(Num3); K(Num4); K(Num5); K(Num6); K(Num7); K(Num8); K(Num9);
