@@ -93,9 +93,8 @@ void ScriptObject::updateObject(asIScriptObject* newObject)
         }
     }
 
+    oldObj->GetEngine()->ReturnContext(ctx);
     oldObj->Release();
-
-    mObject->GetEngine()->ReturnContext(ctx);
     dict->Release();
 
     if (!mObject)

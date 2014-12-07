@@ -15,6 +15,7 @@ namespace SFML
         static bool Keyboard; // Interface
         static bool Mouse; // Interface
         static bool Music; // Ref
+        static bool Packet; // Value
         static bool RectangleShape; // Value
         static bool RenderTarget; // Ref, No count
         static bool Shader; // Ref

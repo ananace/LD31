@@ -9,9 +9,6 @@ namespace
 {
     inline void setCTXArg(asIScriptContext*, uint32_t) { }
 
-    template<typename T, typename... Args>
-    inline void setCTXArg(asIScriptContext* ctx, uint32_t id, T arg, Args... args);
-
 #define PRIMITIVE_ARG(Type, SetType) template<typename... Args> \
     inline void setCTXArg(asIScriptContext* ctx, uint32_t id, Type arg, Args... args) \
     { \
@@ -33,23 +30,9 @@ namespace
 #undef PRIMITIVE_ARG
 
     template<typename T, typename... Args>
-    inline void setCTXArg(asIScriptContext* ctx, uint32_t id, T* arg, Args... args)
-    {
-        ctx->SetArgObject(id, const_cast<T*>(arg));
-        setCTXArg(ctx, id + 1, args...);
-    }
-
-    template<typename T, typename... Args>
     inline void setCTXArg(asIScriptContext* ctx, uint32_t id, const T* arg, Args... args)
     {
         ctx->SetArgObject(id, const_cast<T*>(arg));
-        setCTXArg(ctx, id + 1, args...);
-    }
-
-    template<typename T, typename... Args>
-    inline void setCTXArg(asIScriptContext* ctx, uint32_t id, T& arg, Args... args)
-    {
-        ctx->SetArgObject(id, const_cast<T*>(&arg));
         setCTXArg(ctx, id + 1, args...);
     }
 
@@ -75,7 +58,7 @@ void Script::ScriptHooks::execute(const std::string& name, asIScriptEngine* eng,
         ctx->Prepare(hook.Function);
         ctx->SetObject(hook.Object);
 
-        setCTXArg(ctx, 0, args...);
+        setCTXArg(ctx, 0, std::forward<Args...>(args...));
 
         ctx->Execute();
     }

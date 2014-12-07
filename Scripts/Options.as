@@ -12,6 +12,7 @@ class Options : IState
 		Inputs::SetDeadzone(Joystick::Axis::X, 0.25);
 		Inputs::SetDeadzone(Joystick::Axis::Y, 0.25);
 	}
+	void Packet(Packet&in){}
 
 	void Tick(float)
 	{

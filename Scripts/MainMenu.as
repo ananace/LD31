@@ -1,5 +1,6 @@
 #include "IState.as"
 #include "GameState.as"
+#include "NetworkUI.as"
 #include "Options.as"
 
 namespace States
@@ -12,6 +13,7 @@ class MainMenu : IState
 
 	}
 
+	void Packet(Packet&in){}
 	void Init(StateMachine@ stateman)
 	{
 		@mStateMan = @stateman;
@@ -38,7 +40,8 @@ class MainMenu : IState
 		Text menuEntry;
 
 		const string[] entries = {
-			"New Game",
+			"Hotseat Game",
+			"Internet Game",
 			"Options",
 			"End Game"
 		};
@@ -75,10 +78,17 @@ class MainMenu : IState
 				else if (mWasPressed)
 				{
 					string name = entries[i];
-					if (name == "New Game")
+					if (name == "Hotseat Game")
 					{
 						States::GameState@ game = GameState();
 						mStateMan.PushState(game);
+					}
+					else if (name == "Internet Game")
+					{
+						if (!Network::Connected && !Network::Connect())
+							println("Can't connect right now, check your interwebs");
+						else
+							mStateMan.PushState(States::NetworkUI());
 					}
 					else if (name == "Options")
 					{

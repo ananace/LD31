@@ -64,6 +64,7 @@ SET(LD31_SOURCES
 	Script/SFML/Keyboard.cpp
 	Script/SFML/Mouse.cpp
 	Script/SFML/Music.cpp
+	Script/SFML/Packet.cpp
 	Script/SFML/RectangleShape.cpp
 	Script/SFML/RenderTarget.cpp
 	Script/SFML/Shader.cpp

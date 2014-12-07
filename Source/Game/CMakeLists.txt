@@ -1,5 +1,6 @@
 SET(LD31_Game_HEADERS
 	Application.hpp
+	Network.hpp
 	Resources.hpp
 
 	View/Camera.hpp
@@ -7,6 +8,7 @@ SET(LD31_Game_HEADERS
 
 SET(LD31_Game_SOURCES
 	Application.cpp
+	Network.cpp
 	Resources.cpp
 
 	View/Camera.cpp

@@ -68,9 +68,9 @@ ENDIF()
 
 FIND_PACKAGE(Angelscript COMPONENTS scriptarray scriptbuilder scriptdictionary scriptfile scriptgrid scripthelper scriptmath scriptstdstring REQUIRED)
 IF (MSVC)
-	FIND_PACKAGE(SFML 2 COMPONENTS main system window graphics audio REQUIRED)
+	FIND_PACKAGE(SFML 2 COMPONENTS main system network window graphics audio REQUIRED)
 ELSE()
-	FIND_PACKAGE(SFML 2 COMPONENTS system window graphics audio REQUIRED)
+	FIND_PACKAGE(SFML 2 COMPONENTS system network window graphics audio REQUIRED)
 ENDIF()
 
 IF (MSVC)

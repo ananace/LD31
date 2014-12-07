@@ -2,6 +2,7 @@
 
 #include <View/Camera.hpp>
 
+#include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 class asIScriptEngine;
@@ -18,11 +19,17 @@ public:
     void runGameLoop();
     void quitGame();
 
+    bool connect();
+    bool connected();
+
+    bool sendPacket(const sf::Packet&);
+
     static const uint8_t TICKRATE = 33;
 
 private:
     asIScriptEngine* mEngine;
     sf::RenderWindow mWindow;
+    sf::TcpSocket mSocket;
 
     View::Camera mGameCamera, mUICamera;
 };

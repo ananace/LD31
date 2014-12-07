@@ -8,7 +8,7 @@ std::unordered_map<void*, Texture_t*> Script::SFML::shapes;
 
 bool Script::SFML::Extensions::RegisteredExtensions()
 {
-    const int TotalExtensions = 16;
+    const int TotalExtensions = 17;
 
     int ret = 0;
     ret += Extensions::CircleShape;
@@ -19,6 +19,7 @@ bool Script::SFML::Extensions::RegisteredExtensions()
     ret += Extensions::Keyboard;
     ret += Extensions::Mouse;
     ret += Extensions::Music;
+    ret += Extensions::Packet;
     ret += Extensions::RectangleShape;
     ret += Extensions::RenderTarget;
     ret += Extensions::Shader;

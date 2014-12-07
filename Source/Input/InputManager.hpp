@@ -39,6 +39,11 @@ public:
     /// Check if the manager is currently binding an input
     bool isBinding() const;
     bool isBindingLinked() const;
+    bool isReadingText() const;
+
+    void startTextRead();
+    void stopTextRead();
+    std::string getText();
 
     /** \brief Link two inputs together
      *
@@ -85,15 +90,17 @@ public:
 
 private:
     bool mDisabled, ///< Is the input system disabled
-         mBindLinked; ///< Should the next bind also applied to the linked Input
+         mBindLinked, ///< Should the next bind also applied to the linked Input
+         mTextInput; ///< Is the input manager reading text
 
     Math::Vector2 mMousePos; ///< The current mouse position
     int mMouseWheelDelta,
         mMouseWheelPos;
 
+    std::string mCurrentText; ///< The current text being read
     Input* mCurrentlyBinding; ///< The Input currently being bound (or nullptr if none)
-    std::vector<Input> mInputs; ///< The list of available inputs
 
+    std::vector<Input> mInputs; ///< The list of available inputs
     std::vector<JoystickCurve*> mCurvesPerAxis; ///< The joystic curves, stored by axis
 } InputManager; ///< The default global instance
 

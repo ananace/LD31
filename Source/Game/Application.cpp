@@ -7,6 +7,9 @@
 #include <Script/ScriptObject.hpp>
 #include <Util/FileSystem.hpp>
 
+#include <SFML/Network/IpAddress.hpp>
+#include <SFML/Network/Packet.hpp>
+#include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Window/Event.hpp>
 
 namespace
@@ -50,7 +53,15 @@ Application::Application(asIScriptEngine* eng) : mEngine(eng)
     Script::ScriptHooks::addHook("Tick", "void f(float)");
     Script::ScriptHooks::addHook("Update", "void f(float)");
 
+    Script::ScriptHooks::addHook("Packet", "void f(Packet&in)");
+
     mEngine->RegisterGlobalFunction("void QuitGame()", asMETHOD(Application, quitGame), asCALL_THISCALL_ASGLOBAL, this);
+
+    mEngine->SetDefaultNamespace("Network");
+    mEngine->RegisterGlobalFunction("bool SendPacket(Packet&in)", asMETHOD(Application, sendPacket), asCALL_THISCALL_ASGLOBAL, this);
+    mEngine->RegisterGlobalFunction("bool Connect()", asMETHOD(Application, connect), asCALL_THISCALL_ASGLOBAL, this);
+    mEngine->RegisterGlobalFunction("bool get_Connected()", asMETHOD(Application, connected), asCALL_THISCALL_ASGLOBAL, this);
+    mEngine->SetDefaultNamespace("");
 
     Resources::Shaders.add("Well", "well.frag", sf::Shader::Fragment);
 
@@ -114,9 +125,12 @@ void Application::runGameLoop()
             }
         }
 
+        sf::Packet p;
         while (totalTime > Tick::OneTick)
         {
             Script::ScriptManager.checkForModification();
+            if (mSocket.receive(p) == sf::Socket::Done)
+                Script::ScriptHooks::execute<const sf::Packet&>("Packet", mEngine, p);
 
             Input::InputManager.update();
             Script::ScriptManager.runCoroutines(Tick::OneTick / 2);
@@ -159,4 +173,27 @@ void Application::runGameLoop()
 void Application::quitGame()
 {
     mWindow.close();
+}
+
+bool Application::connected()
+{
+    return mSocket.getRemoteAddress() != sf::IpAddress::None;
+}
+
+bool Application::connect()
+{
+    if (connected())
+        return true;
+
+    auto status = mSocket.connect(sf::IpAddress(130, 236, 254, 211), 23971, sf::milliseconds(500));
+    if (status == sf::Socket::Done)
+        mSocket.setBlocking(false);
+
+    return status == sf::Socket::Done;
+}
+
+bool Application::sendPacket(const sf::Packet& packet)
+{
+    sf::Packet copy = packet;
+    return mSocket.send(copy) == sf::Socket::Done;
 }

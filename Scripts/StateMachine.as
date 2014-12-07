@@ -44,6 +44,16 @@ class StateMachine
 		state.Update(dt);
 	}
 
+	[Hook::BindHook("Packet")]
+	void Packet(Packet&in p)
+	{
+		IState@ state = @CurState();
+		if (state is null)
+			return;
+
+		state.Packet(p);
+	}
+
 	[Hook::BindHook("Draw")]
 	void Draw(Renderer@ rend)
 	{

@@ -122,6 +122,12 @@ namespace
 
             r = eng->RegisterGlobalFunction("void StartBind(uint8,bool = true)", asMETHODPR(Input::InputMan, bindInput, (uint8_t, bool), void), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
 
+            r = eng->RegisterGlobalFunction("void StartText()", asMETHOD(Input::InputMan, startTextRead), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("void StopText()", asMETHOD(Input::InputMan, stopTextRead), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("bool get_ReadingText()", asMETHOD(Input::InputMan, isReadingText), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("string get_Text()", asMETHOD(Input::InputMan, getText), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
+
+
             r = eng->RegisterGlobalFunction("Input@ GetInput(uint8)", asFUNCTION(getInput), asCALL_CDECL); assert(r >= 0);
 
             r = eng->RegisterGlobalFunction("float GetDeadzone(Joystick::Axis)", asMETHOD(Input::InputMan, getDeadzone), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
@@ -138,7 +144,7 @@ namespace
 bool Script::ScriptExtensions::InputExtensions = Reg();
 
 InputMan::InputMan() :
-    mDisabled(false), mBindLinked(false), mMouseWheelDelta(0), mMouseWheelPos(0), mCurrentlyBinding(nullptr)
+    mDisabled(false), mBindLinked(false), mTextInput(false), mMouseWheelDelta(0), mMouseWheelPos(0), mCurrentlyBinding(nullptr)
 {
     mCurvesPerAxis.resize(sf::Joystick::AxisCount);
     for (uint32_t i = 0; i < sf::Joystick::AxisCount; ++i)
@@ -207,6 +213,33 @@ bool InputMan::isBindingLinked() const
     return mCurrentlyBinding != nullptr && mBindLinked;
 }
 
+bool InputMan::isReadingText() const
+{
+    return mTextInput;
+}
+
+void InputMan::startTextRead()
+{
+    if (mTextInput)
+        return;
+
+    mCurrentText.clear();
+    mDisabled = true;
+    mTextInput = true;
+}
+void InputMan::stopTextRead()
+{
+    if (!mTextInput)
+        return;
+
+    mTextInput = false;
+    mDisabled = false;
+}
+std::string InputMan::getText()
+{
+    return mCurrentText;
+}
+
 void InputMan::linkInputs(uint8_t inputA, uint8_t inputB)
 {
     mInputs[inputA].mLinkedInput = &mInputs[inputB];
@@ -257,6 +290,27 @@ const Input::Input& InputMan::at(uint8_t id) const
 
 void InputMan::handleEvent(const sf::Event& ev)
 {
+    if (ev.type == sf::Event::TextEntered && mTextInput)
+    {
+        if (ev.text.unicode == '\b' && !mCurrentText.empty())
+        {
+            mCurrentText.pop_back();
+            return;
+        }
+
+        if (ev.text.unicode == '\n' || ev.text.unicode == '\r')
+        {
+            stopTextRead();
+            return;
+        }
+
+        if (ev.text.unicode < 32)
+            return;
+        
+        sf::Utf8::encode(ev.text.unicode, std::back_inserter(mCurrentText));
+        return;
+    }
+
     if (ev.type == sf::Event::MouseMoved)
     {
         mMousePos.X = (float)ev.mouseMove.x;

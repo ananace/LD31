@@ -393,7 +393,7 @@ class GameState : IState
 		rend.Draw(background);
 
 		Color temp = Colors::Transparent;		
-		if (game.Owner !is null && @game != @mFocusedGame)
+		if (game.Owner !is null && (@game != @mFocusedGame || !mFocusedRunning))
 		{
 			temp = game.Owner.Color;
 			temp.A = 96;
@@ -411,41 +411,78 @@ class GameState : IState
 			{
 				game.DrawQuick(rend, gameRect);
 
-				Shapes::Rectangle toner(gameRect);
-				Color tone = Colors::Black;
-				tone.A = 128;
-				toner.FillColor = tone;
-
-				rend.Draw(toner);
-
-				Text title(game.Name);
-				title.Origin = Vec2(title.LocalBounds.Size.X / 2, 0);
-				title.Position = gameRect.TopLeft + Vec2(gameRect.Width / 2, 0);
-
-				rend.Draw(title);
-
-				if (game.Score == Games::TIME_AS_SCORE)
-					title.String = "Times:";
-				else
-					title.String = "Scores:";
-				title.Origin = Vec2(0, 0);
-				title.Position = gameRect.TopLeft + Vec2(8, 64);
-
-				rend.Draw(title);
-
-				title.String = "<PLAY>";
-				title.Origin = Vec2(title.LocalBounds.Size.X / 2, title.LocalBounds.Size.Y);
-				title.Position = gameRect.TopLeft + Vec2(gameRect.Width / 2, gameRect.Height - 32);
-
-				if (title.GlobalBounds.Contains(rend.PixelToCoords(rend.MousePos)))
+				if (!game.Finished)
 				{
-					title.Color = Colors::Yellow;
+					Shapes::Rectangle toner(gameRect);
+					Color tone = Colors::Black;
+					tone.A = 128;
+					toner.FillColor = tone;
 
-					if (Mouse::IsPressed(Mouse::Button::Left))
-						mFocusedRunning = true;
+					rend.Draw(toner);
+
+					Text title(game.Name);
+					title.Origin = Vec2(title.LocalBounds.Size.X / 2, 0);
+					title.Position = gameRect.TopLeft + Vec2(gameRect.Width / 2, 0);
+
+					rend.Draw(title);
+
+					if (game.Owner !is null)
+					{
+						title.Move(0, 34);
+						title.CharacterSize = 20;
+						title.String = "Owned by " + game.Owner.Name;
+						title.Origin = Vec2(title.LocalBounds.Size.X / 2, 0);
+						rend.Draw(title);
+						title.CharacterSize = 30;
+					}
+
+					if (game.Score == Games::TIME_AS_SCORE)
+						title.String = "Times:";
+					else
+						title.String = "Scores:";
+					title.Origin = Vec2(0, 0);
+					title.Position = gameRect.TopLeft + Vec2(8, 64);
+
+					rend.Draw(title);
+
+					title.Move(5, 38);
+
+					auto scores = game.Highscore.Scores;
+					for (uint i = 0; i < scores.length && i < 5; ++i)
+					{
+						auto entry = scores[i];
+
+						string score;
+						if (game.Score == Games::TIME_AS_SCORE)
+						{
+							int min = entry.Score / 60;
+							int sec = entry.Score % 60;
+
+							score = (min < 10 ? "0" : "") + min + ":" + (sec < 10 ? "0" : "") + sec;
+						}
+						else
+							score = entry.Score;
+
+						title.String = score + " - " + entry.Player.Name;
+						rend.Draw(title);
+						title.Move(0, 34);
+					}
+
+					title.String = "[ PLAY ]";
+					title.CharacterSize = 36;
+					title.Origin = Vec2(title.LocalBounds.Size.X / 2, title.LocalBounds.Size.Y * 1.5);
+					title.Position = gameRect.TopLeft + Vec2(gameRect.Width / 2, gameRect.Height);
+
+					if (title.GlobalBounds.Contains(rend.PixelToCoords(rend.MousePos)))
+					{
+						title.Color = Colors::Yellow;
+
+						if (Mouse::IsPressed(Mouse::Button::Left))
+							mFocusedRunning = true;
+					}
+
+					rend.Draw(title);
 				}
-
-				rend.Draw(title);
 			}
 			else
 				game.DrawFull(rend, gameRect);
@@ -454,15 +491,15 @@ class GameState : IState
 				for (int iy = -1; iy <= 1; ++iy)
 				{
 					int rX = x + ix, rY = y + iy;
-
-					if (!(ix == 0 && iy == 0) &&
-					   (rX >= 0 && uint(rX) < mMiniGames.width()) &&
+					
+					if ((rX >= 0 && uint(rX) < mMiniGames.width()) &&
 					   (rY >= 0 && uint(rY) < mMiniGames.height()))
 					{
 						gameRect.Left = rX * (gameRect.Width + GAME_MARGIN);
 						gameRect.Top = rY * (gameRect.Height + GAME_MARGIN);
 
-						gameRect = DrawGame(rend, mMiniGames[uint(x + ix), uint(y + iy)], x + ix, y + iy, gameRect);
+						if (ix != 0 || iy != 0)
+							gameRect = DrawGame(rend, mMiniGames[uint(x + ix), uint(y + iy)], x + ix, y + iy, gameRect);
 					}
 				}
 		}
@@ -484,6 +521,11 @@ class GameState : IState
 		rend.Draw(background);
 
 		return gameRect;
+	}
+
+	void Packet(Packet&in p)
+	{
+
 	}
 
 	string Name
