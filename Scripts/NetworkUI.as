@@ -161,17 +161,41 @@ class NetworkUI : IState
 			Text title("Network games:");
 			title.Position = Vec2(16, 32);
 
+			rend.Draw(title);
+
+			title.CharacterSize = 20;
+
+			title.Move(242, 8);
+			title.String = "[ Update ]";
+
 			if (title.GlobalBounds.Contains(rend.MousePos))
 			{
+				title.Color = Colors::Yellow;
 				if (Mouse::IsPressed(Mouse::Button::Left) && !mLastClick)
 				{
 					updateLobbies();
 				}
-				else if (Mouse::IsPressed(Mouse::Button::Right) && !mLastClick)
-					createLobby(mLocalPlayer.Name + "'s Lobby");
 			}
 
 			rend.Draw(title);
+			title.Color = Colors::White;
+
+			title.Move(96, 0);
+			title.String = "[ Create Lobby ]";
+
+			if (title.GlobalBounds.Contains(rend.MousePos))
+			{
+				title.Color = Colors::Yellow;
+				if (Mouse::IsPressed(Mouse::Button::Left) && !mLastClick)
+				{
+					createLobby(mLocalPlayer.Name + "'s Lobby");
+				}
+			}
+
+			rend.Draw(title);
+			title.Color = Colors::White;
+
+			
 
 			title.Move(16, 32);
 

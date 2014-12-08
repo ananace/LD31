@@ -5,6 +5,7 @@
 #include "Games/Randomizer.as"
 
 #include "IState.as"
+#include "WinScreen.as"
 
 float min(float a, float b) { return (a < b ? a : b); }
 float max(float a, float b) { return (a > b ? a : b); }
@@ -253,7 +254,12 @@ class GameState : IState
 				rend.Draw(playList);
 			}
 
-			Text choose(mCurPlayer.Name + "'s turn" + (mLocalPlayer !is null && mCurPlayer == mLocalPlayer ? ", choose your game:" : ""));
+			Text choose;
+
+			if (mLocalPlayer !is null && mCurPlayer == mLocalPlayer)
+				choose.String = "It's your turn, pick a game.";
+			else
+				choose.String = mCurPlayer.Name + "'s turn.";
 
 			choose.Origin = Vec2(choose.LocalBounds.Size.X / 2, 0);
 			choose.Position = Vec2(rend.View.Size.X / 2, 15);
@@ -303,8 +309,9 @@ class GameState : IState
 					mStateMan.PopState();
 				else
 				{
+					if (mFocusedRunning)
+						NextPlayer();
 					mFocusedGame.EndGame();
-					NextPlayer();
 				}
 			}
 		}
@@ -379,7 +386,9 @@ class GameState : IState
 						if (length == mMiniGames.width() - 1)
 						{
 							println(checkPlayer.Name + " just won the game");
+							auto@ winscreen = States::WinScreen(checkPlayer, mMiniGames);
 							mStateMan.PopState();
+							mStateMan.PushState(winscreen);
 							return;
 						}
 					}

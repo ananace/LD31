@@ -2,8 +2,10 @@
 
 #include "Asteroids.as"
 #include "AsteroidDodger.as"
+#include "Climber.as"
 #include "DodgeBall.as"
 #include "LightCycle.as"
+#include "Schmup.as"
 
 namespace Games
 {
@@ -17,13 +19,17 @@ namespace Games
 			return Games::LightCycle();
 		else if (name == "Dodge 'em")
 			return Games::DodgeBall();
+		else if (name == "Shoot 'em Up")
+			return Games::Schmup();
+		else if (name == "Climbing")
+			return Games::Climber();
 
 		return null;
 	}
 
 	IGame@ CreateGame()
 	{
-		switch(Math::Random(0, 2))
+		switch(Math::Random(0, 4))
 		{
 		case 0:
 			return Games::Asteroids();
@@ -33,6 +39,10 @@ namespace Games
 //			return Games::LightCycle();
 //		case 3:
 			return Games::DodgeBall();
+		case 3:
+			return Games::Schmup();
+		case 4:
+			return Games::Climber();
 		}
 
 		return null;

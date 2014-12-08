@@ -90,8 +90,8 @@ bool Rect::intersects(const Rect& rect)
 {
     float interLeft = std::max(Left, rect.Left),
         interTop = std::max(Top, rect.Top),
-        interRight = std::max(Left + Width, rect.Left + rect.Width),
-        interBottom = std::max(Top + Height, rect.Top + rect.Height);
+        interRight = std::min(Left + Width, rect.Left + rect.Width),
+        interBottom = std::min(Top + Height, rect.Top + rect.Height);
 
     return (interLeft < interRight && interTop < interBottom);
 }
@@ -99,8 +99,8 @@ bool Rect::intersects(const Rect& rect, Rect& intersecting)
 {
     float interLeft = std::max(Left, rect.Left),
         interTop = std::max(Top, rect.Top),
-        interRight = std::max(Left + Width, rect.Left + rect.Width),
-        interBottom = std::max(Top + Height, rect.Top + rect.Height);
+        interRight = std::min(Left + Width, rect.Left + rect.Width),
+        interBottom = std::min(Top + Height, rect.Top + rect.Height);
 
     if (interLeft < interRight && interTop < interBottom)
     {

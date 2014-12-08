@@ -26,7 +26,7 @@ class Ball
 
 		circ.FillColor = Colors::Transparent;
 		circ.OutlineColor = Colors::White;
-		circ.OutlineThickness = 1.f;
+		circ.OutlineThickness = 2.f;
 
 		circ.SetScale(scale);
 
