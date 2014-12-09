@@ -64,6 +64,7 @@ void drawShape(const T& draw, sf::RenderTarget* target)
 {
     target->draw(draw);
 }
+
 #ifdef AS_SUPPORT_VALRET
 template<typename T>
 Math::Rect getGlobalBounds(T& text)
