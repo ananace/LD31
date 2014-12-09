@@ -28,11 +28,26 @@ namespace
     {
         return lhs == rhs;
     }
-
-    sf::Color color_mul(float v, const sf::Color& in)
+#ifndef AS_SUPPORT_VALRET
+    void color_add(asIScriptGeneric* gen)
     {
-        return sf::Color(in.r * v, in.g * v, in.b * v, in.a * v);
+        sf::Color& lhs = *reinterpret_cast<sf::Color*>(gen->GetObject());
+        sf::Color& rhs = *reinterpret_cast<sf::Color*>(gen->GetArgObject(0));
+        new (gen->GetAddressOfReturnLocation()) sf::Color(lhs + rhs);
     }
+    void color_mul(asIScriptGeneric* gen)
+    {
+        sf::Color& lhs = *reinterpret_cast<sf::Color*>(gen->GetObject());
+        sf::Color& rhs = *reinterpret_cast<sf::Color*>(gen->GetArgObject(0));
+        new (gen->GetAddressOfReturnLocation()) sf::Color(lhs * rhs);
+    }
+    void color_sub(asIScriptGeneric* gen)
+    {
+        sf::Color& lhs = *reinterpret_cast<sf::Color*>(gen->GetObject());
+        sf::Color& rhs = *reinterpret_cast<sf::Color*>(gen->GetArgObject(0));
+        new (gen->GetAddressOfReturnLocation()) sf::Color(lhs - rhs);
+    }
+#endif
 
     bool Reg()
     {
@@ -50,10 +65,16 @@ namespace
             r = eng->RegisterObjectMethod("Color", "Color& opAddAssign(Color&in)", asFUNCTIONPR(sf::operator+=, (sf::Color&, const sf::Color&), sf::Color&), asCALL_CDECL_OBJFIRST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Color", "Color& opSubAssign(Color&in)", asFUNCTIONPR(sf::operator-=, (sf::Color&, const sf::Color&), sf::Color&), asCALL_CDECL_OBJFIRST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Color", "Color& opMulAssign(Color&in)", asFUNCTIONPR(sf::operator*=, (sf::Color&, const sf::Color&), sf::Color&), asCALL_CDECL_OBJFIRST); assert(r >= 0);
+
+#ifdef AS_SUPPORT_VALRET
             r = eng->RegisterObjectMethod("Color", "Color opAdd(Color&in)", asFUNCTIONPR(sf::operator+, (const sf::Color&, const sf::Color&), sf::Color), asCALL_CDECL_OBJFIRST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Color", "Color opSub(Color&in)", asFUNCTIONPR(sf::operator-, (const sf::Color&, const sf::Color&), sf::Color), asCALL_CDECL_OBJFIRST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Color", "Color opMul(Color&in)", asFUNCTIONPR(sf::operator*, (const sf::Color&, const sf::Color&), sf::Color), asCALL_CDECL_OBJFIRST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Color", "Color opMul(float)", asFUNCTION(color_mul), asCALL_CDECL_OBJLAST); assert(r >= 0);
+#else
+            r = eng->RegisterObjectMethod("Color", "Color opAdd(Color&in)", asFUNCTION(color_add), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Color", "Color opSub(Color&in)", asFUNCTION(color_sub), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Color", "Color opMul(Color&in)", asFUNCTION(color_mul), asCALL_GENERIC); assert(r >= 0);
+#endif
 
             r = eng->RegisterObjectMethod("Color", "bool opEquals(Color&in)", asFUNCTIONPR(sf::operator==, (const sf::Color&, const sf::Color&), bool), asCALL_CDECL_OBJFIRST); assert(r >= 0);
 

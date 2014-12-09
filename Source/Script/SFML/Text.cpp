@@ -1,5 +1,6 @@
 #include "Extensions.hpp"
 #include "Extensions.inl"
+
 #include <Math/Rect.hpp>
 #include <Math/Vector.hpp>
 #include <Script/ScriptExtensions.hpp>
@@ -11,47 +12,67 @@
 
 #include <cassert>
 
-void create_text(void* memory)
+namespace
 {
-    new (memory)sf::Text("", Util::FontFinder::getDefaultFont());
-}
-void create_text_string(const std::string& string, void* memory)
-{
-    new (memory)sf::Text(string, Util::FontFinder::getDefaultFont());
-}
-void create_text_stringFont(const std::string& string, sf::Font* font, void* memory)
-{
-    new (memory)sf::Text(string, *font);
-}
-void create_text_stringFontSize(const std::string& string, sf::Font* font, unsigned int size, void* memory)
-{
-    new (memory)sf::Text(string, *font, size);
-}
-void destruct_text(sf::Text* text)
-{
-    text->~Text();
-}
 
-Math::Vector2 getCharacterPos(size_t index, sf::Text& text)
-{
-    return text.findCharacterPos(index);
-}
-sf::Font* getFont(sf::Text& text)
-{
-    return const_cast<sf::Font*>(text.getFont());
-}
-void setFont(sf::Font* font, sf::Text& text)
-{
-    text.setFont(*font);
-}
+    void create_text(void* memory)
+    {
+        new (memory)sf::Text("", Util::FontFinder::getDefaultFont());
+    }
+    void create_text_string(const std::string& string, void* memory)
+    {
+        new (memory)sf::Text(string, Util::FontFinder::getDefaultFont());
+    }
+    void create_text_stringFont(const std::string& string, sf::Font* font, void* memory)
+    {
+        new (memory)sf::Text(string, *font);
+    }
+    void create_text_stringFontSize(const std::string& string, sf::Font* font, unsigned int size, void* memory)
+    {
+        new (memory)sf::Text(string, *font, size);
+    }
+    void destruct_text(sf::Text* text)
+    {
+        text->~Text();
+    }
 
-std::string getString(sf::Text& text)
-{
-    return text.getString();
-}
-void setString(const std::string& str, sf::Text& text)
-{
-    text.setString(str);
+#ifdef AS_SUPPORT_VALRET
+    Math::Vector2 getCharacterPos(size_t index, sf::Text& text)
+    {
+        return text.findCharacterPos(index);
+    }
+#else
+    void getTextColor(asIScriptGeneric* gen)
+    {
+        sf::Text& text = *reinterpret_cast<sf::Text*>(gen->GetObject());
+        new (gen->GetAddressOfReturnLocation()) sf::Color(text.getColor());
+    }
+
+    void getCharacterPos(asIScriptGeneric* gen)
+    {
+        size_t index = (uint64_t)gen->GetArgQWord(0);
+        sf::Text& text = *reinterpret_cast<sf::Text*>(gen->GetObject());
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(text.findCharacterPos(index));
+    }
+#endif
+    sf::Font* getFont(sf::Text& text)
+    {
+        return const_cast<sf::Font*>(text.getFont());
+    }
+    void setFont(sf::Font* font, sf::Text& text)
+    {
+        text.setFont(*font);
+    }
+
+    std::string getString(sf::Text& text)
+    {
+        return text.getString();
+    }
+    void setString(const std::string& str, sf::Text& text)
+    {
+        text.setString(str);
+    }
+
 }
 
 namespace
@@ -85,16 +106,29 @@ namespace
 
             r = eng->RegisterObjectMethod("Text", "uint get_CharacterSize()", asMETHOD(sf::Text, getCharacterSize), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "void set_CharacterSize(uint)", asMETHOD(sf::Text, setCharacterSize), asCALL_THISCALL); assert(r >= 0);
+#ifdef AS_SUPPORT_VALRET
             r = eng->RegisterObjectMethod("Text", "Color get_Color()", asMETHOD(sf::Text, getColor), asCALL_THISCALL); assert(r >= 0);
+#else
+            r = eng->RegisterObjectMethod("Text", "Color get_Color()", asFUNCTION(getTextColor), asCALL_GENERIC); assert(r >= 0);
+#endif
             r = eng->RegisterObjectMethod("Text", "void set_Color(Color&in)", asMETHOD(sf::Text, setColor), asCALL_THISCALL); assert(r >= 0);
+#ifdef AS_SUPPORT_VALRET
             r = eng->RegisterObjectMethod("Text", "Rect get_GlobalBounds()", asFUNCTION(getGlobalBounds<sf::Text>), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "Rect get_LocalBounds()", asFUNCTION(getGlobalBounds<sf::Text>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+#else
+            r = eng->RegisterObjectMethod("Text", "Rect get_GlobalBounds()", asFUNCTION(getGlobalBounds<sf::Text>), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Text", "Rect get_LocalBounds()", asFUNCTION(getGlobalBounds<sf::Text>), asCALL_GENERIC); assert(r >= 0);
+#endif
             r = eng->RegisterObjectMethod("Text", "string get_String()", asFUNCTION(getString), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "void set_String(string&in)", asFUNCTION(setString), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "uint get_Style()", asMETHOD(sf::Text, getStyle), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "void set_Style(uint)", asMETHOD(sf::Text, setStyle), asCALL_THISCALL); assert(r >= 0);
             
+#ifdef AS_SUPPORT_VALRET
             r = eng->RegisterObjectMethod("Text", "Vec2 CharacterPos(uint64)", asFUNCTION(getCharacterPos), asCALL_CDECL_OBJLAST); assert(r >= 0);
+#else
+            r = eng->RegisterObjectMethod("Text", "Vec2 CharacterPos(uint64)", asFUNCTION(getCharacterPos), asCALL_GENERIC); assert(r >= 0);
+#endif
             r = eng->RegisterObjectMethod("Text", "Font@ GetFont()", asFUNCTION(getFont), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Text", "void SetFont(Font@)", asFUNCTION(setFont), asCALL_CDECL_OBJLAST); assert(r >= 0);
 

@@ -26,6 +26,7 @@ namespace
         new(memory)sf::RectangleShape(vec);
     }
 
+#ifdef AS_SUPPORT_VALRET
     Math::Rect getRect(sf::RectangleShape& shape)
     {
         auto origin = shape.getOrigin();
@@ -34,27 +35,36 @@ namespace
 
         return Math::Rect(pos - origin, pos - origin + size);
     }
+    Math::Vector2 getSize(sf::RectangleShape& shape)
+    {
+        return shape.getSize();
+    }
+#else
+    void getRect(asIScriptGeneric* gen)
+    {
+        sf::RectangleShape& shape = *reinterpret_cast<sf::RectangleShape*>(gen->GetObject());
+        auto origin = shape.getOrigin();
+        auto pos = shape.getPosition();
+        auto size = shape.getSize();
+
+        new (gen->GetAddressOfReturnLocation()) Math::Rect(pos - origin, pos - origin + size);
+    }
+    void getSize(asIScriptGeneric* gen)
+    {
+        sf::RectangleShape& shape = *reinterpret_cast<sf::RectangleShape*>(gen->GetObject());
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(shape.getSize());
+    }
+#endif
+    
     void setRect(const Math::Rect& rect, sf::RectangleShape& shape)
     {
         shape.setOrigin(0, 0);
         shape.setSize(rect.getSize());
         shape.setPosition(rect.getTopLeft());
     }
-    Math::Vector2 getSize(sf::RectangleShape& shape)
-    {
-        return shape.getSize();
-    }
     void setSize(const Math::Vector2& vec, sf::RectangleShape& shape)
     {
         shape.setSize(vec);
-    }
-    Math::Rect getGlobalBounds(sf::RectangleShape& shape)
-    {
-        return shape.getGlobalBounds();
-    }
-    Math::Rect getLocalBounds(sf::RectangleShape& shape)
-    {
-        return shape.getLocalBounds();
     }
 
     bool Reg()
@@ -72,9 +82,15 @@ namespace
 
             Script::SFML::registerShape<sf::RectangleShape>("Rectangle", eng);
 
+#ifdef AS_SUPPORT_VALRET
             r = eng->RegisterObjectMethod("Rectangle", "Rect get_Rect()", asFUNCTION(getRect), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rectangle", "Vec2 get_Size()", asFUNCTION(getSize), asCALL_CDECL_OBJLAST); assert(r >= 0);
+#else
+            r = eng->RegisterObjectMethod("Rectangle", "Rect get_Rect()", asFUNCTION(getRect), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rectangle", "Vec2 get_Size()", asFUNCTION(getSize), asCALL_GENERIC); assert(r >= 0);
+#endif
+
             r = eng->RegisterObjectMethod("Rectangle", "void set_Rect(Rect&in)", asFUNCTION(setRect), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Rectangle", "Vec2 get_Size()", asFUNCTION(getRect), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Rectangle", "void set_Size(Vec2&in)", asFUNCTION(setRect), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->SetDefaultNamespace(""); assert(r >= 0);

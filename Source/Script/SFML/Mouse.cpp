@@ -12,6 +12,13 @@
 
 namespace
 {
+#ifndef AS_SUPPORT_VALRET
+    void getMousePos(asIScriptGeneric* gen)
+    {
+        new(gen->GetAddressOfReturnLocation()) Math::Vector2(Input::InputManager.getMousePos());
+    }
+#endif
+
     bool Reg()
     {
         Script::ScriptExtensions::AddExtension([](asIScriptEngine* eng){
@@ -26,7 +33,11 @@ namespace
             r = eng->RegisterEnumValue("Button", "XButton1", sf::Mouse::XButton1); assert(r >= 0);
             r = eng->RegisterEnumValue("Button", "XButton2", sf::Mouse::XButton2); assert(r >= 0);
 
+#ifdef AS_SUPPORT_VALRET
             r = eng->RegisterGlobalFunction("Vec2 get_Position()", asMETHOD(Input::InputMan, getMousePos), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
+#else
+            r = eng->RegisterGlobalFunction("Vec2 get_Position()", asFUNCTION(getMousePos), asCALL_GENERIC); assert(r >= 0);
+#endif
             r = eng->RegisterGlobalFunction("int get_WheelDelta()", asMETHOD(Input::InputMan, getMouseWheelDelta), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
             r = eng->RegisterGlobalFunction("int get_WheelPos()", asMETHOD(Input::InputMan, getMouseWheelPos), asCALL_THISCALL_ASGLOBAL, &Input::InputManager); assert(r >= 0);
 

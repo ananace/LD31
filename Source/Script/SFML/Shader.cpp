@@ -61,7 +61,7 @@ namespace
             r = eng->RegisterObjectBehaviour("Shader", asBEHAVE_ADDREF, "void f()", asMETHOD(Shader_t, GCAddRef), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Shader", asBEHAVE_RELEASE, "void f()", asMETHOD(Shader_t, GCRelease), asCALL_THISCALL); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Shader", "string get_ID()", asMETHOD(Shader_t, getId), asCALL_THISCALL); assert(r >= 0);
+            // r = eng->RegisterObjectMethod("Shader", "string get_ID()", asMETHOD(Shader_t, getId), asCALL_THISCALL); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Shader", "void SetParameter(string&in,float)", asFUNCTIONPR(setParameter, (const std::string&, float, Shader_t*), void), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Shader", "void SetParameter(string&in,float,float)", asFUNCTIONPR(setParameter, (const std::string&, float, float, Shader_t*), void), asCALL_CDECL_OBJLAST); assert(r >= 0);

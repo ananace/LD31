@@ -9,28 +9,38 @@
 
 typedef Util::Resource<sf::Texture, std::string> Texture_t;
 
-Math::Vector2 getSize(Texture_t* texture)
+namespace
 {
-    return (*texture)->getSize();
-}
+#ifdef AS_SUPPORT_VALRET
+    Math::Vector2 getSize(Texture_t* texture)
+    {
+        return (*texture)->getSize();
+    }
+#else
+    void getSize(asIScriptGeneric* gen)
+    {
+        Texture_t*  obj = reinterpret_cast<Texture_t*>(gen->GetObject());
+        new(gen->GetAddressOfReturnLocation()) Math::Vector2((*obj)->getSize());
+    }
+#endif
 
-bool isSmooth(Texture_t* texture)
-{
-    return (*texture)->isSmooth();
+    bool isSmooth(Texture_t* texture)
+    {
+        return (*texture)->isSmooth();
+    }
+    void setSmooth(bool smooth, Texture_t* texture)
+    {
+        (*texture)->setSmooth(smooth);
+    }
+    bool isRepeated(Texture_t* texture)
+    {
+        return (*texture)->isRepeated();
+    }
+    void setRepeated(bool repeat, Texture_t* texture)
+    {
+        (*texture)->setRepeated(repeat);
+    }
 }
-void setSmooth(bool smooth, Texture_t* texture)
-{
-    (*texture)->setSmooth(smooth);
-}
-bool isRepeated(Texture_t* texture)
-{
-    return (*texture)->isRepeated();
-}
-void setRepeated(bool repeat, Texture_t* texture)
-{
-    (*texture)->setRepeated(repeat);
-}
-
 
 namespace
 {
@@ -44,7 +54,11 @@ namespace
 
             r = eng->RegisterObjectMethod("Texture", "string get_ID()", asMETHOD(Texture_t, getId), asCALL_THISCALL); assert(r >= 0);
 
+#ifdef AS_SUPPORT_VALRET
             r = eng->RegisterObjectMethod("Texture", "Vec2 get_Size()", asFUNCTION(getSize), asCALL_CDECL_OBJLAST); assert(r >= 0);
+#else
+            r = eng->RegisterObjectMethod("Texture", "Vec2 get_Size()", asFUNCTION(getSize), asCALL_GENERIC); assert(r >= 0);
+#endif
             r = eng->RegisterObjectMethod("Texture", "bool get_Smooth()", asFUNCTION(isSmooth), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Texture", "void set_Smooth(bool)", asFUNCTION(setSmooth), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Texture", "bool get_Repeated()", asFUNCTION(isRepeated), asCALL_CDECL_OBJLAST); assert(r >= 0);

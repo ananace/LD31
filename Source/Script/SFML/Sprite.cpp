@@ -81,22 +81,18 @@ namespace
         sprites[&sprite] = texture;
     }
 
-    Math::Rect getSpriteGlobalBounds(sf::Sprite& sprite)
-    {
-        return sprite.getGlobalBounds();
-    }
-    Math::Rect getSpriteLocalBounds(sf::Sprite& sprite)
-    {
-        return sprite.getLocalBounds();
-    }
-    Math::Rect getSpriteTextureRect(sf::Sprite& sprite)
-    {
-        return sprite.getTextureRect();
-    }
     void setSpriteTextureRect(const Math::Rect& rect, sf::Sprite& sprite)
     {
         sprite.setTextureRect(rect);
     }
+
+#ifndef AS_SUPPORT_VALRET
+    void getSpriteColor(asIScriptGeneric* gen)
+    {
+        sf::Sprite& text = *reinterpret_cast<sf::Sprite*>(gen->GetObject());
+        new (gen->GetAddressOfReturnLocation()) sf::Color(text.getColor());
+    }
+#endif
 
     bool Reg()
     {
@@ -105,6 +101,18 @@ namespace
 
             r = eng->RegisterObjectType("Sprite", sizeof(sf::Sprite), asOBJ_VALUE | asGetTypeTraits<sf::Sprite>()); assert(r >= 0);
 
+#ifdef AS_SUPPORT_VALRET
+            r = eng->RegisterObjectMethod("Sprite", "Rect get_GlobalBounds()", asFUNCTION(getGlobalBounds<sf::Sprite>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Sprite", "Rect get_LocalBounds()", asFUNCTION(getLocalBounds<sf::Sprite>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Sprite", "Rect get_TextureRect()", asFUNCTION(getTextureRect<sf::Sprite>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Sprite", "Color get_Color()", asMETHOD(sf::Sprite, getColor), asCALL_THISCALL); assert(r >= 0);
+#else
+            r = eng->RegisterObjectMethod("Sprite", "Rect get_GlobalBounds()", asFUNCTION(getGlobalBounds<sf::Sprite>), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Sprite", "Rect get_LocalBounds()", asFUNCTION(getLocalBounds<sf::Sprite>), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Sprite", "Rect get_TextureRect()", asFUNCTION(getTextureRect<sf::Sprite>), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Sprite", "Color get_Color()", asFUNCTION(getSpriteColor), asCALL_GENERIC); assert(r >= 0);
+#endif
+
             r = eng->RegisterObjectBehaviour("Sprite", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(create_Sprite), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Sprite", asBEHAVE_CONSTRUCT, "void f(Texture@)", asFUNCTION(create_Sprite_tex), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectBehaviour("Sprite", asBEHAVE_CONSTRUCT, "void f(Texture@,Rect&in)", asFUNCTION(create_Sprite_texRect), asCALL_CDECL_OBJLAST); assert(r >= 0);
@@ -112,11 +120,8 @@ namespace
 
             r = eng->RegisterObjectMethod("Sprite", "Sprite& opAssign(Sprite&in)", asFUNCTION(assign_Sprite), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Sprite", "Color get_Color()", asMETHOD(sf::Sprite, getColor), asCALL_THISCALL); assert(r >= 0);
+            
             r = eng->RegisterObjectMethod("Sprite", "void set_Color(Color&in)", asMETHOD(sf::Sprite, setColor), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Sprite", "Rect get_GlobalBounds()", asFUNCTION(getSpriteGlobalBounds), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Sprite", "Rect get_LocalBounds()", asFUNCTION(getSpriteLocalBounds), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Sprite", "Rect get_TextureRect()", asFUNCTION(getSpriteTextureRect), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Sprite", "void set_TextureRect(Rect&in)", asFUNCTION(setSpriteTextureRect), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Sprite", "Texture@ GetTexture()", asFUNCTION(getSpriteTexture), asCALL_CDECL_OBJLAST); assert(r >= 0);
