@@ -2,6 +2,7 @@
 #include <Script/ScriptExtensions.hpp>
 
 #include <SFML/Window/Event.hpp>
+#include <SFML/System/Utf.hpp>
 
 #include <angelscript.h>
 
