@@ -25,6 +25,11 @@ namespace
         return std::string((const char*)packet.getData(), packet.getDataSize());
     }
 
+    bool packet_convBool(const sf::Packet& packet)
+    {
+        return (!!packet);
+    }
+
 
     bool Reg()
     {
@@ -40,7 +45,7 @@ namespace
 
             r = eng->RegisterObjectMethod("Packet", "void Clear()", asMETHOD(sf::Packet, clear), asCALL_THISCALL); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Packet", "bool opConvImpl()", asMETHOD(sf::Packet, operator sf::Packet::BoolType), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Packet", "bool opConvImpl()", asFUNCTION(packet_convBool), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Packet", "Packet& opShr(bool&out)", asMETHODPR(sf::Packet, operator>>, (bool&), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Packet", "Packet& opShr(int8&out)", asMETHODPR(sf::Packet, operator>>, (int8_t&), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
