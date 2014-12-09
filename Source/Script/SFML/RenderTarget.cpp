@@ -26,7 +26,10 @@ namespace
     {
         target->draw(draw);
     }
-
+    sf::View* getView(sf::RenderTarget* target)
+    {
+        return const_cast<sf::View*>(&target->getView());
+    }
     Math::Vector2 getMouse(sf::RenderTarget* target)
     {
         return sf::Mouse::getPosition(*(sf::RenderWindow*)target);
@@ -66,7 +69,7 @@ namespace
             r = eng->RegisterObjectMethod("Renderer", "View& get_DefaultView()", asMETHOD(sf::RenderTarget, getDefaultView), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "Vec2 get_MousePos()", asFUNCTION(getMouse), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "Vec2 get_Size()", asFUNCTION(getSize), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Renderer", "View& get_View()", asMETHOD(sf::RenderTarget, getView), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "View@ get_View()", asFUNCTION(getView), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "void set_View(View&in)", asMETHOD(sf::RenderTarget, setView), asCALL_THISCALL); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Renderer", "Rect GetViewport(View&in)", asFUNCTION(getViewport), asCALL_CDECL_OBJLAST); assert(r >= 0);
