@@ -33,12 +33,13 @@ namespace
     }
     Math::Vector2 getMouse(sf::RenderTarget* target)
     {
-        sf::RenderWindow* wind = static_cast<sf::RenderWindow*>(target);
+        sf::RenderWindow* wind = dynamic_cast<sf::RenderWindow*>(target);
         if (!wind)
         {
             std::cerr << "Null window pointer passed" << std::endl;
             return Math::Vector2();
         }
+
         return sf::Mouse::getPosition(*wind);
     }
     Math::Vector2 getSize(sf::RenderTarget* target)
