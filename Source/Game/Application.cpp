@@ -2,6 +2,7 @@
 #include "Resources.hpp"
 
 #include <Input/InputManager.hpp>
+#include <Script/ScriptExtensions.hpp>
 #include <Script/ScriptHooks.hpp>
 #include <Script/ScriptManager.hpp>
 #include <Script/ScriptObject.hpp>
@@ -36,10 +37,17 @@ namespace
 
     sf::RenderWindow* sRW;
 
+#ifdef AS_SUPPORT_VALRET
     Math::Vector2 getMouse(sf::RenderTarget* target)
     {
         return sf::Mouse::getPosition(*sRW);
     }
+#else
+    void getMouse(asIScriptGeneric* gen)
+    {
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(sf::Mouse::getPosition(*sRW));
+    }
+#endif
 }
 
 Application::Application(asIScriptEngine* eng) : mEngine(eng)
@@ -71,7 +79,11 @@ Application::Application(asIScriptEngine* eng) : mEngine(eng)
     mEngine->RegisterGlobalFunction("bool get_Connected()", asMETHOD(Application, connected), asCALL_THISCALL_ASGLOBAL, this);
     mEngine->SetDefaultNamespace("");
 
+#ifdef AS_SUPPORT_VALRET
     mEngine->RegisterObjectMethod("Renderer", "Vec2 get_MousePos()", asFUNCTION(getMouse), asCALL_CDECL_OBJLAST);
+#else
+    mEngine->RegisterObjectMethod("Renderer", "Vec2 get_MousePos()", asFUNCTION(getMouse), asCALL_GENERIC);
+#endif
 
     Resources::Shaders.add("Well", "well.frag", sf::Shader::Fragment);
 

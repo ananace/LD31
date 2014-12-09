@@ -74,6 +74,14 @@ namespace
         Input::InputManager.setSensitivity(axis, (uint8_t)(sens * 255));
     }
 
+#ifndef AS_SUPPORT_VALRET
+    void getBind(asIScriptGeneric* gen)
+    {
+        Input::Input& inp = *reinterpret_cast<Input::Input*>(gen->GetObject());
+        new (gen->GetAddressOfReturnLocation()) Input::Input::Bind(inp.getBind());
+    }
+#endif
+
 
     bool Reg()
     {
@@ -107,7 +115,11 @@ namespace
             r = eng->RegisterObjectMethod("Input", "bool get_Pressed()", asMETHOD(Input::Input, isPressed), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Input", "bool get_Linked()", asMETHOD(Input::Input, isLinked), asCALL_THISCALL); assert(r >= 0);
 
+#ifdef AS_SUPPORT_VALRET
             r = eng->RegisterObjectMethod("Input", "Input::Bind get_Bind() const", asMETHOD(Input::Input, getBind), asCALL_THISCALL); assert(r >= 0);
+#else
+            r = eng->RegisterObjectMethod("Input", "Input::Bind get_Bind() const", asFUNCTION(getBind), asCALL_GENERIC); assert(r >= 0);
+#endif
 
             r = eng->RegisterObjectMethod("Input", "Input@ GetLinked()", asFUNCTION(getLinked), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
