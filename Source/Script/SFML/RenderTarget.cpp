@@ -27,6 +27,10 @@ namespace
     {
         target->draw(draw);
     }
+    sf::View* getDefaultView(sf::RenderTarget* target)
+    {
+        return const_cast<sf::View*>(&target->getDefaultView());
+    }
     sf::View* getView(sf::RenderTarget* target)
     {
         return const_cast<sf::View*>(&target->getView());
@@ -74,7 +78,7 @@ namespace
 
             r = eng->RegisterObjectType("Renderer", 0, asOBJ_REF | asOBJ_NOCOUNT);
 
-            r = eng->RegisterObjectMethod("Renderer", "View& get_DefaultView()", asMETHOD(sf::RenderTarget, getDefaultView), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "View@ get_DefaultView()", asFUNCTION(getDefaultView), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "Vec2 get_MousePos()", asFUNCTION(getMouse), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "Vec2 get_Size()", asFUNCTION(getSize), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "View@ get_View()", asFUNCTION(getView), asCALL_CDECL_OBJLAST); assert(r >= 0);
