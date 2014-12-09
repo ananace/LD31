@@ -49,8 +49,10 @@ namespace
             r = eng->RegisterObjectMethod("Packet", "Packet& opShr(uint16&out)", asMETHODPR(sf::Packet, operator>>, (uint16_t&), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Packet", "Packet& opShr(int32&out)", asMETHODPR(sf::Packet, operator>>, (int32_t&), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Packet", "Packet& opShr(uint32&out)", asMETHODPR(sf::Packet, operator>>, (uint32_t&), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
+#if 0
             r = eng->RegisterObjectMethod("Packet", "Packet& opShr(int64&out)", asMETHODPR(sf::Packet, operator>>, (int64_t&), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Packet", "Packet& opShr(uint64&out)", asMETHODPR(sf::Packet, operator>>, (uint64_t&), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
+#endif
             r = eng->RegisterObjectMethod("Packet", "Packet& opShr(float&out)", asMETHODPR(sf::Packet, operator>>, (float&), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Packet", "Packet& opShr(double&out)", asMETHODPR(sf::Packet, operator>>, (double&), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Packet", "Packet& opShr(string&out)", asMETHODPR(sf::Packet, operator>>, (std::string&), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
@@ -62,8 +64,10 @@ namespace
             r = eng->RegisterObjectMethod("Packet", "Packet& opShl(uint16)", asMETHODPR(sf::Packet, operator<<, (uint16_t), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Packet", "Packet& opShl(int32)", asMETHODPR(sf::Packet, operator<<, (int32_t), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Packet", "Packet& opShl(uint32)", asMETHODPR(sf::Packet, operator<<, (uint32_t), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
+#if 0
             r = eng->RegisterObjectMethod("Packet", "Packet& opShl(int64)", asMETHODPR(sf::Packet, operator<<, (int64_t), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Packet", "Packet& opShl(uint64)", asMETHODPR(sf::Packet, operator<<, (uint64_t), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
+#endif
             r = eng->RegisterObjectMethod("Packet", "Packet& opShl(float)", asMETHODPR(sf::Packet, operator<<, (float), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Packet", "Packet& opShl(double)", asMETHODPR(sf::Packet, operator<<, (double), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Packet", "Packet& opShl(string&in)", asMETHODPR(sf::Packet, operator<<, (const std::string&), sf::Packet&), asCALL_THISCALL); assert(r >= 0);
