@@ -4,6 +4,7 @@
 #include "JoystickCurve.hpp"
 #include <Math/Vector.hpp>
 
+#include <string>
 #include <vector>
 
 namespace sf
