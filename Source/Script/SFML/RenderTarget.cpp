@@ -35,9 +35,13 @@ namespace
     {
         return const_cast<sf::View*>(&target->getView());
     }
+    void setView(sf::View* view, sf::RenderTarget* target)
+    {
+        target->setView(*view);
+    }
     Math::Vector2 getMouse(sf::RenderTarget* target)
     {
-        sf::RenderWindow* wind = dynamic_cast<sf::RenderWindow*>(target);
+        sf::RenderWindow* wind = static_cast<sf::RenderWindow*>(target);
         if (!wind)
         {
             std::cerr << "Null window pointer passed" << std::endl;
@@ -50,25 +54,25 @@ namespace
     {
         return target->getSize();
     }
-    Math::Rect getViewport(const sf::View& view, sf::RenderTarget* target)
+    Math::Rect getViewport(sf::View* view, sf::RenderTarget* target)
     {
-        return target->getViewport(view);
+        return target->getViewport(*view);
     }
     Math::Vector2 mapCoordsToPixel(const Math::Vector2& vec, sf::RenderTarget* target)
     {
         return target->mapCoordsToPixel(vec);
     }
-    Math::Vector2 mapCoordsToPixel_view(const Math::Vector2& vec, const sf::View& view, sf::RenderTarget* target)
+    Math::Vector2 mapCoordsToPixel_view(const Math::Vector2& vec, sf::View* view, sf::RenderTarget* target)
     {
-        return target->mapCoordsToPixel(vec, view);
+        return target->mapCoordsToPixel(vec, *view);
     }
     Math::Vector2 mapPixelToCoords(const Math::Vector2& vec, sf::RenderTarget* target)
     {
         return target->mapPixelToCoords(vec);
     }
-    Math::Vector2 mapPixelToCoords_view(const Math::Vector2& vec, const sf::View& view, sf::RenderTarget* target)
+    Math::Vector2 mapPixelToCoords_view(const Math::Vector2& vec, sf::View* view, sf::RenderTarget* target)
     {
-        return target->mapPixelToCoords(vec, view);
+        return target->mapPixelToCoords(vec, *view);
     }
 
     bool Reg()
@@ -82,13 +86,13 @@ namespace
             r = eng->RegisterObjectMethod("Renderer", "Vec2 get_MousePos()", asFUNCTION(getMouse), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "Vec2 get_Size()", asFUNCTION(getSize), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "View@ get_View()", asFUNCTION(getView), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Renderer", "void set_View(View&in)", asMETHOD(sf::RenderTarget, setView), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "void set_View(View@)", asMETHOD(sf::RenderTarget, setView), asCALL_THISCALL); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Renderer", "Rect GetViewport(View&in)", asFUNCTION(getViewport), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "Rect GetViewport(View@)", asFUNCTION(getViewport), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "Vec2 CoordsToPixel(Vec2&in)", asFUNCTION(mapCoordsToPixel), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Renderer", "Vec2 CoordsToPixel(Vec2&in,View&in)", asFUNCTION(mapCoordsToPixel_view), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "Vec2 CoordsToPixel(Vec2&in,View@)", asFUNCTION(mapCoordsToPixel_view), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "Vec2 PixelToCoords(Vec2&in)", asFUNCTION(mapPixelToCoords), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Renderer", "Vec2 PixelToCoords(Vec2&in,View&in)", asFUNCTION(mapPixelToCoords_view), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "Vec2 PixelToCoords(Vec2&in,View@)", asFUNCTION(mapPixelToCoords_view), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
             r = eng->RegisterObjectMethod("Renderer", "void Clear(Color&in)", asMETHOD(sf::RenderTarget, clear), asCALL_THISCALL); assert(r >= 0);
 
