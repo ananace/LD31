@@ -269,11 +269,12 @@ namespace
             r = eng->RegisterObjectMethod("Spinor", "Spinor& opMulAssign(float)", asMETHODPR(Spinor, operator*=, (float), Spinor&), asCALL_THISCALL); assert(r >= 0);
             // r = eng->RegisterObjectMethod("Spinor", "Spinor& opDivAssign(Spinor&in)", asMETHODPR(Spinor, operator/=, (const Spinor&), Spinor&), asCALL_THISCALL); assert(r >= 0);
             // r = eng->RegisterObjectMethod("Spinor", "Spinor& opDivAssign(float)", asMETHODPR(Spinor, operator/=, (float), Spinor&), asCALL_THISCALL); assert(r >= 0);
-
+            /*
             r = eng->RegisterObjectMethod("Spinor", "Spinor opAdd(Spinor&in)", asMETHOD(Spinor, operator+), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Spinor", "Spinor opSub(Spinor&in)", asMETHOD(Spinor, operator+), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Spinor", "Spinor opMul(Spinor&in)", asMETHODPR(Spinor, operator*, (const Spinor&) const, Spinor), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Spinor", "Spinor opMul(float)", asMETHODPR(Spinor, operator*, (float) const, Spinor), asCALL_THISCALL); assert(r >= 0);
+            */
             // r = eng->RegisterObjectMethod("Spinor", "Spinor opDiv(Spinor&in)", asMETHODPR(Spinor, operator/, (const Spinor&) const, Spinor), asCALL_THISCALL); assert(r >= 0);
             // r = eng->RegisterObjectMethod("Spinor", "Spinor opDiv(float)", asMETHODPR(Spinor, operator/, (float) const, Spinor), asCALL_THISCALL); assert(r >= 0);
 
@@ -289,7 +290,7 @@ namespace
             r = eng->RegisterObjectMethod("Spinor", "float Dot(Spinor&in)", asMETHOD(Spinor, dotProduct), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Spinor", "void Invert()", asMETHOD(Spinor, invert), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Spinor", "void Normalize()", asMETHOD(Spinor, normalize), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Spinor", "Spinor Slerp(Spinor&in,float)", asMETHOD(Spinor, slerp), asCALL_THISCALL); assert(r >= 0);
+            //r = eng->RegisterObjectMethod("Spinor", "Spinor Slerp(Spinor&in,float)", asMETHOD(Spinor, slerp), asCALL_THISCALL); assert(r >= 0);
         });
 
         return true;

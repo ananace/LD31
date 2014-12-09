@@ -152,6 +152,35 @@ namespace
         rect.Height = br.Y - tl.Y;
     }
 
+#ifndef AS_SUPPORT_VALRET
+    void getCenter_rect(asIScriptGeneric* gen)
+    {
+        Math::Rect& rect = *reinterpret_cast<Math::Rect*>(gen->GetObject());
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(rect.getCenter());
+    }
+    void topLeft_rect(asIScriptGeneric* gen)
+    {
+        Math::Rect& rect = *reinterpret_cast<Math::Rect*>(gen->GetObject());
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(rect.getTopLeft());
+    }
+    void bottomRight_rect(asIScriptGeneric* gen)
+    {
+        Math::Rect& rect = *reinterpret_cast<Math::Rect*>(gen->GetObject());
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(rect.getBottomRight());
+    }
+    void getSize_rect(asIScriptGeneric* gen)
+    {
+        Math::Rect& rect = *reinterpret_cast<Math::Rect*>(gen->GetObject());
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(rect.getSize());
+    }
+    void constrain_rect(asIScriptGeneric* gen)
+    {
+        Math::Rect& rect = *reinterpret_cast<Math::Rect*>(gen->GetObject());
+        Math::Vector2& vec = *reinterpret_cast<Math::Vector2*>(gen->GetArgObject(0));
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(rect.constrain(vec));
+    }
+#endif
+
     bool Reg()
     {
         Script::ScriptExtensions::AddExtension([](asIScriptEngine* eng) {
@@ -172,14 +201,23 @@ namespace
             r = eng->RegisterObjectProperty("Rect", "float Width", asOFFSET(Rect, Width)); assert(r >= 0);
             r = eng->RegisterObjectProperty("Rect", "float Height", asOFFSET(Rect, Height)); assert(r >= 0);
 
+#ifdef AS_SUPPORT_VALRET
             r = eng->RegisterObjectMethod("Rect", "Vec2 get_Center()", asMETHOD(Rect, getCenter), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Rect", "Vec2 get_TopLeft()", asMETHOD(Rect, getTopLeft), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Rect", "void set_TopLeft(Vec2&in)", asFUNCTION(rect_setTopLeft), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Rect", "Vec2 get_BottomRight()", asMETHOD(Rect, getBottomRight), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Rect", "void set_BottomRight(Vec2&in)", asFUNCTION(rect_setBottomRight), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Rect", "Vec2 get_Size()", asMETHOD(Rect, getSize), asCALL_THISCALL); assert(r >= 0);
-
             r = eng->RegisterObjectMethod("Rect", "Vec2 Constrain(Vec2&in)", asMETHOD(Rect, constrain), asCALL_THISCALL); assert(r >= 0);
+#else
+            r = eng->RegisterObjectMethod("Rect", "Vec2 get_Center()", asFUNCTION(getCenter_rect), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "Vec2 get_TopLeft()", asFUNCTION(topLeft_rect), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "Vec2 get_BottomRight()", asFUNCTION(bottomRight_rect), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "Vec2 get_Size()", asFUNCTION(getSize_rect), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "Vec2 Constrain(Vec2&in)", asFUNCTION(constrain_rect), asCALL_GENERIC); assert(r >= 0);
+#endif
+
+            r = eng->RegisterObjectMethod("Rect", "void set_TopLeft(Vec2&in)", asFUNCTION(rect_setTopLeft), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Rect", "void set_BottomRight(Vec2&in)", asFUNCTION(rect_setBottomRight), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
             r = eng->RegisterObjectMethod("Rect", "bool Contains(Vec2&in)", asMETHOD(Rect, contains), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Rect", "bool Intersects(Rect&in)", asMETHODPR(Rect, intersects, (const Rect&), bool), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Rect", "bool Intersects(Rect&in, Rect&out)", asMETHODPR(Rect, intersects, (const Rect&, Rect&), bool), asCALL_THISCALL); assert(r >= 0);

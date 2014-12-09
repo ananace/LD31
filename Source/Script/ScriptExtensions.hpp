@@ -1,7 +1,14 @@
 #pragma once
 
+#include <Defines.hpp>
+
 #include <functional>
 #include <list>
+
+#if (defined LD31_LINUX && defined LD31_64)
+#define AS_SUPPORT_VALRET
+#endif
+
 
 class asIScriptEngine;
 

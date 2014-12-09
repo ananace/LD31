@@ -199,10 +199,6 @@ namespace
     {
         vec->rotate(ang * Math::Deg2Rad);
     }
-    Vector2 rotated_Vector2(float ang, Vector2* vec)
-    {
-        return vec->getRotated(ang * Math::Deg2Rad);
-    }
     void setAngle_Vector2(float ang, Vector2* vec)
     {
         vec->setAngle(ang * Math::Deg2Rad);
@@ -215,6 +211,68 @@ namespace
     {
         return vec->getAngleTo(other) * Math::Deg2Rad;
     }
+
+#ifdef AS_SUPPORT_VALRET
+    Math::Vector2 rotated_Vector2(float ang, Vector2* vec)
+    {
+        return vec->getRotated(ang);
+    }
+#else
+    void normalized_Vector2(asIScriptGeneric* gen)
+    {
+        Math::Vector2& vec = *reinterpret_cast<Math::Vector2*>(gen->GetObject());
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(vec.getNormalized());
+    }
+    void rotated_Vector2(asIScriptGeneric* gen)
+    {
+        Math::Vector2& vec = *reinterpret_cast<Math::Vector2*>(gen->GetObject());
+        float ang = gen->GetArgFloat(0);
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(vec.getRotated(ang));
+    }
+    void perpendicular_Vector2(asIScriptGeneric* gen)
+    {
+        Math::Vector2& vec = *reinterpret_cast<Math::Vector2*>(gen->GetObject());
+        float ang = gen->GetArgFloat(0);
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(vec.getPerpendicular());
+    }
+
+    void opAdd_vector2(asIScriptGeneric* gen)
+    {
+        Math::Vector2& lhs = *reinterpret_cast<Math::Vector2*>(gen->GetObject());
+        Math::Vector2& rhs = *reinterpret_cast<Math::Vector2*>(gen->GetArgObject(0));
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(lhs + rhs);
+    }
+    void opSub_vector2(asIScriptGeneric* gen)
+    {
+        Math::Vector2& lhs = *reinterpret_cast<Math::Vector2*>(gen->GetObject());
+        Math::Vector2& rhs = *reinterpret_cast<Math::Vector2*>(gen->GetArgObject(0));
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(lhs - rhs);
+    }
+    void opMul_vector2(asIScriptGeneric* gen)
+    {
+        Math::Vector2& lhs = *reinterpret_cast<Math::Vector2*>(gen->GetObject());
+        Math::Vector2& rhs = *reinterpret_cast<Math::Vector2*>(gen->GetArgObject(0));
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(lhs * rhs);
+    }
+    void opMul_vector2_f(asIScriptGeneric* gen)
+    {
+        Math::Vector2& lhs = *reinterpret_cast<Math::Vector2*>(gen->GetObject());
+        float rhs = gen->GetArgFloat(0);
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(lhs * rhs);
+    }
+    void opDiv_vector2(asIScriptGeneric* gen)
+    {
+        Math::Vector2& lhs = *reinterpret_cast<Math::Vector2*>(gen->GetObject());
+        Math::Vector2& rhs = *reinterpret_cast<Math::Vector2*>(gen->GetArgObject(0));
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(lhs / rhs);
+    }
+    void opDiv_vector2_f(asIScriptGeneric* gen)
+    {
+        Math::Vector2& lhs = *reinterpret_cast<Math::Vector2*>(gen->GetObject());
+        float rhs = gen->GetArgFloat(0);
+        new (gen->GetAddressOfReturnLocation()) Math::Vector2(lhs / rhs);
+    }
+#endif
 
     bool Reg()
     {
@@ -238,6 +296,7 @@ namespace
             r = eng->RegisterObjectMethod("Vec2", "Vec2& opMulAssign(float)", asMETHODPR(Vector2, operator*=, (float), Vector2&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "Vec2& opDivAssign(Vec2&in)", asMETHODPR(Vector2, operator/=, (const Vector2&), Vector2&), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "Vec2& opDivAssign(float)", asMETHODPR(Vector2, operator/=, (float), Vector2&), asCALL_THISCALL); assert(r >= 0);
+#ifdef AS_SUPPORT_VALRET
             r = eng->RegisterObjectMethod("Vec2", "Vec2 opAdd(Vec2&in)", asMETHOD(Vector2, operator+), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "Vec2 opSub(Vec2&in)", asMETHOD(Vector2, operator-), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "Vec2 opMul(Vec2&in)", asMETHODPR(Vector2, operator*, (const Vector2&) const, Vector2), asCALL_THISCALL); assert(r >= 0);
@@ -245,9 +304,24 @@ namespace
             r = eng->RegisterObjectMethod("Vec2", "Vec2 opDiv(Vec2&in)", asMETHODPR(Vector2, operator/, (const Vector2&) const, Vector2), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "Vec2 opDiv(float)", asMETHODPR(Vector2, operator/, (float) const, Vector2), asCALL_THISCALL); assert(r >= 0);
 
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 get_Normalized()", asMETHOD(Vector2, getNormalized), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 Rotated(float)", asFUNCTION(rotated_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 get_Perpendicular()", asMETHOD(Vector2, getPerpendicular), asCALL_THISCALL); assert(r >= 0);
+#else
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 opAdd(Vec2&in)", asFUNCTION(opAdd_vector2), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 opSub(Vec2&in)", asFUNCTION(opSub_vector2), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 opMul(Vec2&in)", asFUNCTION(opMul_vector2), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 opMul(float)", asFUNCTION(opMul_vector2_f), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 opDiv(Vec2&in)", asFUNCTION(opDiv_vector2), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 opDiv(float)", asFUNCTION(opDiv_vector2_f), asCALL_GENERIC); assert(r >= 0);
+
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 get_Normalized()", asFUNCTION(normalized_Vector2), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 Rotated(float)", asFUNCTION(rotated_Vector2), asCALL_GENERIC); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Vec2", "Vec2 get_Perpendicular()", asFUNCTION(perpendicular_Vector2), asCALL_GENERIC); assert(r >= 0);
+#endif
+
             r = eng->RegisterObjectMethod("Vec2", "float Dot(Vec2&in)", asMETHOD(Vector2, dotProduct), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "void Normalize()", asMETHOD(Vector2, normalize), asCALL_THISCALL); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Vec2", "Vec2 get_Normalized()", asMETHOD(Vector2, getNormalized), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "void set_Length(float)", asMETHOD(Vector2, setLength), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "float get_Length()", asMETHOD(Vector2, getLength), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "float get_LengthSquared()", asMETHOD(Vector2, getLengthSquared), asCALL_THISCALL); assert(r >= 0);
@@ -257,8 +331,6 @@ namespace
             r = eng->RegisterObjectMethod("Vec2", "float get_Angle()", asFUNCTION(getAngle_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "float AngleTo(Vec2&in)", asFUNCTION(getAngleTo_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Vec2", "void Rotate(float)", asFUNCTION(rotate_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Vec2", "Vec2 Rotated(float)", asFUNCTION(rotated_Vector2), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Vec2", "Vec2 get_Perpendicular()", asMETHOD(Vector2, getPerpendicular), asCALL_THISCALL); assert(r >= 0);
         }, -501);
 
         return true;

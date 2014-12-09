@@ -1,10 +1,6 @@
 #pragma once
 
-#include <Defines.hpp>
-
-#if !(defined LD31_LINUX && defined LD31_64)
-#define AS_SUPPORT_VALRET
-#endif
+#include <Script/ScriptExtensions.hpp>
 
 namespace Script
 {
