@@ -74,7 +74,7 @@ namespace
 #ifdef AS_SUPPORT_VALRET
             r = eng->RegisterGlobalFunction("Vec2 Lerp(Vec2&in,Vec2&in,float)", asFUNCTION(Math::Lerp<Vector2>), asCALL_CDECL); assert(r >= 0);
 #else
-            r = eng->RegisterGlobalFunction("Vec2 Lerp(Vec2&in,Vec2&in,float)", asFUNCTION(Lerp_gen<Vector2>), asCALL_CDECL); assert(r >= 0);
+            r = eng->RegisterGlobalFunction("Vec2 Lerp(Vec2&in,Vec2&in,float)", asFUNCTION(Lerp_gen<Vector2>), asCALL_GENERIC); assert(r >= 0);
 #endif
             // r = eng->RegisterGlobalFunction("Spinor Lerp(Spinor&in,Spinor&in,float)", asFUNCTION(Math::Lerp<Spinor>), asCALL_CDECL); assert(r >= 0);
 
