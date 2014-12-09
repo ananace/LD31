@@ -33,6 +33,8 @@ namespace
 
         Bind_Count
     };
+
+    sf::RenderWindow* sRW;
 }
 
 Application::Application(asIScriptEngine* eng) : mEngine(eng)
@@ -80,6 +82,7 @@ void Application::runGameLoop()
     Script::ScriptObject* menu = Script::ScriptObject::Create("StateMachine");
 
     mWindow.create(sf::VideoMode(800, 600), "LD31");
+    sRW = &mWindow;
 
     mGameCamera.setView(mWindow.getDefaultView());
     mGameCamera.setKeepRatio();
@@ -207,4 +210,9 @@ bool Application::sendPacket(const sf::Packet& packet)
 {
     sf::Packet copy = packet;
     return mSocket.send(copy) == sf::Socket::Done;
+}
+
+sf::RenderWindow* Application::GetRW()
+{
+    return sRW;
 }

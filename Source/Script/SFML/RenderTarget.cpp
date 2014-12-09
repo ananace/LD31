@@ -4,6 +4,8 @@
 #include <Script/ScriptExtensions.hpp>
 #include <Util/ResourceManager.hpp>
 
+#include <Game/Application.hpp>
+
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Shader.hpp>
@@ -41,13 +43,8 @@ namespace
     }
     Math::Vector2 getMouse(sf::RenderTarget* target)
     {
-        sf::RenderWindow* wind = static_cast<sf::RenderWindow*>(target);
-        if (!wind)
-        {
-            std::cerr << "Null window pointer passed" << std::endl;
-            return Math::Vector2();
-        }
-
+        //FIXME WHY WON'T THIS WORK?
+        sf::RenderWindow* wind = Application::GetRW();
         return sf::Mouse::getPosition(*wind);
     }
     Math::Vector2 getSize(sf::RenderTarget* target)

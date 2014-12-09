@@ -27,6 +27,8 @@ public:
 
     static const uint8_t TICKRATE = 33;
 
+    static sf::RenderWindow* GetRW();
+
 private:
     asIScriptEngine* mEngine;
     sf::RenderWindow mWindow;
