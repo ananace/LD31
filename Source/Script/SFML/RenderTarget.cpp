@@ -1,4 +1,5 @@
 #include "Extensions.hpp"
+#include "Extensions.inl"
 #include <Math/Rect.hpp>
 #include <Math/Vector.hpp>
 #include <Script/ScriptExtensions.hpp>
@@ -9,6 +10,8 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Shader.hpp>
+#include <SFML/Graphics/Text.hpp>
+
 #include <SFML/Window/Mouse.hpp>
 
 #include <angelscript.h>
@@ -20,15 +23,6 @@ namespace
 {
     typedef Util::Resource<sf::Shader, std::string> Shader_t;
 
-    void draw_shader(const sf::Drawable& draw, Shader_t* shader, sf::RenderTarget& target)
-    {
-        target.draw(draw, &(**shader));
-    }
-
-    void draw(const sf::Drawable& draw, sf::RenderTarget* target)
-    {
-        target->draw(draw);
-    }
     sf::View* getDefaultView(sf::RenderTarget* target)
     {
         return const_cast<sf::View*>(&target->getDefaultView());
@@ -40,12 +34,6 @@ namespace
     void setView(sf::View* view, sf::RenderTarget* target)
     {
         target->setView(*view);
-    }
-    Math::Vector2 getMouse(sf::RenderTarget* target)
-    {
-        //FIXME WHY WON'T THIS WORK?
-        sf::RenderWindow* wind = Application::GetRW();
-        return sf::Mouse::getPosition(*wind);
     }
     Math::Vector2 getSize(sf::RenderTarget* target)
     {
@@ -80,7 +68,6 @@ namespace
             r = eng->RegisterObjectType("Renderer", 0, asOBJ_REF | asOBJ_NOCOUNT);
 
             r = eng->RegisterObjectMethod("Renderer", "View@ get_DefaultView()", asFUNCTION(getDefaultView), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Renderer", "Vec2 get_MousePos()", asFUNCTION(getMouse), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "Vec2 get_Size()", asFUNCTION(getSize), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "View@ get_View()", asFUNCTION(getView), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "void set_View(View@)", asMETHOD(sf::RenderTarget, setView), asCALL_THISCALL); assert(r >= 0);
@@ -93,11 +80,11 @@ namespace
 
             r = eng->RegisterObjectMethod("Renderer", "void Clear(Color&in)", asMETHOD(sf::RenderTarget, clear), asCALL_THISCALL); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Renderer", "void Draw(Sprite&in)", asFUNCTION(draw), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Renderer", "void Draw(Text&in)", asFUNCTION(draw), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "void Draw(Sprite&in)", asFUNCTION(drawShape<sf::Sprite>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "void Draw(Text&in)", asFUNCTION(drawShape<sf::Text>), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Renderer", "void Draw(Sprite&in,Shader@)", asFUNCTION(draw_shader), asCALL_CDECL_OBJLAST); assert(r >= 0);
-            r = eng->RegisterObjectMethod("Renderer", "void Draw(Text&in,Shader@)", asFUNCTION(draw_shader), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "void Draw(Sprite&in,Shader@)", asFUNCTION(drawShape_shader<sf::Sprite>), asCALL_CDECL_OBJLAST); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "void Draw(Text&in,Shader@)", asFUNCTION(drawShape_shader<sf::Text>), asCALL_CDECL_OBJLAST); assert(r >= 0);
         }, 5);
 
         return true;

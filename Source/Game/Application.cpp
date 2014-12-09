@@ -35,6 +35,11 @@ namespace
     };
 
     sf::RenderWindow* sRW;
+
+    Math::Vector2 getMouse(sf::RenderTarget* target)
+    {
+        return sf::Mouse::getPosition(*sRW);
+    }
 }
 
 Application::Application(asIScriptEngine* eng) : mEngine(eng)
@@ -65,6 +70,8 @@ Application::Application(asIScriptEngine* eng) : mEngine(eng)
     mEngine->RegisterGlobalFunction("bool Connect()", asMETHOD(Application, connect), asCALL_THISCALL_ASGLOBAL, this);
     mEngine->RegisterGlobalFunction("bool get_Connected()", asMETHOD(Application, connected), asCALL_THISCALL_ASGLOBAL, this);
     mEngine->SetDefaultNamespace("");
+
+    mEngine->RegisterObjectMethod("Renderer", "Vec2 get_MousePos()", asFUNCTION(getMouse), asCALL_CDECL_OBJLAST);
 
     Resources::Shaders.add("Well", "well.frag", sf::Shader::Fragment);
 
