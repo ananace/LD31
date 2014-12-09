@@ -38,6 +38,15 @@ int Math::Random(int a, int b)
     return rand(dev);
 }
 
+template<typename T>
+void Lerp_gen(asIScriptGeneric* gen)
+{
+    T& a = *reinterpret_cast<T*>(gen->GetArgObject(0));
+    T& b = *reinterpret_cast<T*>(gen->GetArgObject(1));
+    float t = gen->GetArgFloat(2);
+    new (gen->GetAddressOfReturnLocation()) T(Math::Lerp<T>(a, b, t));
+}
+
 namespace
 {
     bool Reg()
@@ -62,7 +71,11 @@ namespace
             r = eng->RegisterGlobalFunction("int Lerp(int&in,int&in,float)", asFUNCTION(Math::Lerp<int>), asCALL_CDECL); assert(r >= 0);
             r = eng->RegisterGlobalFunction("float Lerp(float&in,float&in,float)", asFUNCTION(Math::Lerp<float>), asCALL_CDECL); assert(r >= 0);
 
-//            r = eng->RegisterGlobalFunction("Vec2 Lerp(Vec2&in,Vec2&in,float)", asFUNCTION(Math::Lerp<Vector2>), asCALL_CDECL); assert(r >= 0);
+#ifdef AS_SUPPORT_VALRET
+            r = eng->RegisterGlobalFunction("Vec2 Lerp(Vec2&in,Vec2&in,float)", asFUNCTION(Math::Lerp<Vector2>), asCALL_CDECL); assert(r >= 0);
+#else
+            r = eng->RegisterGlobalFunction("Vec2 Lerp(Vec2&in,Vec2&in,float)", asFUNCTION(Lerp_gen<Vector2>), asCALL_CDECL); assert(r >= 0);
+#endif
             // r = eng->RegisterGlobalFunction("Spinor Lerp(Spinor&in,Spinor&in,float)", asFUNCTION(Math::Lerp<Spinor>), asCALL_CDECL); assert(r >= 0);
 
             r = eng->RegisterGlobalFunction("float SlerpAngle(float,float,float)", asFUNCTION(Math::SlerpAngle), asCALL_CDECL); assert(r >= 0);
