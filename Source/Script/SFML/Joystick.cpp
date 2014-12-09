@@ -19,11 +19,14 @@ namespace
 
             r = eng->SetDefaultNamespace("Joystick"); assert(r >= 0);
 
+#if 0
+
             r = eng->RegisterObjectType("Identifier", sizeof(sf::Joystick::Identification), asOBJ_VALUE | asOBJ_POD | asGetTypeTraits<sf::Joystick::Identification>()); assert(r >= 0);
             r = eng->RegisterObjectProperty("Identifier", "string Name", asOFFSET(sf::Joystick::Identification, name)); assert(r >= 0);
             r = eng->RegisterObjectProperty("Identifier", "uint Vendor", asOFFSET(sf::Joystick::Identification, vendorId)); assert(r >= 0);
             r = eng->RegisterObjectProperty("Identifier", "uint Product", asOFFSET(sf::Joystick::Identification, productId)); assert(r >= 0);
 
+#endif
 
             r = eng->RegisterEnum("Axis"); assert(r >= 0);
             r = eng->RegisterEnumValue("Axis", "X", sf::Joystick::X); assert(r >= 0);
@@ -41,7 +44,9 @@ namespace
             r = eng->RegisterGlobalFunction("bool HasAxis(uint id, Axis)", asFUNCTION(sf::Joystick::hasAxis), asCALL_CDECL); assert(r >= 0);
             r = eng->RegisterGlobalFunction("bool IsPressed(uint id, uint button)", asFUNCTION(sf::Joystick::isButtonPressed), asCALL_CDECL); assert(r >= 0);
             r = eng->RegisterGlobalFunction("float AxisPosition(uint id, Axis)", asFUNCTION(sf::Joystick::getAxisPosition), asCALL_CDECL); assert(r >= 0);
+#if 0
             r = eng->RegisterGlobalFunction("Identifier Identification(uint id)", asFUNCTION(sf::Joystick::getIdentification), asCALL_CDECL); assert(r >= 0);
+#endif
 
             r = eng->SetDefaultNamespace(""); assert(r >= 0);
         });
