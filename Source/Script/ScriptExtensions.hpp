@@ -5,7 +5,7 @@
 #include <functional>
 #include <list>
 
-#if (defined LD31_LINUX && defined LD31_64)
+#if !(defined LD31_LINUX && defined LD31_64)
 #define AS_SUPPORT_VALRET
 #endif
 
