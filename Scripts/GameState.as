@@ -501,7 +501,7 @@ class GameState : IState
 							int min = entry.Score / 60;
 							int sec = entry.Score % 60;
 
-							score = (min < 10 ? "0" : "") + min + ":" + (sec < 10 ? "0" : "") + sec;
+							score = "" + (min < 10 ? "0" : "") + min + ":" + (sec < 10 ? "0" : "") + sec;
 						}
 						else
 							score = entry.Score;
