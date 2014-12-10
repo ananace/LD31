@@ -103,18 +103,6 @@ Math::Rect getTextureRect(T& shape)
 }
 #else
 template<typename T>
-void getFillColor(asIScriptGeneric* gen)
-{
-    T& obj = *reinterpret_cast<T*>(gen->GetObject());
-    new(gen->GetAddressOfReturnLocation()) sf::Color(obj.getFillColor());
-}
-template<typename T>
-void getOutlineColor(asIScriptGeneric* gen)
-{
-    T& obj = *reinterpret_cast<T*>(gen->GetObject());
-    new(gen->GetAddressOfReturnLocation()) sf::Color(obj.getOutlineColor());
-}
-template<typename T>
 void getGlobalBounds(asIScriptGeneric* gen)
 {
     T& obj = *reinterpret_cast<T*>(gen->GetObject());
@@ -297,24 +285,23 @@ void registerShape(const char* name, asIScriptEngine* eng)
     
 #ifdef AS_SUPPORT_VALRET
     r = eng->RegisterObjectMethod(name, "Vec2 opIndex(uint) const", asFUNCTION(getPoint<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
-    r = eng->RegisterObjectMethod(name, "Color get_FillColor()", asMETHOD(T, getFillColor), asCALL_THISCALL); assert(r >= 0);
+    
     r = eng->RegisterObjectMethod(name, "Rect get_GlobalBounds()", asFUNCTION(getGlobalBounds<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "Rect get_LocalBounds()", asFUNCTION(getGlobalBounds<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
-    r = eng->RegisterObjectMethod(name, "Color get_OutlineColor()", asMETHOD(T, getOutlineColor), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "Rect get_TextureRect()", asFUNCTION(getTextureRect<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
 #else
     r = eng->RegisterObjectMethod(name, "Vec2 opIndex(uint) const", asFUNCTION(getPoint<T>), asCALL_GENERIC); assert(r >= 0);
-    r = eng->RegisterObjectMethod(name, "Color get_FillColor()", asFUNCTION(getFillColor<T>), asCALL_GENERIC); assert(r >= 0);
+
     r = eng->RegisterObjectMethod(name, "Rect get_GlobalBounds()", asFUNCTION(getGlobalBounds<T>), asCALL_GENERIC); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "Rect get_LocalBounds()", asFUNCTION(getGlobalBounds<T>), asCALL_GENERIC); assert(r >= 0);
-    r = eng->RegisterObjectMethod(name, "Color get_OutlineColor()", asFUNCTION(getOutlineColor<T>), asCALL_GENERIC); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "Rect get_TextureRect()", asFUNCTION(getTextureRect<T>), asCALL_GENERIC); assert(r >= 0);
 #endif
 
     
 
-    
+    r = eng->RegisterObjectMethod(name, "Color& get_FillColor()", asMETHOD(T, getFillColor), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void set_FillColor(Color&in)", asMETHODPR(T, setFillColor, (const sf::Color&), void), asCALL_THISCALL); assert(r >= 0);
+    r = eng->RegisterObjectMethod(name, "Color& get_OutlineColor()", asMETHOD(T, getOutlineColor), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void set_OutlineColor(Color&in)", asMETHODPR(T, setOutlineColor, (const sf::Color&), void), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "float get_OutlineThickness()", asMETHODPR(T, getOutlineThickness, () const, float), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void set_OutlineThickness(float)", asMETHODPR(T, setOutlineThickness, (float), void), asCALL_THISCALL); assert(r >= 0);

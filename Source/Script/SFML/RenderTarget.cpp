@@ -127,7 +127,7 @@ namespace
             r = eng->RegisterObjectMethod("Renderer", "View@ get_View()", asFUNCTION(getView), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "void set_View(View@)", asFUNCTION(setView), asCALL_CDECL_OBJLAST); assert(r >= 0);
 
-            r = eng->RegisterObjectMethod("Renderer", "void Clear(Color&in)", asMETHOD(sf::RenderTarget, clear), asCALL_THISCALL); assert(r >= 0);
+            r = eng->RegisterObjectMethod("Renderer", "void Clear(Color&in = Colors::Black)", asMETHOD(sf::RenderTarget, clear), asCALL_THISCALL); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "void Draw(Sprite&in)", asFUNCTION(drawShape<sf::Sprite>), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "void Draw(Text&in)", asFUNCTION(drawShape<sf::Text>), asCALL_CDECL_OBJLAST); assert(r >= 0);
             r = eng->RegisterObjectMethod("Renderer", "void Draw(Sprite&in,Shader@)", asFUNCTION(drawShape_shader<sf::Sprite>), asCALL_CDECL_OBJLAST); assert(r >= 0);
