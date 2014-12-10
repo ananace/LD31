@@ -58,7 +58,7 @@ void Script::ScriptHooks::execute(const std::string& name, asIScriptEngine* eng,
         ctx->Prepare(hook.Function);
         ctx->SetObject(hook.Object);
 
-        setCTXArg(ctx, 0, std::forward<Args...>(args...));
+        setCTXArg(ctx, 0, std::forward<Args>(args)...);
 
         ctx->Execute();
     }
