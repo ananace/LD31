@@ -90,7 +90,7 @@ namespace
             r = eng->RegisterEnumValue("Style", "Bold", sf::Text::Bold); assert(r >= 0);
             r = eng->RegisterEnumValue("Style", "Italic", sf::Text::Italic); assert(r >= 0);
             r = eng->RegisterEnumValue("Style", "Underline", sf::Text::Underlined); assert(r >= 0);
-            r = eng->RegisterEnumValue("Style", "Strikethrough", sf::Text::StrikeThrough); assert(r >= 0);
+            //r = eng->RegisterEnumValue("Style", "Strikethrough", sf::Text::StrikeThrough); assert(r >= 0);
 
             r = eng->SetDefaultNamespace(""); assert(r >= 0);
 
