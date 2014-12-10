@@ -176,13 +176,13 @@ void Application::runGameLoop()
 
         // TODO: Draw Game
 
-        Script::ScriptHooks::execute<sf::RenderTarget*>("Draw", mEngine, &mWindow);
+        Script::ScriptHooks::execute<sf::RenderWindow*>("Draw", mEngine, &mWindow);
 
         mWindow.setView(mUICamera.getView());
 
         // TODO: Draw UI
 
-        Script::ScriptHooks::execute<sf::RenderTarget*>("DrawUi", mEngine, &mWindow);
+        Script::ScriptHooks::execute<sf::RenderWindow*>("DrawUi", mEngine, &mWindow);
 
         mWindow.display();
 

@@ -6,7 +6,7 @@
 #include <Script/ScriptManager.hpp>
 #include <Util/ResourceManager.hpp>
 
-#include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -54,13 +54,13 @@ struct CSFMLType : public CUserType
 using Script::SFML::shapes;
 
 template<typename T>
-void drawShape_shader(const T& draw, Shader_t* shader, sf::RenderTarget* target)
+void drawShape_shader(const T& draw, Shader_t* shader, sf::RenderWindow* target)
 {
     target->draw(draw, &(**shader));
 }
 
 template<typename T>
-void drawShape(const T& draw, sf::RenderTarget* target)
+void drawShape(const T& draw, sf::RenderWindow* target)
 {
     target->draw(draw);
 }
