@@ -305,7 +305,7 @@ void registerShape(const char* name, asIScriptEngine* eng)
     r = eng->RegisterObjectMethod(name, "void set_OutlineColor(Color&in)", asMETHODPR(T, setOutlineColor, (const sf::Color&), void), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "float get_OutlineThickness()", asMETHODPR(T, getOutlineThickness, () const, float), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void set_OutlineThickness(float)", asMETHODPR(T, setOutlineThickness, (float), void), asCALL_THISCALL); assert(r >= 0);
-    r = eng->RegisterObjectMethod(name, "uint get_PointCount()", asMETHODPR(T, getPointCount, () const, unsigned int), asCALL_THISCALL); assert(r >= 0);
+    r = eng->RegisterObjectMethod(name, "uint get_PointCount()", asMETHODPR(T, getPointCount, () const, size_t), asCALL_THISCALL); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "Texture@ GetTexture()", asFUNCTION(getTexture<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void SetTexture(Texture@,bool resetTextureRect=false)", asFUNCTION(setTextureReset<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
     r = eng->RegisterObjectMethod(name, "void set_TextureRect(Rect&in)", asFUNCTION(setTextureRect<T>), asCALL_CDECL_OBJLAST); assert(r >= 0);
